@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const productController = require('./api/controllers/products.controller.js');
 const mysql = require('mysql');
+const uuid = require('uuid');
 
 const databasePort = 3306;
 const db_connection = mysql.createConnection({
@@ -22,7 +23,7 @@ const port = 8000;
 app.use(express.json());
 app.get('/', (req, res) => {
     let result = {
-        message: 'Hello World'
+        message: 'Hello World',
     };
     res.send(JSON.stringify(result));
 });
@@ -33,7 +34,6 @@ app.get('/products', (req, res) => {
         //
         //NEED TO VERIFY IF THE ID IS A v4 UUID
         //
-        
         db_connection.query('SELECT * FROM products WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
             if (err) throw err;
             if (result.length > 0) {

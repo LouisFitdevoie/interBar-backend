@@ -1,29 +1,17 @@
-let productsTable = [
-  {
-    id: 0,
-    name: 'Jupiler',
-    category: 1,
-    deleted_at: null,
-  },
-  {
-    id: 1,
-    name: 'Leffe',
-    category: 1,
-    deleted_at: null
-  },
-  {
-    id: 2,
-    name: 'Stella',
-    category: 1,
-    deleted_at: null
-  },
-  {
-    id: 3,
-    name: 'Karmeliet',
-    category: 1,
-    deleted_at: null
+const uuid = require('uuid');
+
+class Product {
+  constructor(name, category, description) {
+    this.name = name;
+    this.category = category;
+    this.description = description;
   }
-];
+  id = uuid.v4();
+  name;
+  category;
+  description;
+  deleted_at = null;
+}
 
 exports.getAllProducts = (req, res) => {
   let products = productsTable.filter(p => p.deleted_at === null);
