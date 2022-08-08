@@ -104,8 +104,7 @@ exports.getProductByCategory = (req, res) => {
   }
 }
 
-exports.createProduct = (req, res) => {
-  console.log(req.body);
+exports.createProduct = async (req, res) => {
   if (req.body.name.length > 0 && req.body.category.length > 0) { //Verify that the name, category and description are not empty
     if (req.body.category === '0' || req.body.category === '1' || req.body.category === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
       let description;
@@ -117,12 +116,21 @@ exports.createProduct = (req, res) => {
       let newProduct = new Product(req.body.name, req.body.category, description);
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log('\n\n\nCreating product with name ' + newProduct.name);
-        connection.query('INSERT INTO products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)', [newProduct.id, newProduct.name, newProduct.category, newProduct.description, newProduct.deleted_at], (err, result) => {
-          connection.release();
+        connection.query('SELECT * FROM products WHERE name = ? AND deleted_at IS null', [newProduct.name], (err, result) => {
           if (err) throw err;
-          console.log('\n\n\nProduct created\n\n\n');
-          res.send(result);
+          if (result.length > 0) {
+            connection.release();
+            console.log('Product already exists');
+            res.status(400).send({ 'error': 'Product already exists' });
+          } else {
+            console.log('\n\n\nCreating product with name ' + newProduct.name);
+            connection.query('INSERT INTO products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)', [newProduct.id, newProduct.name, newProduct.category, newProduct.description, newProduct.deleted_at], (err, result) => {
+              connection.release();
+              if (err) throw err;
+              console.log('\n\n\nProduct created\n\n\n');
+              res.send(result);
+            });
+          }
         });
       });
     } else {
