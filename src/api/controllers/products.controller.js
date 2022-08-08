@@ -1,14 +1,8 @@
 const uuid = require('uuid');
 const mysql = require('mysql');
 
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'test123*',
-  database: 'interbar',
-  port: 3306,
-  connectionLimit: 50
-});
+const database = require('../../database.js');
+const pool = database.pool;
 
 class Product {
   constructor(name, category, description) {
