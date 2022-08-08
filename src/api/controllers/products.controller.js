@@ -161,7 +161,7 @@ exports.deleteProduct = (req, res) => {
           });
         }
       });
-    })
+    });
   } else {
     res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
   }
