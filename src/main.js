@@ -4,7 +4,7 @@ const productController = require('./api/controllers/products.controller.js');
 const mysql = require('mysql');
 
 const databasePort = 3306;
-const con = mysql.createConnection({
+const db_connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'test123*',
@@ -12,7 +12,7 @@ const con = mysql.createConnection({
   port: databasePort
 });
 
-con.connect(function(err) {
+db_connection.connect(function(err) {
   if (err) throw err;
   console.log(`Connected to the database on port ${databasePort}!`);
 });
@@ -34,7 +34,7 @@ app.get('/products', (req, res) => {
         //NEED TO VERIFY IF THE ID IS A v4 UUID
         //
         
-        con.query('SELECT * FROM products WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
+        db_connection.query('SELECT * FROM products WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               console.log('\n\n\nNumber of products found: ' + result.length + '\n\n\n');
@@ -50,7 +50,7 @@ app.get('/products', (req, res) => {
     } else if (req.query.name) {
       //
       //NEED TO VERIFY THE NAME
-        con.query('SELECT * FROM products WHERE name LIKE ? AND deleted_at IS null', '%' + req.query.name + '%', function (err, result) {
+        db_connection.query('SELECT * FROM products WHERE name LIKE ? AND deleted_at IS null', '%' + req.query.name + '%', function (err, result) {
           if (err) throw err;
           if (result.length > 0) {
             console.log('\n\n\nNumber of products found: ' + result.length + '\n\n\n');
@@ -65,7 +65,7 @@ app.get('/products', (req, res) => {
         //Verify if category is 0, 1 or 2 -> if not, return 404
         if (req.query.category === '0' || req.query.category === '1' || req.query.category === '2') {
           //Return all products for the category and that are not deleted
-          con.query('SELECT * FROM products WHERE category = ? AND deleted_at IS null', [req.query.category], (err, result) => {
+          db_connection.query('SELECT * FROM products WHERE category = ? AND deleted_at IS null', [req.query.category], (err, result) => {
               if (err) throw err;
               if (result.length > 0) {
                 console.log('\n\n\nNumber of products found: ' + result.length + '\n\n\n');
@@ -82,7 +82,7 @@ app.get('/products', (req, res) => {
         res.status(404).send({ 'error': 'No category was specified in the request' });
       }
     } else {
-        con.query('SELECT * FROM products WHERE deleted_at IS null', function (err, result) {
+        db_connection.query('SELECT * FROM products WHERE deleted_at IS null', function (err, result) {
             if (err) throw err;
             res.send(result);
         });
