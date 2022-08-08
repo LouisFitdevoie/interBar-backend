@@ -1,6 +1,4 @@
 const uuid = require('uuid');
-const mysql = require('mysql');
-
 const database = require('../../database.js');
 const pool = database.pool;
 

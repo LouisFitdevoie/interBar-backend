@@ -4,11 +4,11 @@ INSERT INTO `products` (`id`, `name`, `category`) VALUES ('71f9a812-6680-4288-9b
 INSERT INTO `products` (`id`, `name`, `category`) VALUES ('eaa40420-861d-4876-91ac-c2a7f8e50f99', 'jupiler', '1');
 INSERT INTO `products` (`id`, `name`, `category`, `deleted_at`) VALUES ('c77d09a7-0a93-4ed1-8028-49d8e88659d7', 'eau', '2', '2020-01-01 00:00:00');
 
-INSERT INTO `events` (`id`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('f25c672f-5d36-4d1e-970b-223f3259884d', '2022-08-06', '2022-08-06', 'ici', 'premier event', '2022-08-07 15:02:23');
-INSERT INTO `events` (`id`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('18936755-3748-48f2-9246-1a75297e885c', '2022-08-06', '2022-08-06', 'ici', 'deuxième event', '2022-08-07 15:02:23');
-INSERT INTO `events` (`id`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('6d708007-5058-4ab4-8f2d-23acfdd1891c', '2022-08-06', '2022-08-06', 'ici', 'troisième event', '2022-08-07 15:02:23');
-INSERT INTO `events` (`id`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('b24040d2-6511-4767-bfd9-dc60ab562bbc', '2022-08-06', '2022-08-06', 'ici', 'quatrième event', '2022-08-07 15:02:23');
-INSERT INTO `events` (`id`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('e0433805-0763-4765-bcb2-03210b111ad2', '2022-08-06', '2022-08-06', 'ici', 'cinquième event', '2022-08-07 15:02:23');
+INSERT INTO `events` (`id`, `name`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('f25c672f-5d36-4d1e-970b-223f3259884d', 'Evenement 1', '2022-08-06', '2022-08-06', 'ici', 'premier event', '2022-08-07 15:02:23');
+INSERT INTO `events` (`id`, `name`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('18936755-3748-48f2-9246-1a75297e885c', 'Evenement 2', '2022-08-06', '2022-08-06', 'ici', 'deuxième event', '2022-08-07 15:02:23');
+INSERT INTO `events` (`id`, `name`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('6d708007-5058-4ab4-8f2d-23acfdd1891c', 'Evenement 3', '2022-08-06', '2022-08-06', 'ici', 'troisième event', '2022-08-07 15:02:23');
+INSERT INTO `events` (`id`, `name`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('b24040d2-6511-4767-bfd9-dc60ab562bbc', 'Evenement 4', '2022-08-06', '2022-08-06', 'ici', 'quatrième event', '2022-08-07 15:02:23');
+INSERT INTO `events` (`id`, `name`, `startdate`, `enddate`, `location`, `description`, `created_at`) VALUES ('e0433805-0763-4765-bcb2-03210b111ad2', 'Evenement 5', '2022-08-06', '2022-08-06', 'ici', 'cinquième event', '2022-08-07 15:02:23');
 
 INSERT INTO `events_products` (`id`, `event_id`, `product_id`, `stock`, `buyingprice`, `sellingprice`) VALUES ('8967b2b6-5426-4960-a4b7-2b2de0c526ae', 'f25c672f-5d36-4d1e-970b-223f3259884d', '08942e0f-1daa-4c42-9ab5-59ceeda2d62c', '100', 1.5, 2.5);
 INSERT INTO `events_products` (`id`, `event_id`, `product_id`, `stock`, `buyingprice`, `sellingprice`) VALUES ('9f25b74b-d263-4b58-9f8a-3c7295266a30', 'f25c672f-5d36-4d1e-970b-223f3259884d', '71f9a812-6680-4288-9b95-ac4f5e8c4e5d', '300', 1.5, 2.5);
@@ -42,11 +42,11 @@ INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `password`) 
 INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `password`) VALUES ('9bb0dd2c-eaa5-463e-81b7-3641e64d8e61', 'aucun@test.lan', 'aucun', 'test', 'Test123*');
 INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `password`) VALUES ('c308eb69-42c7-4392-b52c-181fa471f1af', 'personne@test.lan', 'personne', 'test', 'Test123*');
 
-INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('e85f7e70-e54e-4a0e-8334-0d584e7dcf25', 'bc31b102-1d30-407c-949a-435ad895a51', 'f25c672f-5d36-4d1e-970b-223f3259884d', '0');
-INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('884694b1-4cf4-441c-95d9-017be3c5bc94', 'bc31b102-1d30-407c-949a-435ad895a51', '18936755-3748-48f2-9246-1a75297e885c', '0');
-INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('7c88b5e6-10f8-46d1-9658-120d1a7d2722', 'bc31b102-1d30-407c-949a-435ad895a51', '6d708007-5058-4ab4-8f2d-23acfdd1891c', '0');
-INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('657ebfb9-27e6-4871-8ec4-73f012f864e8', 'bc31b102-1d30-407c-949a-435ad895a51', 'b24040d2-6511-4767-bfd9-dc60ab562bbc', '1');
-INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('62836df5-881d-45e8-9110-31acc1cd2ca9', 'bc31b102-1d30-407c-949a-435ad895a51', 'e0433805-0763-4765-bcb2-03210b111ad2', '2');
+INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('e85f7e70-e54e-4a0e-8334-0d584e7dcf25', 'bc31b102-1d30-407c-949a-435ad895a512', 'f25c672f-5d36-4d1e-970b-223f3259884d', '0');
+INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('884694b1-4cf4-441c-95d9-017be3c5bc94', 'bc31b102-1d30-407c-949a-435ad895a512', '18936755-3748-48f2-9246-1a75297e885c', '0');
+INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('7c88b5e6-10f8-46d1-9658-120d1a7d2722', 'bc31b102-1d30-407c-949a-435ad895a512', '6d708007-5058-4ab4-8f2d-23acfdd1891c', '0');
+INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('657ebfb9-27e6-4871-8ec4-73f012f864e8', 'bc31b102-1d30-407c-949a-435ad895a512', 'b24040d2-6511-4767-bfd9-dc60ab562bbc', '1');
+INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('62836df5-881d-45e8-9110-31acc1cd2ca9', 'bc31b102-1d30-407c-949a-435ad895a512', 'e0433805-0763-4765-bcb2-03210b111ad2', '2');
 INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('7beac58f-b888-412c-ba2e-86f5a816ab4a', '738c308c-1595-4df8-b303-5bbdc07c0da6', 'f25c672f-5d36-4d1e-970b-223f3259884d', '2');
 INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('bc0a9eac-be3f-4167-b399-5570c1b47031', '738c308c-1595-4df8-b303-5bbdc07c0da6', '18936755-3748-48f2-9246-1a75297e885c', '0');
 INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('fa1df38f-a22e-4be1-9583-393ef8da610d', '738c308c-1595-4df8-b303-5bbdc07c0da6', '6d708007-5058-4ab4-8f2d-23acfdd1891c', '0');
