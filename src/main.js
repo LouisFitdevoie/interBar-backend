@@ -66,7 +66,7 @@ app.get('/events', (req, res) => {
   } else if (req.query.name) {
     eventController.getEventByName(req, res);
   } else if (req.query.startDate && req.query.endDate) {
-    eventController.getEventsByDate(req, res);
+    eventController.getEventBetweenDates(req, res);
   } else {
     eventController.getAllEvents(req, res);
   }
