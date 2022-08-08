@@ -104,8 +104,8 @@ exports.getProductByCategory = (req, res) => {
   }
 }
 
-exports.createProduct = async (req, res) => {
-  if (req.body.name.length > 0 && req.body.category.length > 0) { //Verify that the name, category and description are not empty
+exports.createProduct = (req, res) => {
+  if (req.body.name.length > 0 && req.body.category.length > 0) { //Verify that the name and category are not empty
     if (req.body.category === '0' || req.body.category === '1' || req.body.category === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
       let description;
       if (req.body.description.length > 0) { //Verify that the description is not empty
@@ -138,5 +138,31 @@ exports.createProduct = async (req, res) => {
     }
   } else {
     res.status(404).send({ 'error': 'Name, category and description must be specified in the request' });
+  }
+}
+
+exports.deleteProduct = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT * FROM products WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length != 1) {
+          connection.release();
+          console.log('Product with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Product with id ' + req.params.id + ' does not exist' });
+        } else {
+          console.log('\n\n\nDeleting product with id ' + req.params.id);
+          connection.query('UPDATE products SET deleted_at = NOW() WHERE id = ?', [req.params.id], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            console.log('\n\n\nProduct deleted\n\n\n');
+            res.status(200).send({ 'message': 'Product deleted', 'result': result });
+          });
+        }
+      });
+    })
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
   }
 }

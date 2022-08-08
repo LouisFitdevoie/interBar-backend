@@ -47,3 +47,7 @@ app.get('/products', (req, res) => {
 app.post('/products', (req, res) => {
   productController.createProduct(req, res);
 });
+
+app.put('/delete-product/:id', (req, res) => {
+  productController.deleteProduct(req, res);
+});
