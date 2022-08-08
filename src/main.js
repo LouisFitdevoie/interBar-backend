@@ -43,3 +43,7 @@ app.get('/products', (req, res) => {
       productController.getAllProducts(req, res);
   }
 });
+
+app.post('/products', (req, res) => {
+  productController.createProduct(req, res);
+});

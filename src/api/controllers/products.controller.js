@@ -103,3 +103,32 @@ exports.getProductByCategory = (req, res) => {
     res.status(404).send({ 'error': 'No category was specified in the request' });
   }
 }
+
+exports.createProduct = (req, res) => {
+  console.log(req.body);
+  if (req.body.name.length > 0 && req.body.category.length > 0) { //Verify that the name, category and description are not empty
+    if (req.body.category === '0' || req.body.category === '1' || req.body.category === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
+      let description;
+      if (req.body.description.length > 0) { //Verify that the description is not empty
+        description = req.body.description;
+      } else {
+        description = null;
+      }
+      let newProduct = new Product(req.body.name, req.body.category, description);
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log('\n\n\nCreating product with name ' + newProduct.name);
+        connection.query('INSERT INTO products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)', [newProduct.id, newProduct.name, newProduct.category, newProduct.description, newProduct.deleted_at], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          console.log('\n\n\nProduct created\n\n\n');
+          res.send(result);
+        });
+      });
+    } else {
+      res.status(404).send({ 'error': 'Category must be 0, 1 or 2' });
+    }
+  } else {
+    res.status(404).send({ 'error': 'Name, category and description must be specified in the request' });
+  }
+}
