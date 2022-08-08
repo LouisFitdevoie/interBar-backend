@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const productController = require('./api/controllers/products.controller.js');
+const eventController = require('./api/controllers/event.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -25,12 +26,17 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
+
 app.get('/', (req, res) => {
   let result = {
       message: 'Hello World',
   };
   res.send(JSON.stringify(result));
 });
+
+//#############################################################################
+// PRODUCTS
+//#############################################################################
 
 app.get('/products', (req, res) => {
   if (req.query.id) {
@@ -43,11 +49,25 @@ app.get('/products', (req, res) => {
       productController.getAllProducts(req, res);
   }
 });
-
 app.post('/products', (req, res) => {
   productController.createProduct(req, res);
 });
-
 app.put('/delete-product/:id', (req, res) => {
   productController.deleteProduct(req, res);
+});
+
+//#############################################################################
+// EVENTS
+//#############################################################################
+
+app.get('/events', (req, res) => {
+  if (req.query.id) {
+    eventController.getEventById(req, res);
+  } else if (req.query.name) {
+    eventController.getEventByName(req, res);
+  } else if (req.query.startDate && req.query.endDate) {
+    eventController.getEventsByDate(req, res);
+  } else {
+    eventController.getAllEvents(req, res);
+  }
 });

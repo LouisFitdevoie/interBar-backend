@@ -19,7 +19,7 @@ exports.getAllProducts = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     //Return all products that are not deleted
-    connection.query('SELECT * FROM products WHERE deleted_at IS null', function (err, result) {
+    connection.query('SELECT * FROM products WHERE deleted_at IS null', (err, result) => {
       connection.release();
       if (err) throw err;
       res.send(result);
