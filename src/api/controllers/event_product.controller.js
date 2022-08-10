@@ -38,7 +38,7 @@ exports.getAllEventProductsByEventId = (req, res) => {
       connection.query('SELECT * FROM events WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
         if (err) throw err;
         if (result.length > 0) {
-          connection.query('SELECT * FROM events_products WHERE event_id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
+          connection.query('SELECT * FROM events_products INNER JOIN products ON events_products.product_id = products.id WHERE events_products.event_id = ? AND events_products.deleted_at IS null ORDER BY products.name', [req.query.id], (err, result) => {
             connection.release();
             if (err) throw err;
             res.send(result);
