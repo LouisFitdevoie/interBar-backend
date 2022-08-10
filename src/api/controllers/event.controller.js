@@ -1,4 +1,3 @@
-const { reset } = require('nodemon');
 const uuid = require('uuid');
 const database = require('../../database.js');
 const isAfter = require('date-fns/isAfter');
