@@ -246,3 +246,24 @@ exports.createEventProduct = (req, res) => {
     res.status(400).send({ 'error': 'The id specified for the event is not a valid id'});
   }
 }
+
+exports.deleteEventProduct = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT id FROM events_products WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          connection.query('UPDATE events_products SET deleted_at = NOW() WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            res.send(result);
+        });
+        } else {
+          connection.release();
+          res.status(404).send({ 'error': 'No event product was found with the id ' + req.params.id });
+        }
+      });
+    });
+  }
+}

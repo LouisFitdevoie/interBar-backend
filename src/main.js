@@ -115,3 +115,6 @@ app.get('/event-products-infos', (req, res) => {
 app.post('/create-event-product', (req, res) => {
   eventProductController.createEventProduct(req, res);
 });
+app.put('/delete-event-product/:id', (req, res) => {
+  eventProductController.deleteEventProduct(req, res);
+});
