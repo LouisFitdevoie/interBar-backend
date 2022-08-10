@@ -97,15 +97,15 @@ exports.getProductByCategory = (req, res) => {
 }
 
 exports.createProduct = (req, res) => {
-  if (req.body.name.length > 0 && req.body.category.length > 0) { //Verify that the name and category are not empty
+  if (req.body.name.trim().length > 0 && req.body.category.length > 0) { //Verify that the name and category are not empty
     if (req.body.category === '0' || req.body.category === '1' || req.body.category === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
       let description;
-      if (req.body.description.length > 0) { //Verify that the description is not empty
-        description = req.body.description;
+      if (req.body.description.trim().length > 0) { //Verify that the description is not empty
+        description = req.body.description.trim();
       } else {
         description = null;
       }
-      let newProduct = new Product(req.body.name, req.body.category, description);
+      let newProduct = new Product(req.body.name.trim(), req.body.category, description);
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query('SELECT * FROM products WHERE name = ? AND deleted_at IS null', [newProduct.name], (err, result) => {

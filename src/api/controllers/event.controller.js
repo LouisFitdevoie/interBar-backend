@@ -184,14 +184,30 @@ exports.getPastEvents = (req, res) => {
 }
 
 exports.createEvent = (req, res) => {
-  console.log('Verifying data for event creation is complete');
+  console.log('Verifying data for event creation');
   if (isAfter(new Date(req.body.startDate), new Date())) {
     if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
       if (req.body.name.trim().length > 0) {
         if (req.body.location.trim().length > 0) {
           let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null);
-          console.log('Event to create: ' + JSON.stringify(eventToCreate));
-          res.send(eventToCreate);
+          pool.getConnection((err, connection) => {
+            if (err) throw err;
+            connection.query('SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ?)', [eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location], (err, result) => {
+              if (err) throw err;
+              if (result.length > 0) {
+                connection.release();
+                console.log('Event already exists');
+                res.status(400).send({ 'error': 'Event already exists' });
+              } else {
+                connection.query('INSERT INTO events (id, name, startDate, endDate, location, description, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [eventToCreate.id, eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location, eventToCreate.description, eventToCreate.created_at, eventToCreate.deleted_at], (err, result) => {
+                  connection.release();
+                  if (err) throw err;
+                  console.log('Event created');
+                  res.status(200).send({ 'success': 'Event created successfully'});
+                });
+              }
+            });
+          });
         } else {
           res.status(404).send({ 'error': 'No location specified' });
         }
