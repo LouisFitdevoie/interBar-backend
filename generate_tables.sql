@@ -43,7 +43,8 @@ CREATE TABLE `events_products` (
   `product_id` varchar(255) NOT NULL,
   `stock` int NOT NULL,
   `buyingprice` float NOT NULL,
-  `sellingprice` float NOT NULL
+  `sellingprice` float NOT NULL,
+  `deleted_at` datetime DEFAULT null
 );
 
 CREATE TABLE `users_events` (
