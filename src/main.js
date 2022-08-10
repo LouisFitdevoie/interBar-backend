@@ -50,7 +50,7 @@ app.get('/productName', (req, res) => {
 app.get('/productCategory', (req, res) => {
   productController.getProductByCategory(req, res);
 });
-app.post('/products', (req, res) => {
+app.post('/create-product', (req, res) => {
   productController.createProduct(req, res);
 });
 app.put('/delete-product/:id', (req, res) => {
@@ -82,7 +82,7 @@ app.get('/current-events', (req, res) => {
 app.get('/past-events', (req, res) => {
   eventController.getPastEvents(req, res);
 });
-app.post('/events', (req, res) => {
+app.post('/create-event', (req, res) => {
   eventController.createEvent(req, res);
 });
 app.put('/delete-event/:id', (req, res) => {
