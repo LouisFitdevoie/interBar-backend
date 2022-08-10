@@ -94,7 +94,7 @@ app.put('/delete-event/:id', (req, res) => {
 // EVENTS PRODUCTS
 //#############################################################################
 
-app.get('/events-products', (req, res) => {
+app.get('/event-products', (req, res) => {
   eventProductController.getAllEventProducts(req, res);
 });
 app.get('/event-products-by-event-id', (req, res) => {
@@ -111,4 +111,4 @@ app.get('/event-product-selling-price', (req, res) => {
 });
 app.get('/event-products-infos', (req, res) => {
   eventProductController.getProductEventInfos(req, res);
-})
+});

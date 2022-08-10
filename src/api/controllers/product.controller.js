@@ -54,8 +54,8 @@ exports.getProductByName = (req, res) => {
   //
   //NEED TO VERIFY THE NAME
   pool.getConnection((err, connection) => {
-    console.log('Getting products with name ' + req.query.name);
-    connection.query('SELECT * FROM products WHERE name LIKE ? AND deleted_at IS null', '%' + req.query.name + '%', function (err, result) {
+    console.log('Getting products with name ' + req.query.name.trim());
+    connection.query('SELECT * FROM products WHERE name LIKE ? AND deleted_at IS null', '%' + req.query.name.trim() + '%', function (err, result) {
       connection.release();
       if (err) throw err;
       if (result.length > 0) {
@@ -63,20 +63,20 @@ exports.getProductByName = (req, res) => {
         res.send(result);
       } else {
         console.log('No products found');
-        res.status(404).send({ 'error': 'No products found for the name ' + req.query.name });
+        res.status(404).send({ 'error': 'No products found for the name ' + req.query.name.trim() });
       }
     });
   });
 }
 
 exports.getProductByCategory = (req, res) => {
-  if (req.query.category.length > 0) { //Verify that the category is not empty
-    if (parseInt(req.query.category) === 0 || parseInt(req.query.category) === 1 || parseInt(req.query.category) === 2) { //Verify if category is 0, 1 or 2 -> if not, return 404
+  if (req.query.category.trim().length > 0) { //Verify that the category is not empty
+    if (parseInt(req.query.category.trim()) === 0 || parseInt(req.query.category.trim()) === 1 || parseInt(req.query.category.trim()) === 2) { //Verify if category is 0, 1 or 2 -> if not, return 404
       pool.getConnection((err, connection) => {
         if (err) throw err;
         //Return all products for the category and that are not deleted
-        console.log('Getting products with category ' + req.query.category);
-        connection.query('SELECT * FROM products WHERE category = ? AND deleted_at IS null', [req.query.category], (err, result) => {
+        console.log('Getting products with category ' + req.query.category.trim());
+        connection.query('SELECT * FROM products WHERE category = ? AND deleted_at IS null', [req.query.category.trim()], (err, result) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
@@ -84,7 +84,7 @@ exports.getProductByCategory = (req, res) => {
             res.send(result);
           } else {
             console.log('No products found');
-            res.status(404).send({ 'error': 'No products found for the category ' + req.query.category });
+            res.status(404).send({ 'error': 'No products found for the category ' + req.query.category.trim() });
           }
         });
       });
@@ -97,8 +97,8 @@ exports.getProductByCategory = (req, res) => {
 }
 
 exports.createProduct = (req, res) => {
-  if (req.body.name.trim().length > 0 && req.body.category.length > 0) { //Verify that the name and category are not empty
-    if (req.body.category === '0' || req.body.category === '1' || req.body.category === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
+  if (req.body.name.trim().length > 0 && req.body.category.trim().length > 0) { //Verify that the name and category are not empty
+    if (req.body.category.trim() === '0' || req.body.category.trim() === '1' || req.body.category.trim() === '2') { //Verify if category is 0, 1 or 2 -> if not, return 404
       let description;
       if (req.body.description.trim().length > 0) { //Verify that the description is not empty
         description = req.body.description.trim();

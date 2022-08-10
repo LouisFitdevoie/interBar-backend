@@ -60,8 +60,8 @@ exports.getEventByName = (req, res) => {
   //
   //NEED TO VERIFY THE NAME
   pool.getConnection((err, connection) => {
-    console.log('Getting events with name ' + req.query.name);
-    connection.query('SELECT * FROM events WHERE name LIKE ? AND deleted_at IS null ORDER BY startDate', '%' + req.query.name + '%', function (err, result) {
+    console.log('Getting events with name ' + req.query.name.trim());
+    connection.query('SELECT * FROM events WHERE name LIKE ? AND deleted_at IS null ORDER BY startDate', '%' + req.query.name.trim() + '%', function (err, result) {
       connection.release();
       if (err) throw err;
       if (result.length > 0) {
@@ -69,15 +69,15 @@ exports.getEventByName = (req, res) => {
         res.send(result);
       } else {
         console.log('No events found');
-        res.status(404).send({ 'error': 'No events found for the name ' + req.query.name });
+        res.status(404).send({ 'error': 'No events found for the name ' + req.query.name.trim() });
       }
     });
   });
 }
 
 exports.getEventBetweenDates = (req, res) => {
-  let startDate = req.query.startDate;
-  let endDate = req.query.endDate;
+  let startDate = req.query.startDate.trim();
+  let endDate = req.query.endDate.trim();
   if (startDate > endDate) {
     console.log('Start date is after end date');
     res.status(400).send({ 'error': 'Start date is after end date' });
