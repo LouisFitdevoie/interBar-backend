@@ -149,7 +149,7 @@ exports.deleteProduct = (req, res) => {
             connection.release();
             if (err) throw err;
             console.log('Product deleted');
-            res.status(200).send({ 'message': 'Product deleted', 'result': result });
+            res.status(200).send({ 'success': 'Product deleted successfully', 'result': result });
           });
         }
       });
