@@ -82,3 +82,6 @@ app.get('/current-events', (req, res) => {
 app.get('/past-events', (req, res) => {
   eventController.getPastEvents(req, res);
 });
+app.post('/events', (req, res) => {
+  eventController.createEvent(req, res);
+});

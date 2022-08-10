@@ -1,5 +1,8 @@
+const { reset } = require('nodemon');
 const uuid = require('uuid');
 const database = require('../../database.js');
+const isAfter = require('date-fns/isAfter');
+
 const pool = database.pool;
 
 class Event {
@@ -178,4 +181,27 @@ exports.getPastEvents = (req, res) => {
       }
     });
   });
+}
+
+exports.createEvent = (req, res) => {
+  console.log('Verifying data for event creation is complete');
+  if (isAfter(new Date(req.body.startDate), new Date())) {
+    if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
+      if (req.body.name.trim().length > 0) {
+        if (req.body.location.trim().length > 0) {
+          let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null);
+          console.log('Event to create: ' + JSON.stringify(eventToCreate));
+          res.send(eventToCreate);
+        } else {
+          res.status(404).send({ 'error': 'No location specified' });
+        }
+      } else {
+        res.status(404).send({ 'error': 'Name is required' });
+      }
+    } else {
+      res.status(404).send({ 'error': 'End date is before start date' });
+    }
+  } else {
+    res.status(404).send({ 'error': 'Start date is before current date' });
+  }
 }
