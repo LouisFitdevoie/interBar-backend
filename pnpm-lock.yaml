@@ -1,12 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
+  date-fns: ^2.29.1
   express: ^4.17.3
   mysql: ^2.18.1
   nodemon: ^2.0.15
   uuid: ^8.3.2
 
 dependencies:
+  date-fns: 2.29.1
   express: 4.17.3
   mysql: 2.18.1
   nodemon: 2.0.15
@@ -259,6 +261,11 @@ packages:
   /crypto-random-string/2.0.0:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
+    dev: false
+
+  /date-fns/2.29.1:
+    resolution: {integrity: sha512-dlLD5rKaKxpFdnjrs+5azHDFOPEu4ANy/LTh04A1DTzMM7qoajmKCBc8pkKRFT41CNzw+4gQh79X5C+Jq27HAw==}
+    engines: {node: '>=0.11'}
     dev: false
 
   /debug/2.6.9:

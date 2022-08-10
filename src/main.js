@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const productController = require('./api/controllers/products.controller.js');
+const eventController = require('./api/controllers/event.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -25,6 +26,7 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
+
 app.get('/', (req, res) => {
   let result = {
       message: 'Hello World',
@@ -32,22 +34,57 @@ app.get('/', (req, res) => {
   res.send(JSON.stringify(result));
 });
 
-app.get('/products', (req, res) => {
-  if (req.query.id) {
-    productController.getProductById(req, res);
-  } else if (req.query.name) {
-    productController.getProductByName(req, res);
-  } else if (req.query.category) {
-    productController.getProductByCategory(req, res);
-  } else {
-      productController.getAllProducts(req, res);
-  }
-});
+//#############################################################################
+// PRODUCTS
+//#############################################################################
 
-app.post('/products', (req, res) => {
+app.get('/products', (req, res) => {
+  productController.getAllProducts(req, res);
+});
+app.get('/productId', (req, res) => {
+  productController.getProductById(req, res);
+});
+app.get('/productName', (req, res) => {
+  productController.getProductByName(req, res);
+});
+app.get('/productCategory', (req, res) => {
+  productController.getProductByCategory(req, res);
+});
+app.post('/create-product', (req, res) => {
   productController.createProduct(req, res);
 });
-
 app.put('/delete-product/:id', (req, res) => {
   productController.deleteProduct(req, res);
+});
+
+//#############################################################################
+// EVENTS
+//#############################################################################
+
+app.get('/events', (req, res) => {
+  eventController.getAllEvents(req, res);
+});
+app.get('/eventId', (req, res) => {
+  eventController.getEventById(req, res);
+});
+app.get('/eventName', (req, res) => {
+  eventController.getEventByName(req, res);
+});
+app.get('/eventBetweenDates', (req, res) => {
+  eventController.getEventBetweenDates(req, res);
+});
+app.get('/future-events', (req, res) => {
+  eventController.getFutureEvents(req, res);
+});
+app.get('/current-events', (req, res) => {
+  eventController.getCurrentEvents(req, res);
+});
+app.get('/past-events', (req, res) => {
+  eventController.getPastEvents(req, res);
+});
+app.post('/create-event', (req, res) => {
+  eventController.createEvent(req, res);
+});
+app.put('/delete-event/:id', (req, res) => {
+  eventController.deleteEvent(req, res);
 });

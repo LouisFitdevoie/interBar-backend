@@ -9,6 +9,7 @@ CREATE TABLE `users` (
 
 CREATE TABLE `events` (
   `id` varchar(255) PRIMARY KEY,
+  `name` varchar(255) NOT NULL,
   `startdate` datetime NOT NULL,
   `enddate` datetime NOT NULL,
   `location` varchar(255) NOT NULL,
