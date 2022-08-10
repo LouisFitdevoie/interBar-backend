@@ -98,7 +98,7 @@ exports.getProductByCategory = (req, res) => {
 
 exports.createProduct = (req, res) => {
   if (req.body.name.trim().length > 0 && req.body.category.trim().length > 0) { //Verify that the name and category are not empty
-    if (req.body.category.trim() === '0' || req.body.category.trim() === '1
+    if (req.body.category.trim() === '0' || req.body.category.trim() === '1') {
       let description;
       if (req.body.description.trim().length > 0) { //Verify that the description is not empty
         description = req.body.description.trim();

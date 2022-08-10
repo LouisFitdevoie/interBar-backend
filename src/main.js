@@ -149,6 +149,7 @@ app.put('/update-event-product/:id', (req, res) => {
 //Update stock of event product after a sale
 app.put('/update-event-product-stock', (req, res) => {
   eventProductController.sellProduct(req, res);
+});
 
 //#############################################################################
 // USERS_EVENTS
