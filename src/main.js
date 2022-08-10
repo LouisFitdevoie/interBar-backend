@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const productController = require('./api/controllers/products.controller.js');
+const productController = require('./api/controllers/product.controller.js');
 const eventController = require('./api/controllers/event.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');

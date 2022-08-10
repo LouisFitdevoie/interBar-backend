@@ -50,7 +50,8 @@ CREATE TABLE `users_events` (
   `id` varchar(255) PRIMARY KEY,
   `user_id` varchar(255) NOT NULL,
   `event_id` varchar(255) NOT NULL,
-  `role` int COMMENT '0 = user, 1 = seller, 2 = organizer' NOT NULL
+  `role` int COMMENT '0 = user, 1 = seller, 2 = organizer' NOT NULL,
+  `left_event_at` datetime DEFAULT null
 );
 
 CREATE TABLE `events_products_commands` (
