@@ -85,3 +85,6 @@ app.get('/past-events', (req, res) => {
 app.post('/events', (req, res) => {
   eventController.createEvent(req, res);
 });
+app.put('/delete-event/:id', (req, res) => {
+  eventController.deleteEvent(req, res);
+});

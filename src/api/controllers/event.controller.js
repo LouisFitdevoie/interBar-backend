@@ -192,7 +192,7 @@ exports.createEvent = (req, res) => {
           let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null);
           pool.getConnection((err, connection) => {
             if (err) throw err;
-            connection.query('SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ?)', [eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location], (err, result) => {
+            connection.query('SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)', [eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location], (err, result) => {
               if (err) throw err;
               if (result.length > 0) {
                 connection.release();
@@ -219,5 +219,31 @@ exports.createEvent = (req, res) => {
     }
   } else {
     res.status(404).send({ 'error': 'Start date is before current date' });
+  }
+}
+
+exports.deleteEvent = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT * FROM events WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length != 1) {
+          connection.release();
+          console.log('Event with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' does not exist' });
+        } else {
+          console.log('Event product with id ' + req.params.id);
+          connection.query('UPDATE events SET deleted_at = NOW() WHERE id = ?', [req.params.id], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            console.log('Event deleted');
+            res.status(200).send({ 'success': 'Event deleted successfully', 'result': result });
+          });
+        }
+      });
+    });
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
   }
 }
