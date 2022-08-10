@@ -344,3 +344,47 @@ exports.editEventProduct = (req, res) => {
     res.status(400).send({ 'error': 'The id specified is not a valid id'});
   }
 }
+exports.sellProduct = (req, res) => {
+  if (uuid.validate(req.query.eventId)) {
+    if (uuid.validate(req.query.productId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [req.query.eventId], (err, result) => {
+          if (err) throw err;
+          if (result.length === 1) {
+            connection.query('SELECT id FROM products WHERE id = ? AND deleted_at IS null', [req.query.productId], (err, result) => {
+              if (err) throw err;
+              if (result.length === 1) {
+                connection.query('SELECT stock FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.query.eventId, req.query.productId], (err, result) => {
+                  if (err) throw err;
+                  if (result.length === 1) {
+                    if (result[0].stock - req.body.quantity >= 0) {
+                      connection.query('UPDATE events_products SET stock = stock - ? WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.body.quantity, req.query.eventId, req.query.productId], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        res.send(result);
+                      });
+                    } else {
+                      connection.release();
+                      res.status(400).send({ 'error': 'The stock is not enough to sell ' + req.body.quantity + ' products'});
+                    }
+                  }
+                })
+              } else {
+                connection.release();
+                res.status(404).send({ 'error': 'No product was found with the id ' + req.query.productId });
+              }
+            });
+          } else {
+            connection.release();
+            res.status(404).send({ 'error': 'No event was found with the id ' + req.query.eventId });
+          }
+        })
+      })
+    } else {
+      res.status(400).send({ 'error': 'The id specified for the product is not a valid id'});
+    }
+  } else {
+    res.status(400).send({ 'error': 'The id specified for the event is not a valid id'});
+  }
+}

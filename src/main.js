@@ -121,3 +121,6 @@ app.put('/delete-event-product/:id', (req, res) => {
 app.put('/update-event-product/:id', (req, res) => {
   eventProductController.editEventProduct(req, res);
 });
+app.put('/update-event-product-stock', (req, res) => {
+  eventProductController.sellProduct(req, res);
+});
