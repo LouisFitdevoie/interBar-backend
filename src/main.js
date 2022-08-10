@@ -109,3 +109,6 @@ app.get('/event-product-buying-price', (req, res) => {
 app.get('/event-product-selling-price', (req, res) => {
   eventProductController.getProductEventSellingPrice(req, res);
 });
+app.get('/event-products-infos', (req, res) => {
+  eventProductController.getProductEventInfos(req, res);
+})
