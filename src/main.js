@@ -112,3 +112,6 @@ app.get('/event-product-selling-price', (req, res) => {
 app.get('/event-products-infos', (req, res) => {
   eventProductController.getProductEventInfos(req, res);
 });
+app.post('/create-event-product', (req, res) => {
+  eventProductController.createEventProduct(req, res);
+});

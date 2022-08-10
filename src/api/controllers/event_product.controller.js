@@ -190,3 +190,59 @@ exports.getProductEventInfos = (req, res) => {
     res.status(400).send({ 'error': 'The id specified for the event is not a valid id'});
   }
 }
+
+exports.createEventProduct = (req, res) => {
+  if (uuid.validate(req.body.event_id)) {
+    if (uuid.validate(req.body.product_id)) {
+      if (parseInt(req.body.stock) > 0) {
+        if (parseFloat(req.body.buyingPrice) >= 0.0) {
+          if (parseFloat(req.body.sellingPrice) >= 0.0) {
+            let eventProductToCreate = new EventProduct(req.body.event_id, req.body.product_id, req.body.stock, req.body.buyingPrice, req.body.sellingPrice);
+            pool.getConnection((err, connection) => {
+              if (err) throw err;
+              connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [eventProductToCreate.event_id], (err, result) => {
+                if (err) throw err;
+                if (result.length === 1) {
+                  connection.query('SELECT id FROM products WHERE id = ? AND deleted_at IS null', [eventProductToCreate.product_id], (err, result) => {
+                    if (err) throw err;
+                    if (result.length === 1) {
+                      connection.query('SELECT id FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [eventProductToCreate.event_id, eventProductToCreate.product_id], (err, result) => {
+                        if (err) throw err;
+                        if (result.length === 0) {
+                          connection.query('INSERT INTO events_products (id, event_id, product_id, stock, buyingPrice, sellingPrice, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [eventProductToCreate.id, eventProductToCreate.event_id, eventProductToCreate.product_id, eventProductToCreate.stock, eventProductToCreate.buyingPrice, eventProductToCreate.sellingPrice, eventProductToCreate.deleted_at], (err, result) => {
+                            connection.release();
+                            if (err) throw err;
+                            res.send(result);
+                          });
+                        } else {
+                          connection.release();
+                          res.status(409).send({ 'error': 'The product is already in the event'});
+                        }
+                      });
+                    } else {
+                      connection.release();
+                      res.status(404).send({ 'error': 'No product was found with the id ' + eventProductToCreate.product_id });
+                    }
+                  });
+                } else {
+                  connection.release();
+                  res.status(404).send({ 'error': 'No event was found with the id ' + eventProductToCreate.event_id });
+                }
+              });
+            });
+          } else {
+            res.status(400).send({ 'error': 'The selling price must be a positive number'});
+          }
+        } else {
+          res.status(400).send({ 'error': 'The buying price must be a positive number'});
+        }
+      } else {
+        res.status(400).send({ 'error': 'The stock must be a positive number'});
+      }
+    } else {
+      res.status(400).send({ 'error': 'The id specified for the product is not a valid id'});
+    }
+  } else {
+    res.status(400).send({ 'error': 'The id specified for the event is not a valid id'});
+  }
+}
