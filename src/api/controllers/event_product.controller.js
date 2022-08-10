@@ -66,7 +66,7 @@ exports.getProductEventStock = (req, res) => {
             connection.query('SELECT * FROM products WHERE id = ? AND deleted_at IS null', [req.query.product_id], (err, result) => {
               if (err) throw err;
               if (result.length > 0) {
-                connection.query('SELECT stock FROM events_products WHERE (event_id = ? AND product_id = ? AND deleted_at IS null)', [req.query.event_id, req.query.product_id], (err, result) => {
+                connection.query('SELECT events_products.stock, products.name FROM events_products INNER JOIN products ON events_products.product_id=products.id WHERE (events_products.event_id = ? AND events_products.product_id = ? AND events_products.deleted_at IS null)', [req.query.event_id, req.query.product_id], (err, result) => {
                   connection.release();
                   if (err) throw err;
                   res.send(result);
