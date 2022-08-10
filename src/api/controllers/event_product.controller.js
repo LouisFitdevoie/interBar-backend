@@ -271,69 +271,92 @@ exports.deleteEventProduct = (req, res) => {
 }
 
 exports.editEventProduct = (req, res) => {
+  let now = new Date();
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      connection.query('SELECT stock, buyingPrice, sellingPrice FROM events_products WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+      connection.query('SELECT event_id FROM events_products WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
         if (err) throw err;
         if (result.length === 1) {
-          let dataToEdit = [
-            (parseInt(req.body.stock) != parseInt(result[0].stock)) ? true : false, 
-            (parseFloat(req.body.buyingPrice) != parseFloat(result[0].buyingPrice)) ? true : false, 
-            (parseFloat(req.body.sellingPrice) != parseFloat(result[0].sellingPrice)) ? true : false
-          ];
-          if (dataToEdit[0]) {
-            if (parseInt(req.body.stock) <= 0) {
-              connection.release();
-              res.status(400).send({ 'error': 'The stock must be a positive number'});
-            }
-          }
-          if (dataToEdit[1]) {
-            if (parseFloat(req.body.buyingPrice) < 0.0) {
-              connection.release();
-              res.status(400).send({ 'error': 'The buying price must be a positive number'});
-            }
-          }
-          if (dataToEdit[2]) {
-            if (parseFloat(req.body.sellingPrice) < 0.0) {
-              connection.release();
-              res.status(400).send({ 'error': 'The selling price must be a positive number'});
-            }
-          }
-          if (dataToEdit.includes(true)) {
-            let sql = 'UPDATE events_products SET ';
-            let arrayOfEdition = [];
-            if (dataToEdit[0]) {
-              arrayOfEdition.push(parseInt(req.body.stock));
-              if (dataToEdit[1] || dataToEdit[2]) {
-                sql += 'stock = ?, ';
+          let eventId = result[0].event_id;
+          connection.query('SELECT startDate FROM events WHERE id = ? AND deleted_at IS null', [eventId], (err, result) => {
+            if (err) throw err;
+            if (result.length === 1) {
+              if (now < result[0].startDate) {
+                connection.query('SELECT stock, buyingPrice, sellingPrice FROM events_products WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+                  if (err) throw err;
+                  if (result.length === 1) {
+                    let dataToEdit = [
+                      (parseInt(req.body.stock) != parseInt(result[0].stock)) ? true : false, 
+                      (parseFloat(req.body.buyingPrice) != parseFloat(result[0].buyingPrice)) ? true : false, 
+                      (parseFloat(req.body.sellingPrice) != parseFloat(result[0].sellingPrice)) ? true : false
+                    ];
+                    if (dataToEdit[0]) {
+                      if (parseInt(req.body.stock) <= 0) {
+                        connection.release();
+                        res.status(400).send({ 'error': 'The stock must be a positive number'});
+                      }
+                    }
+                    if (dataToEdit[1]) {
+                      if (parseFloat(req.body.buyingPrice) < 0.0) {
+                        connection.release();
+                        res.status(400).send({ 'error': 'The buying price must be a positive number'});
+                      }
+                    }
+                    if (dataToEdit[2]) {
+                      if (parseFloat(req.body.sellingPrice) < 0.0) {
+                        connection.release();
+                        res.status(400).send({ 'error': 'The selling price must be a positive number'});
+                      }
+                    }
+                    if (dataToEdit.includes(true)) {
+                      let sql = 'UPDATE events_products SET ';
+                      let arrayOfEdition = [];
+                      if (dataToEdit[0]) {
+                        arrayOfEdition.push(parseInt(req.body.stock));
+                        if (dataToEdit[1] || dataToEdit[2]) {
+                          sql += 'stock = ?, ';
+                        } else {
+                          sql += 'stock = ? ';
+                        }
+                      }
+                      if (dataToEdit[1]) {
+                        arrayOfEdition.push(parseFloat(req.body.buyingPrice));
+                        if (dataToEdit[2]) {
+                          sql += 'buyingPrice = ?, ';
+                        } else {
+                          sql += 'buyingPrice = ? ';
+                        }
+                      }
+                      if (dataToEdit[2]) {
+                        arrayOfEdition.push(parseFloat(req.body.sellingPrice));
+                        sql += 'sellingPrice = ? ';
+                      }
+                      sql += 'WHERE id = ? AND deleted_at IS null';
+                      arrayOfEdition.push(req.params.id);
+                      connection.query(sql, arrayOfEdition, (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        res.send(result);
+                      });
+                    } else {
+                      connection.release();
+                      res.status(400).send({ 'error': 'No data to edit'});
+                    }
+                  } else {
+                    connection.release();
+                    res.status(404).send({ 'error': 'No event product was found with the id ' + req.params.id });
+                  }
+                });
               } else {
-                sql += 'stock = ? ';
+                connection.release();
+                res.status(403).send({ 'error': 'The event is currently active or has ended'});
               }
-            }
-            if (dataToEdit[1]) {
-              arrayOfEdition.push(parseFloat(req.body.buyingPrice));
-              if (dataToEdit[2]) {
-                sql += 'buyingPrice = ?, ';
-              } else {
-                sql += 'buyingPrice = ? ';
-              }
-            }
-            if (dataToEdit[2]) {
-              arrayOfEdition.push(parseFloat(req.body.sellingPrice));
-              sql += 'sellingPrice = ? ';
-            }
-            sql += 'WHERE id = ? AND deleted_at IS null';
-            arrayOfEdition.push(req.params.id);
-            connection.query(sql, arrayOfEdition, (err, result) => {
+            } else {
               connection.release();
-              if (err) throw err;
-              res.send(result);
-            });
-          } else {
-            connection.release();
-            res.status(400).send({ 'error': 'No data to edit'});
-          }
+              res.status(404).send({ 'error': 'No event was found with the id ' + result[0].event_id });
+            }
+          });
         } else {
           connection.release();
           res.status(404).send({ 'error': 'No event product was found with the id ' + req.params.id });
@@ -345,36 +368,42 @@ exports.editEventProduct = (req, res) => {
   }
 }
 exports.sellProduct = (req, res) => {
+  let now = new Date();
   if (uuid.validate(req.query.eventId)) {
     if (uuid.validate(req.query.productId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [req.query.eventId], (err, result) => {
-          if (err) throw err;
-          if (result.length === 1) {
-            connection.query('SELECT id FROM products WHERE id = ? AND deleted_at IS null', [req.query.productId], (err, result) => {
-              if (err) throw err;
-              if (result.length === 1) {
-                connection.query('SELECT stock FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.query.eventId, req.query.productId], (err, result) => {
-                  if (err) throw err;
-                  if (result.length === 1) {
-                    if (result[0].stock - req.body.quantity >= 0) {
-                      connection.query('UPDATE events_products SET stock = stock - ? WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.body.quantity, req.query.eventId, req.query.productId], (err, result) => {
+          connection.query('SELECT id, startDate, endDate FROM events WHERE id = ? AND deleted_at IS null', [req.query.eventId], (err, result) => {
+            if (err) throw err;
+            if (result.length === 1) {
+              if (now > result[0].startDate && now < result[0].endDate) {
+              connection.query('SELECT id FROM products WHERE id = ? AND deleted_at IS null', [req.query.productId], (err, result) => {
+                if (err) throw err;
+                if (result.length === 1) {
+                  connection.query('SELECT stock FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.query.eventId, req.query.productId], (err, result) => {
+                    if (err) throw err;
+                    if (result.length === 1) {
+                      if (result[0].stock - req.body.quantity >= 0) {
+                        connection.query('UPDATE events_products SET stock = stock - ? WHERE event_id = ? AND product_id = ? AND deleted_at IS null', [req.body.quantity, req.query.eventId, req.query.productId], (err, result) => {
+                          connection.release();
+                          if (err) throw err;
+                          res.send(result);
+                        });
+                      } else {
                         connection.release();
-                        if (err) throw err;
-                        res.send(result);
-                      });
-                    } else {
-                      connection.release();
-                      res.status(400).send({ 'error': 'The stock is not enough to sell ' + req.body.quantity + ' products'});
+                        res.status(400).send({ 'error': 'The stock is not enough to sell ' + req.body.quantity + ' products'});
+                      }
                     }
-                  }
-                })
-              } else {
-                connection.release();
-                res.status(404).send({ 'error': 'No product was found with the id ' + req.query.productId });
-              }
-            });
+                  })
+                } else {
+                  connection.release();
+                  res.status(404).send({ 'error': 'No product was found with the id ' + req.query.productId });
+                }
+              });
+            } else {
+              connection.release();
+              res.status(403).send({ 'error': 'The event is not active'});
+            }
           } else {
             connection.release();
             res.status(404).send({ 'error': 'No event was found with the id ' + req.query.eventId });
