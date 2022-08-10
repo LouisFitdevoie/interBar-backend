@@ -100,3 +100,6 @@ app.get('/events-products', (req, res) => {
 app.get('/event-products-by-event-id', (req, res) => {
   eventProductController.getAllEventProductsByEventId(req, res);
 });
+app.get('/event-product-stock', (req, res) => {
+  eventProductController.getProductEventStock(req, res);
+});
