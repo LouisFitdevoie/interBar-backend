@@ -30,3 +30,26 @@ exports.getAllEventProducts = (req, res) => {
     });
   })
 }
+
+exports.getAllEventProductsByEventId = (req, res) => {
+  if (uuid.validate(req.query.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT * FROM events WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
+        if (result.length > 0) {
+          connection.query('SELECT * FROM events_products WHERE event_id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            res.send(result);
+          });
+        } else {
+          connection.release();
+          res.status(404).send({ 'error': 'No event was found with the id ' + req.query.id });
+        }
+      });
+      
+    })
+  } else {
+    res.status(400).send({ 'error': req.query.id + 'is not a valid id' });
+  }
+}

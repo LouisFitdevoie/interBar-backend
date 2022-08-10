@@ -97,3 +97,6 @@ app.put('/delete-event/:id', (req, res) => {
 app.get('/events-products', (req, res) => {
   eventProductController.getAllEventProducts(req, res);
 });
+app.get('/event-products-by-event-id', (req, res) => {
+  eventProductController.getAllEventProductsByEventId(req, res);
+});
