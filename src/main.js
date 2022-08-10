@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
-const productController = require('./api/controllers/products.controller.js');
+const productController = require('./api/controllers/product.controller.js');
 const eventController = require('./api/controllers/event.controller.js');
+const user_eventController = require('./api/controllers/user_event.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -87,4 +88,12 @@ app.post('/create-event', (req, res) => {
 });
 app.put('/delete-event/:id', (req, res) => {
   eventController.deleteEvent(req, res);
+});
+
+//#############################################################################
+// USERS_EVENTS
+//#############################################################################
+
+app.get('/users-events', (req, res) => {
+  user_eventController.getAllUsersEvents(req, res);
 });
