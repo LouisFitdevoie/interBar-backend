@@ -219,3 +219,111 @@ exports.quitEvent = (req, res) => {
     res.status(400).send({ 'error': req.body.eventId + ' is not a valid event id' });
   }
 }
+
+exports.userToSeller = (req, res) => {
+  if (uuid.validate(req.body.eventId)) {
+    if (uuid.validate(req.body.userId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('SELECT id FROM users WHERE id = ? AND deleted_at IS null', [req.body.userId], (err, result) => {
+          if (err) throw err;
+          if (result.length > 0) {
+            connection.query('SELECT id, seller_password FROM events WHERE id = ? AND deleted_at IS null', [req.body.eventId], (err, result) => {
+              if (err) throw err;
+              if (result.length > 0) {
+                if (req.body.sellerPassword.length > 0) {
+                  if (bcrypt.compareSync(req.body.sellerPassword, result[0].seller_password)) {
+                    connection.query('SELECT role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                      if (err) throw err;
+                      if (result.length > 0) {
+                        if (result[0].role === 0) { //User
+                          connection.query('UPDATE users_events SET role = 1 WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                            connection.release();
+                            if (err) throw err;
+                            console.log({ 'success': 'User to seller' });
+                            res.send(result);
+                          });
+                        } else {
+                          connection.release();
+                          res.status(400).send({ 'error': 'User has not the role user' });
+                        }
+                      } else {
+                        connection.release();
+                        res.status(400).send({ 'error': 'User not joined this event' });
+                      }
+                    });
+                  } else {
+                    connection.release();
+                    res.status(400).send({ 'error': 'Seller password incorrect' });
+                  }
+                } else {
+                  connection.release();
+                  res.status(400).send({ 'error': 'Seller password required' });
+                }
+              } else {
+                connection.release();
+                res.status(404).send({ 'error': 'Event not found' });
+              }
+            })
+          } else {
+            connection.release();
+            res.status(404).send({ 'error': 'User not found' });
+          }
+        });
+      });
+    } else {
+      res.status(400).send({ 'error': req.body.userId + ' is not a valid user id' });
+    }
+  } else {
+    res.status(400).send({ 'error': req.body.eventId + ' is not a valid event id' });
+  }
+}
+
+exports.sellerToUser = (req, res) => {
+  if (uuid.validate(req.body.eventId)) {
+    if (uuid.validate(req.body.userId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('SELECT id FROM users WHERE id = ? AND deleted_at IS null', [req.body.userId], (err, result) => {
+          if (err) throw err;
+          if (result.length > 0) {
+            connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [req.body.eventId], (err, result) => {
+              if (err) throw err;
+              if (result.length > 0) {
+                connection.query('SELECT role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                  if (err) throw err;
+                  if (result.length > 0) {
+                    if (result[0].role === 1) { //User
+                      connection.query('UPDATE users_events SET role = 0 WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log({ 'success': 'Seller to user' });
+                        res.send(result);
+                      });
+                    } else {
+                      connection.release();
+                      res.status(400).send({ 'error': 'User has not the role user' });
+                    }
+                  } else {
+                    connection.release();
+                    res.status(400).send({ 'error': 'User not joined this event' });
+                  }
+                });
+              } else {
+                connection.release();
+                res.status(404).send({ 'error': 'Event not found' });
+              }
+            })
+          } else {
+            connection.release();
+            res.status(404).send({ 'error': 'User not found' });
+          }
+        });
+      });
+    } else {
+      res.status(400).send({ 'error': req.body.userId + ' is not a valid user id' });
+    }
+  } else {
+    res.status(400).send({ 'error': req.body.eventId + ' is not a valid event id' });
+  }
+}

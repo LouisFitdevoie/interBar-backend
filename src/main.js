@@ -170,3 +170,9 @@ app.post('/user-join-event', (req, res) => {
 app.put('/quit-event', (req, res) => {
   user_eventController.quitEvent(req, res);
 });
+app.put('/user-to-seller', (req, res) => {
+  user_eventController.userToSeller(req, res);
+});
+app.put('/seller-to-user', (req, res) => {
+  user_eventController.sellerToUser(req, res);
+});
