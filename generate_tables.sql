@@ -1,6 +1,6 @@
 CREATE TABLE `users` (
   `id` varchar(255) PRIMARY KEY,
-  `emailaddress` varchar(255) UNIQUE NOT NULL,
+  `emailaddress` varchar(255) NOT NULL,
   `firstname` varchar(255) NOT NULL,
   `lastname` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
