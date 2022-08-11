@@ -10,6 +10,7 @@
   "author": "Louis Fitdevoie",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "date-fns": "^2.29.1",
     "express": "^4.17.3",
     "mysql": "^2.18.1",

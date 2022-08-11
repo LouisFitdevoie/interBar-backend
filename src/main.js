@@ -3,6 +3,7 @@ const app = express();
 const productController = require('./api/controllers/product.controller.js');
 const eventController = require('./api/controllers/event.controller.js');
 const eventProductController = require('./api/controllers/event_product.controller.js');
+const user_eventController = require('./api/controllers/user_event.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -148,4 +149,30 @@ app.put('/update-event-product/:id', (req, res) => {
 //Update stock of event product after a sale
 app.put('/update-event-product-stock', (req, res) => {
   eventProductController.sellProduct(req, res);
+});
+
+//#############################################################################
+// USERS_EVENTS
+//#############################################################################
+
+app.get('/users-events', (req, res) => {
+  user_eventController.getAllUsersEvents(req, res);
+});
+app.get('/users-for-event/:event_id', (req, res) => {
+  user_eventController.getAllUsersForEvent(req, res);
+});
+app.get('/user-role-for-event', (req, res) => {
+  user_eventController.getUserRoleForEvent(req, res);
+});
+app.post('/user-join-event', (req, res) => {
+  user_eventController.userJoinEvent(req, res);
+});
+app.put('/quit-event', (req, res) => {
+  user_eventController.quitEvent(req, res);
+});
+app.put('/user-to-seller', (req, res) => {
+  user_eventController.userToSeller(req, res);
+});
+app.put('/seller-to-user', (req, res) => {
+  user_eventController.sellerToUser(req, res);
 });
