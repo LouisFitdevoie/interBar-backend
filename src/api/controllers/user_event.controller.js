@@ -160,3 +160,47 @@ exports.userJoinEvent = (req, res) => {
     res.status(400).send({ 'error': req.body.eventId + ' is not a valid event id' });
   }
 }
+
+exports.quitEvent = (req, res) => {
+  if (uuid.validate(req.body.eventId)) {
+    if (uuid.validate(req.body.userId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('SELECT id FROM users WHERE id = ? AND deleted_at IS null', [req.body.userId], (err, result) => {
+          if (err) throw err;
+          if (result.length > 0) {
+            connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [req.body.eventId], (err, result) => {
+              if (err) throw err;
+              if (result.length > 0) {
+                connection.query('SELECT id FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                  if (err) throw err;
+                  if (result.length > 0) {
+                    connection.query('UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                      connection.release();
+                      if (err) throw err;
+                      console.log({ 'success': 'User quit event' });
+                      res.send(result);
+                    });
+                  } else {
+                    connection.release();
+                    res.status(400).send({ 'error': 'User not joined this event' });
+                  }
+                })
+              } else {
+                connection.release();
+                res.status(404).send({ 'error': 'Event not found' });
+              }
+            });
+          } else {
+            connection.release();
+            res.status(404).send({ 'error': 'User not found' });
+          }
+        });
+      });
+    } else {
+      res.status(400).send({ 'error': req.body.userId + ' is not a valid user id' });
+    }
+  } else {
+    res.status(400).send({ 'error': req.body.eventId + ' is not a valid event id' });
+  }
+}

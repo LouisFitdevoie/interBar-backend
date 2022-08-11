@@ -167,3 +167,6 @@ app.get('/user-role-for-event', (req, res) => {
 app.post('/user-join-event', (req, res) => {
   user_eventController.userJoinEvent(req, res);
 });
+app.put('/quit-event', (req, res) => {
+  user_eventController.quitEvent(req, res);
+});
