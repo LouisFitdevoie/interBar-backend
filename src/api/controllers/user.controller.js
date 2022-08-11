@@ -155,7 +155,74 @@ exports.createUser = (req, res) => {
   }
 }
 exports.updateUser = (req, res) => {
-
+  if (uuid.validate(req.body.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT firstname, lastname, birthday FROM users WHERE id = ? AND deleted_at IS null', [req.body.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          let birthday;
+          if (req.body.birthday) {
+            birthday = req.body.birthday;
+            birthday = parse(birthday, 'dd/MM/yyyy', new Date());
+            if (!isValid(birthday)) {
+              console.log('Invalid birthday');
+              res.status(400).send({ 'error': 'Invalid birthday' });
+            }
+          }
+          let dataToEdit = [
+            (req.body.firstName != undefined && req.body.firstName.trim() != result[0].firstname) ? true : false,
+            (req.body.lastName != undefined && req.body.lastName.trim() != result[0].lastname) ? true : false,
+            (birthday != undefined && birthday != result[0].birthday) ? true : false
+          ];
+          console.log(dataToEdit);
+          if (dataToEdit.includes(true)) {
+            let sql = 'UPDATE users SET ';
+            let arrayOfEdition = [];
+            if (dataToEdit[0]) {
+              arrayOfEdition.push(req.body.firstName.trim());
+              if (dataToEdit[1] || dataToEdit[2]) {
+                sql += 'firstname = ?, ';
+              } else {
+                sql += 'firstname = ?';
+              }
+            }
+            if (dataToEdit[1]) {
+              arrayOfEdition.push(req.body.lastName.trim());
+              if (dataToEdit[2]) {
+                sql += 'lastname = ?, ';
+              } else {
+                sql += 'lastname = ?';
+              }
+            }
+            if (dataToEdit[2]) {
+              arrayOfEdition.push(birthday);
+              sql += 'birthday = ?';
+            }
+            sql += ' WHERE id = ? AND deleted_at IS null';
+            arrayOfEdition.push(req.body.id);
+            console.log('ici');
+            connection.query(sql, arrayOfEdition, (err, result) => {
+              connection.release();
+              if (err) throw err;
+              console.log('User updated');
+              res.send({ 'success': 'User updated' });
+            });
+          } else {
+            connection.release();
+            console.log('Nothing to update');
+            res.send({ 'success': 'Nothing to update' });
+          }
+        } else {
+          console.log('No user found');
+          res.status(404).send({ 'error': 'No user found for the id ' + req.body.id });
+        }
+      });
+    });
+  } else {
+    console.log('Invalid id');
+    res.status(400).send({ 'error': 'Invalid id' });
+  }
 }
 exports.updateUserPassword = (req, res) => {
   if (req.body.newPassword.trim().length > 7 && req.body.newPassword.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
