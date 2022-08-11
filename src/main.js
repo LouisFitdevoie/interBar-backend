@@ -161,3 +161,9 @@ app.get('/users-events', (req, res) => {
 app.get('/users-for-event/:event_id', (req, res) => {
   user_eventController.getAllUsersForEvent(req, res);
 });
+app.get('/user-role-for-event', (req, res) => {
+  user_eventController.getUserRoleForEvent(req, res);
+});
+app.post('/user-join-event', (req, res) => {
+  user_eventController.userJoinEvent(req, res);
+});

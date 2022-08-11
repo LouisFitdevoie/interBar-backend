@@ -1,16 +1,18 @@
 const uuid = require('uuid');
 const database = require('../../database.js');
 const isAfter = require('date-fns/isAfter');
+const bcrypt = require('bcrypt');
 
 const pool = database.pool;
 
 class Event {
-  constructor(name, startDate, endDate, location, description) {
+  constructor(name, startDate, endDate, location, description, seller_password) {
     this.name = name;
     this.startDate = startDate;
     this.endDate = endDate;
     this.location = location;
     this.description = description;
+    this.seller_password = bcrypt.hashSync(seller_password, 10);
   }
   id = uuid.v4();
   name;
@@ -18,6 +20,7 @@ class Event {
   endDate;
   location;
   description = null;
+  seller_password;
   created_at = new Date();
   deleted_at = null;
 }
@@ -25,7 +28,7 @@ class Event {
 exports.getAllEvents = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
-    connection.query('SELECT * FROM events WHERE deleted_at IS null ORDER BY startDate', (err, result) => {
+    connection.query('SELECT * FROM events WHERE deleted_at IS null ORDER BY name', (err, result) => {
       connection.release();
       if (err) throw err;
       res.send(result);
@@ -188,25 +191,30 @@ exports.createEvent = (req, res) => {
     if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
       if (req.body.name.trim().length > 0) {
         if (req.body.location.trim().length > 0) {
-          let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null);
-          pool.getConnection((err, connection) => {
-            if (err) throw err;
-            connection.query('SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)', [eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location], (err, result) => {
+          if (req.body.seller_password.trim().length > 0) {
+            let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null, req.body.seller_password.trim());
+            pool.getConnection((err, connection) => {
               if (err) throw err;
-              if (result.length > 0) {
-                connection.release();
-                console.log('Event already exists');
-                res.status(400).send({ 'error': 'Event already exists' });
-              } else {
-                connection.query('INSERT INTO events (id, name, startDate, endDate, location, description, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [eventToCreate.id, eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location, eventToCreate.description, eventToCreate.created_at, eventToCreate.deleted_at], (err, result) => {
+              connection.query('SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)', [eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location], (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
                   connection.release();
-                  if (err) throw err;
-                  console.log('Event created');
-                  res.status(200).send({ 'success': 'Event created successfully'});
-                });
-              }
+                  console.log('Event already exists');
+                  res.status(400).send({ 'error': 'Event already exists' });
+                } else {
+                  connection.query('INSERT INTO events (id, name, startDate, endDate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [eventToCreate.id, eventToCreate.name, eventToCreate.startDate, eventToCreate.endDate, eventToCreate.location, eventToCreate.description, eventToCreate.seller_password, eventToCreate.created_at, eventToCreate.deleted_at], (err, result) => {
+                    connection.release();
+                    if (err) throw err;
+                    console.log('Event created');
+                    res.status(200).send({ 'success': 'Event created successfully'});
+                  });
+                }
+              });
             });
-          });
+          } else {
+            console.log('Seller password not specified');
+            res.status(400).send({ 'error': 'Seller password not specified' });
+          }
         } else {
           res.status(404).send({ 'error': 'No location specified' });
         }
