@@ -172,15 +172,30 @@ exports.quitEvent = (req, res) => {
             connection.query('SELECT id FROM events WHERE id = ? AND deleted_at IS null', [req.body.eventId], (err, result) => {
               if (err) throw err;
               if (result.length > 0) {
-                connection.query('SELECT id FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                connection.query('SELECT id, role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
-                    connection.query('UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                    if (result[0].role === 0) { //User
+                      connection.query('UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log({ 'success': 'User quit event' });
+                        res.send(result);
+                      });
+                    } else if (result[0].role === 1) { //Seller
+                      connection.query('UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null', [req.body.userId, req.body.eventId], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log({ 'success': 'Seller quit event' });
+                        res.send(result);
+                      });
+                    } else if (result[0].role === 2) { //Organizer
                       connection.release();
-                      if (err) throw err;
-                      console.log({ 'success': 'User quit event' });
-                      res.send(result);
-                    });
+                      res.status(400).send({ 'error': 'Organizer cannot quit event' });
+                    } else {
+                      connection.release();
+                      res.status(400).send({ 'error': 'Invalid role, must be 0, 1 or 2' });
+                    }
                   } else {
                     connection.release();
                     res.status(400).send({ 'error': 'User not joined this event' });
