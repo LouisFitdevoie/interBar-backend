@@ -28,3 +28,25 @@ exports.getAllUsers = (req, res) => {
     });
   });
 }
+exports.getUserWithId = (req, res) => {
+  if (uuid.validate(req.query.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log(`Getting user with id ${req.query.id}`);
+      connection.query('SELECT * FROM users WHERE id = ? AND deleted_at IS null', [req.query.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length > 0) {
+          console.log('Number of users found: ' + result.length + '');
+          res.send(result);
+        } else {
+          console.log('No users found');
+          res.status(404).send({ 'error': 'No users found for the id ' + req.query.id });
+        }
+      });
+    });
+  } else {
+    console.log(`Invalid user id ${req.query.id}`);
+    res.status(400).send({ 'error': 'Invalid user id, ' + req.query.id + ' is not a valid uuid' });
+  }
+}
