@@ -2,6 +2,7 @@ const uuid = require('uuid');
 const database = require('../../database.js');
 const pool = database.pool;
 const bcrypt = require('bcrypt');
+const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 class User {
   constructor(emailAddress, firstName, lastName, password) {
@@ -68,5 +69,26 @@ exports.getUserWithName = (req, res) => {
   } else {
     console.log('Missing firstname or lastname');
     res.status(400).send({ 'error': 'Missing firstname or lastname' });
+  }
+}
+exports.getUserWithEmail = (req, res) => {
+  if (req.body.emailAddress.trim().length > 0 && emailRegex.test(req.body.emailAddress.trim())) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null', [req.body.emailAddress.trim()], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length > 0) {
+          console.log('Number of users found: ' + result.length + '');
+          res.send(result);
+        } else {
+          console.log('No users found');
+          res.status(404).send({ 'error': 'No users found for the email ' + req.body.emailAddress });
+        }
+      });
+    });
+  } else {
+    console.log('Invalid email address');
+    res.status(400).send({ 'error': 'Invalid email address' });
   }
 }
