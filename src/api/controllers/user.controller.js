@@ -92,6 +92,9 @@ exports.getUserWithEmail = (req, res) => {
     res.status(400).send({ 'error': 'Invalid email address' });
   }
 }
+
+//ADD VERIFICATION OF CONFIRM PASSWORD
+
 exports.createUser = (req, res) => {
   if (req.body.emailAddress.trim().length > 0 && emailRegex.test(req.body.emailAddress.trim())) {
     if (req.body.firstName != undefined && req.body.lastName != undefined && req.body.firstName.trim().length > 0 && req.body.lastName.trim().length > 0) {
@@ -118,5 +121,59 @@ exports.createUser = (req, res) => {
   } else {
     console.log('Invalid email address');
     res.status(400).send({ 'error': 'Invalid email address' });
+  }
+}
+exports.updateUser = (req, res) => {
+
+}
+exports.updateUserPassword = (req, res) => {
+
+}
+exports.login = (req, res) => {
+  if (req.body.emailAddress.trim().length > 0 && emailRegex.test(req.body.emailAddress.trim())) {
+    if (req.body.password.trim().length > 0) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null', [req.body.emailAddress.trim()], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            if (bcrypt.compareSync(req.body.password.trim(), result[0].password)) {
+              console.log('User logged in');
+              res.status(200).send({ "message": "User logged in" });
+            } else {
+              console.log('Invalid password');
+              res.status(400).send({ 'error': 'Invalid password' });
+            }
+          } else {
+            console.log('No users found');
+            res.status(404).send({ 'error': 'No users found for the email ' + req.body.emailAddress });
+          }
+        });
+      });
+    } else {
+      console.log('Missing password');
+      res.status(400).send({ 'error': 'Missing password' });
+    }
+  } else {
+    console.log('Invalid email address');
+    res.status(400).send({ 'error': 'Invalid email address' });
+  }
+}
+exports.deleteUser = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('UPDATE users SET deleted_at = NOW() WHERE id = ?', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        console.log('User deleted');
+        res.send({ "message": "User deleted" });
+      }
+      );
+    });
+  } else {
+    console.log('Invalid id');
+    res.status(400).send({ 'error': 'Invalid id' });
   }
 }

@@ -207,6 +207,6 @@ app.put(baseURL + '/update-user-password', (req, res) => {
 app.get(baseURL + '/login', (req, res) => {
   userController.login(req, res);
 });
-app.put(baseURL + '/delete-user', (req, res) => {
+app.put(baseURL + '/delete-user/:id', (req, res) => {
   userController.deleteUser(req, res);
 });
