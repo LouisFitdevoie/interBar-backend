@@ -158,3 +158,6 @@ app.put('/update-event-product-stock', (req, res) => {
 app.get('/users-events', (req, res) => {
   user_eventController.getAllUsersEvents(req, res);
 });
+app.get('/users-for-event/:event_id', (req, res) => {
+  user_eventController.getAllUsersForEvent(req, res);
+});

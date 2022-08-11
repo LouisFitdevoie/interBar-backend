@@ -26,3 +26,18 @@ exports.getAllUsersEvents = (req, res) => {
     });
   });
 };
+
+exports.getAllUsersForEvent = (req, res) => {
+  if (uuid.validate(req.params.event_id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null', [req.params.event_id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.send(result);
+      });
+    });
+  } else {
+    res.status(400).send({ 'error': req.params.event_id + ' is not a valid id' });
+  }
+}
