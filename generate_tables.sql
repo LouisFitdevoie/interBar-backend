@@ -3,6 +3,7 @@ CREATE TABLE `users` (
   `emailaddress` varchar(255) NOT NULL,
   `firstname` varchar(255) NOT NULL,
   `lastname` varchar(255) NOT NULL,
+  `birthday` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `deleted_at` datetime DEFAULT null
 );

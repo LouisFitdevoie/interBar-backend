@@ -3,21 +3,26 @@ const database = require('../../database.js');
 const pool = database.pool;
 const bcrypt = require('bcrypt');
 const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+const isValid = require('date-fns/isValid');
+const parse = require('date-fns/parse');
 
 class User {
-  constructor(emailAddress, firstName, lastName, password) {
+  constructor(emailAddress, firstName, lastName, birthday, password) {
     this.emailAddress = emailAddress;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.birthday = birthday;
     this.password = password;
   }
   id = uuid.v4();
   emailAddress;
   firstName;
   lastName;
+  birthday;
   password;
   deleted_at = null;
 }
+
 
 exports.getAllUsers = (req, res) => {
   pool.getConnection((err, connection) => {
@@ -98,33 +103,40 @@ exports.createUser = (req, res) => {
     if (req.body.firstName != undefined && req.body.lastName != undefined && req.body.firstName.trim().length > 0 && req.body.lastName.trim().length > 0) {
       if (req.body.password.trim().length > 7 && req.body.password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
         if (req.body.passwordConfirmation && req.body.passwordConfirmation.trim() === req.body.password.trim()) {
-          pool.getConnection((err, connection) => {
-            if (err) throw err;
-            let passwordHashed = bcrypt.hashSync(req.body.password.trim(), 10);
-            connection.query('SELECT id FROM users WHERE emailAddress = ? AND deleted_at IS null', [req.body.emailAddress], (err, result) => {
+          const parsedBirthday = parse(req.body.birthday, 'dd/MM/yyyy', new Date());
+          const isValidDate = isValid(parsedBirthday);
+          if (isValidDate) {
+            pool.getConnection((err, connection) => {
               if (err) throw err;
-              if (result.length > 0) {
-                console.log('User account already exists for email address ' + req.body.emailAddress);
-                res.status(400).send({ 'error': 'User account already exists for email address ' + req.body.emailAddress });
-              } else {
-                connection.query('SELECT id FROM users WHERE firstname = ? AND lastname = ? AND deleted_at IS null', [req.body.firstName, req.body.lastName], (err, result) => {
-                  if (err) throw err;
-                  if (result.length > 0) {
-                    console.log('User account already exists for name ' + req.body.firstName + ' ' + req.body.lastName);
-                    res.status(400).send({ 'error': 'User account already exists for name ' + req.body.firstName + ' ' + req.body.lastName });
-                  } else {
-                    let userToCreate = new User(req.body.emailAddress.trim(), req.body.firstName.trim(), req.body.lastName.trim(), passwordHashed);
-                    connection.query('INSERT INTO users (id, emailaddress, firstname, lastname, password, deleted_at) VALUES (?, ?, ?, ?, ?, ?)', [userToCreate.id, userToCreate.emailAddress, userToCreate.firstName, userToCreate.lastName, userToCreate.password, userToCreate.deleted_at], (err, result) => {
-                      connection.release();
-                      if (err) throw err;
-                      console.log('User created');
-                      res.send(userToCreate);
-                    });
-                  }
-                });
-              }
+              let passwordHashed = bcrypt.hashSync(req.body.password.trim(), 10);
+              connection.query('SELECT id FROM users WHERE emailAddress = ? AND deleted_at IS null', [req.body.emailAddress], (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                  console.log('User account already exists for email address ' + req.body.emailAddress);
+                  res.status(400).send({ 'error': 'User account already exists for email address ' + req.body.emailAddress });
+                } else {
+                  connection.query('SELECT id FROM users WHERE firstname = ? AND lastname = ? AND deleted_at IS null', [req.body.firstName, req.body.lastName], (err, result) => {
+                    if (err) throw err;
+                    if (result.length > 0) {
+                      console.log('User account already exists for name ' + req.body.firstName + ' ' + req.body.lastName);
+                      res.status(400).send({ 'error': 'User account already exists for name ' + req.body.firstName + ' ' + req.body.lastName });
+                    } else {
+                      let userToCreate = new User(req.body.emailAddress.trim(), req.body.firstName.trim(), req.body.lastName.trim(), parsedBirthday, passwordHashed);
+                      connection.query('INSERT INTO users (id, emailaddress, firstname, lastname, birthday, password, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [userToCreate.id, userToCreate.emailAddress, userToCreate.firstName, userToCreate.lastName, userToCreate.birthday, userToCreate.password, userToCreate.deleted_at], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log('User created');
+                        res.send(userToCreate);
+                      });
+                    }
+                  });
+                }
+              });
             });
-          });
+          } else {
+            console.log('Invalid birthday');
+            res.status(400).send({ 'error': 'Invalid birthday' });
+          }
         } else {
           console.log('Passwords do not match');
           res.status(400).send({ 'error': 'Passwords do not match' });
