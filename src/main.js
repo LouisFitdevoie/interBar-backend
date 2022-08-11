@@ -210,3 +210,6 @@ app.get(baseURL + '/login', (req, res) => {
 app.put(baseURL + '/delete-user/:id', (req, res) => {
   userController.deleteUser(req, res);
 });
+app.get(baseURL + '/user-age/:id', (req, res) => {
+  userController.isUserAdult(req, res);
+});

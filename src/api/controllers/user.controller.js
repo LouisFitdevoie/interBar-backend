@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 const isValid = require('date-fns/isValid');
 const parse = require('date-fns/parse');
+var formatDistanceToNowStrict = require('date-fns/formatDistanceToNowStrict')
 
 class User {
   constructor(emailAddress, firstName, lastName, birthday, password) {
@@ -307,6 +308,32 @@ exports.deleteUser = (req, res) => {
         res.send({ "message": "User deleted" });
       }
       );
+    });
+  } else {
+    console.log('Invalid id');
+    res.status(400).send({ 'error': 'Invalid id' });
+  }
+}
+exports.isUserAdult = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      connection.query('SELECT birthday FROM users WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length === 1) {
+          let birthday = new Date(result[0].birthday);
+          let age = formatDistanceToNowStrict(birthday, { unit: 'year', roundingMethod: 'floor' });
+          age = parseInt(age.split(' ')[0]) ? parseInt(age.split(' ')[0]) : undefined;
+          if (age != undefined) {
+            res.status(200).send({ "message": "User is " + age + " years old", "age": age });
+          } else {
+            res.status(400).send({ "error": "Invalid birthday" });
+          }
+        } else {
+          console.log('No user found');
+          res.status(404).send({ 'error': 'No user found for the id ' + req.params.id });
+        }
+      });
     });
   } else {
     console.log('Invalid id');
