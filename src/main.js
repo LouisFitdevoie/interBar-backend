@@ -198,15 +198,15 @@ app.get(baseURL + '/user-with-email', (req, res) => {
 app.post(baseURL + '/create-user', (req, res) => {
   userController.createUser(req, res);
 });
-app.get(baseURL + '/login', (req, res) => {
-  userController.login(req, res);
-});
-app.put(baseURL + '/delete-user', (req, res) => {
-  userController.deleteUser(req, res);
-});
 app.put(baseURL + '/update-user', (req, res) => {
   userController.updateUser(req, res);
 });
 app.put(baseURL + '/update-user-password', (req, res) => {
   userController.updateUserPassword(req, res);
+});
+app.get(baseURL + '/login', (req, res) => {
+  userController.login(req, res);
+});
+app.put(baseURL + '/delete-user', (req, res) => {
+  userController.deleteUser(req, res);
 });

@@ -92,3 +92,31 @@ exports.getUserWithEmail = (req, res) => {
     res.status(400).send({ 'error': 'Invalid email address' });
   }
 }
+exports.createUser = (req, res) => {
+  if (req.body.emailAddress.trim().length > 0 && emailRegex.test(req.body.emailAddress.trim())) {
+    if (req.body.firstName != undefined && req.body.lastName != undefined && req.body.firstName.trim().length > 0 && req.body.lastName.trim().length > 0) {
+      if (req.body.password.trim().length > 7 && req.body.password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
+        pool.getConnection((err, connection) => {
+          if (err) throw err;
+          let passwordHashed = bcrypt.hashSync(req.body.password.trim(), 10);
+          let userToCreate = new User(req.body.emailAddress.trim(), req.body.firstName.trim(), req.body.lastName.trim(), passwordHashed);
+          connection.query('INSERT INTO users (id, emailaddress, firstname, lastname, password, deleted_at) VALUES (?, ?, ?, ?, ?, ?)', [userToCreate.id, userToCreate.emailAddress, userToCreate.firstName, userToCreate.lastName, userToCreate.password, userToCreate.deleted_at], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            console.log('User created');
+            res.send(userToCreate);
+          });
+        });
+      } else {
+        console.log('Invalid password');
+        res.status(400).send({ 'error': 'Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character' });
+      }
+    } else {
+      console.log('Missing firstname or lastname');
+      res.status(400).send({ 'error': 'Missing firstname or lastname' });
+    }
+  } else {
+    console.log('Invalid email address');
+    res.status(400).send({ 'error': 'Invalid email address' });
+  }
+}
