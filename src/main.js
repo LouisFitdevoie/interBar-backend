@@ -111,6 +111,10 @@ app.put(baseURL + '/delete-event/:id', (req, res) => {
 app.put(baseURL + '/update-event/:id', (req, res) => {
   eventController.editEvent(req, res);
 });
+//Update seller_password
+app.put(baseURL + '/update-seller-password/:id', (req, res) => {
+  eventController.editSellerPassword(req, res);
+});
 
 //#############################################################################
 // EVENTS PRODUCTS

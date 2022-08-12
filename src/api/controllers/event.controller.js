@@ -194,7 +194,7 @@ exports.createEvent = (req, res) => {
     if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
       if (req.body.name.trim().length > 0) {
         if (req.body.location.trim().length > 0) {
-          if (req.body.seller_password.trim().length > 0) {
+          if (req.body.seller_password.trim().length > 7 && req.body.seller_password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
             let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null, req.body.seller_password.trim());
             pool.getConnection((err, connection) => {
               if (err) throw err;
@@ -258,15 +258,66 @@ exports.deleteEvent = (req, res) => {
   }
 }
 
-//   name;
-//   startDate;
-//   endDate;
-//   location;
-//   description = null;
 //   seller_password;
 
 exports.editSellerPassword = (req, res) => {
-
+  let now = new Date();
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT enddate, seller_password FROM events WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          if (isBefore(now, result[0].enddate)) {
+            if (req.body.seller_password) {
+              if (bcrypt.compareSync(req.body.seller_password, result[0].seller_password)) {
+                if (req.body.new_seller_password && req.body.new_seller_password_confirmation) {
+                  if (req.body.new_seller_password.trim().length > 7 && req.body.new_seller_password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
+                    if (req.body.new_seller_password === req.body.new_seller_password_confirmation) {
+                      connection.query('UPDATE events SET seller_password = ? WHERE id = ?', [bcrypt.hashSync(req.body.new_seller_password, 10), req.params.id], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log('Seller password updated');
+                        res.status(200).send({ 'success': 'Seller password updated successfully' });
+                      });
+                    } else {
+                      connection.release();
+                      console.log('New seller password and confirmation do not match');
+                      res.status(400).send({ 'error': 'New seller password and confirmation do not match' });
+                    }
+                  } else {
+                    connection.release();
+                    console.log('New seller password is not valid');
+                    res.status(400).send({ 'error': 'New seller password is not valid' });
+                  }
+                } else {
+                  connection.release();
+                  console.log('New seller password not specified');
+                  res.status(400).send({ 'error': 'New seller password not specified' });
+                }
+              } else {
+                connection.release();
+                console.log('Seller password is incorrect');
+                res.status(400).send({ 'error': 'Seller password is incorrect' });
+              }
+            } else {
+              console.log('No seller password specified');
+              res.status(400).send({ 'error': 'No seller password specified' });
+            }
+          } else {
+            console.log('Event with id ' + req.params.id + ' has ended');
+            res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' has ended' });
+          }
+        } else {
+          connection.release();
+          console.log('Event with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' does not exist' });
+        }
+      });
+    });
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
+  }
 }
 
 exports.editEvent = (req, res) => {
