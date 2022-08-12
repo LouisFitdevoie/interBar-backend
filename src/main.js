@@ -221,3 +221,8 @@ app.put(baseURL + '/delete-user/:id', (req, res) => {
 app.get(baseURL + '/user-age/:id', (req, res) => {
   userController.isUserAdult(req, res);
 });
+
+//#############################################################################
+// COMMANDS
+//#############################################################################
+
