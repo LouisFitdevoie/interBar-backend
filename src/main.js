@@ -294,3 +294,7 @@ app.put(baseURL + '/set-command-served-state/:commandId', (req, res) => {
 app.put(baseURL + '/set-command-paid-state/:commandId', (req, res) => {
   commandController.setCommandPaidState(req, res);
 });
+//Soft delete command
+app.put(baseURL + '/delete-command/:commandId', (req, res) => {
+  commandController.deleteCommand(req, res);
+});

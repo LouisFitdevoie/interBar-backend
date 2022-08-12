@@ -414,3 +414,20 @@ exports.setCommandPaidState = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.params.commandId + ' is not a valid command uuid' });
   }
 }
+
+exports.deleteCommand = (req, res) => {
+  if (uuid.validate(req.params.commandId)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('UPDATE commands SET deleted_at = NOW() WHERE id = ?', [req.params.commandId], (err, resul) => {
+        connection.release();
+        if (err) throw err;
+        console.log('Command deleted');
+        res.send(resul);
+      });
+    });
+  } else {
+    console.log(`Invalid id ${req.params.commandId}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.commandId + ' is not a valid command uuid' });
+  }
+}
