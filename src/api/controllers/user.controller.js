@@ -176,7 +176,6 @@ exports.updateUser = (req, res) => {
             (req.body.lastName != undefined && req.body.lastName.trim() != result[0].lastname) ? true : false,
             (birthday != undefined && birthday != result[0].birthday) ? true : false
           ];
-          console.log(dataToEdit);
           if (dataToEdit.includes(true)) {
             let sql = 'UPDATE users SET ';
             let arrayOfEdition = [];

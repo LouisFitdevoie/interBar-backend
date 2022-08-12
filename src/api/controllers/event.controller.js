@@ -1,7 +1,10 @@
 const uuid = require('uuid');
 const database = require('../../database.js');
 const isAfter = require('date-fns/isAfter');
+const isBefore = require('date-fns/isBefore');
 const bcrypt = require('bcrypt');
+const isValid = require('date-fns/isValid');
+const parse = require('date-fns/parse');
 
 const pool = database.pool;
 
@@ -247,6 +250,103 @@ exports.deleteEvent = (req, res) => {
             console.log('Event deleted');
             res.status(200).send({ 'success': 'Event deleted successfully', 'result': result });
           });
+        }
+      });
+    });
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
+  }
+}
+
+//   name;
+//   startDate;
+//   endDate;
+//   location;
+//   description = null;
+//   seller_password;
+
+exports.editSellerPassword = (req, res) => {
+
+}
+
+exports.editEvent = (req, res) => {
+  let now = new Date();
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT name, startdate, enddate, location, description FROM events WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          let isStartDateBefore = isBefore(new Date(), new Date(result[0].startdate));
+          if (isStartDateBefore) {
+            let valuesToEdit = [
+              ((req.body.name && req.body.name != result[0].name) ? true : false),
+              ((req.body.startDate && isValid(parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date())) && parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()) > new Date() && parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()) != result[0].startDate) ? true : false),
+              ((req.body.endDate && isValid(parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date())) && parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()) > new Date() && parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()) != result[0].endDate) ? true : false),
+              ((req.body.location && req.body.location != result[0].location) ? true : false),
+              ((req.body.description && req.body.description != result[0].description) ? true : false)
+            ];
+            if (valuesToEdit.includes(true)) {
+              let sql = 'UPDATE events SET ';
+              let values = [];
+              if (valuesToEdit[0]) {
+                values.push(req.body.name.trim());
+                if (valuesToEdit[1] || valuesToEdit[2] || valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'name = ?, ';
+                } else {
+                  sql += 'name = ?';
+                }
+              }
+              if (valuesToEdit[1]) {
+                values.push(parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()));
+                if (valuesToEdit[2] || valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'startDate = ?, ';
+                } else {
+                  sql += 'startDate = ?';
+                }
+              }
+              if (valuesToEdit[2]) {
+                values.push(parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()));
+                if (valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'endDate = ?, ';
+                } else {
+                  sql += 'endDate = ?';
+                }
+              }
+              if (valuesToEdit[3]) {
+                values.push(req.body.location.trim());
+                if (valuesToEdit[4]) {
+                  sql += 'location = ?, ';
+                } else {
+                  sql += 'location = ?';
+                }
+              }
+              if (valuesToEdit[4]) {
+                values.push(req.body.description.trim());
+                sql += 'description = ?';
+              }
+              sql += ' WHERE id = ? AND deleted_at IS null';
+              values.push(req.params.id);
+              connection.query(sql, values, (err, result) => {
+                connection.release();
+                if (err) throw err;
+                console.log('Event edited');
+                res.status(200).send({ 'success': 'Event edited successfully' });
+              });
+            } else {
+              connection.release();
+              console.log('No values to edit');
+              res.status(400).send({ 'error': 'No values to edit' });
+            }
+          } else {
+            connection.release();
+            console.log('Event with id ' + req.params.id + ' has already started');
+            res.status(400).send({ 'error': 'Event with id ' + req.params.id + ' has already started or has ended' });
+          }
+        } else {
+          connection.release();
+          console.log('Event with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' does not exist' });
         }
       });
     });

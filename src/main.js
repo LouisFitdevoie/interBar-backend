@@ -107,6 +107,10 @@ app.post(baseURL + '/create-event', (req, res) => {
 app.put(baseURL + '/delete-event/:id', (req, res) => {
   eventController.deleteEvent(req, res);
 });
+//Update event
+app.put(baseURL + '/update-event/:id', (req, res) => {
+  eventController.editEvent(req, res);
+});
 
 //#############################################################################
 // EVENTS PRODUCTS
