@@ -53,3 +53,26 @@ exports.getCommandById = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
   }
 }
+
+exports.getCommandByClientId = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log(`Getting commands with client id ${req.params.id}`);
+      connection.query('SELECT * FROM commands WHERE client_id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length > 0) {
+          console.log('Number of commands found: ' + result.length + '');
+          res.send(result);
+        } else {
+          console.log('No commands found');
+          res.status(404).send({ 'error': 'No commands found for the client id ' + req.params.id });
+        }
+      });
+    });
+  } else {
+    console.log(`Invalid id ${req.params.id}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
+  }
+}
