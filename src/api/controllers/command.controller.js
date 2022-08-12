@@ -342,3 +342,31 @@ exports.getUnpaidCommands = (req, res) => {
     });
   }
 }
+
+exports.createCommand = (req, res) => {
+  if (uuid.validate(req.body.clientId)) {
+    if (uuid.validate(req.body.servedBy_id)) {
+      if (uuid.validate(req.body.eventId)) {
+        let newCommand = new Command(req.body.clientId, req.body.servedBy_id, req.body.eventId, 0, 0);
+        pool.getConnection((err, connection) => {
+          if (err) throw err;
+          connection.query('INSERT INTO commands (id, client_id, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [newCommand.id, newCommand.client_id, newCommand.servedBy_id, newCommand.event_id, newCommand.isServed, newCommand.isPaid, newCommand.created_at, newCommand.deleted_at], (err, result) => {
+            connection.release();
+            if (err) throw err;
+            console.log('Command created');
+            res.send(result);
+          });
+        });
+      } else {
+        console.log(`Invalid id ${eventId}`);
+        res.status(400).send({ 'error': 'Invalid id, ' + eventId + ' is not a valid event uuid' });
+      }
+    } else {
+      console.log(`Invalid id ${req.body.servedBy_id}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.body.servedBy_id + ' is not a valid served by uuid' });
+    }
+  } else {
+    console.log(`Invalid id ${req.body.clientId}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.body.clientId + ' is not a valid client uuid' });
+  }
+}

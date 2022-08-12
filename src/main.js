@@ -282,3 +282,7 @@ app.get(baseURL + '/commands-not-served', (req, res) => {
 app.get(baseURL + '/commands-not-paid', (req, res) => {
   commandController.getUnpaidCommands(req, res);
 });
+//Create command
+app.post(baseURL + '/create-command', (req, res) => {
+  commandController.createCommand(req, res);
+});
