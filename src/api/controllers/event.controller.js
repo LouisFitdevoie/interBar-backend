@@ -1,7 +1,10 @@
 const uuid = require('uuid');
 const database = require('../../database.js');
 const isAfter = require('date-fns/isAfter');
+const isBefore = require('date-fns/isBefore');
 const bcrypt = require('bcrypt');
+const isValid = require('date-fns/isValid');
+const parse = require('date-fns/parse');
 
 const pool = database.pool;
 
@@ -191,7 +194,7 @@ exports.createEvent = (req, res) => {
     if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
       if (req.body.name.trim().length > 0) {
         if (req.body.location.trim().length > 0) {
-          if (req.body.seller_password.trim().length > 0) {
+          if (req.body.seller_password.trim().length > 7 && req.body.seller_password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
             let eventToCreate = new Event(req.body.name.trim(), req.body.startDate, req.body.endDate, req.body.location.trim(), req.body.description ? req.body.description.trim() : null, req.body.seller_password.trim());
             pool.getConnection((err, connection) => {
               if (err) throw err;
@@ -247,6 +250,154 @@ exports.deleteEvent = (req, res) => {
             console.log('Event deleted');
             res.status(200).send({ 'success': 'Event deleted successfully', 'result': result });
           });
+        }
+      });
+    });
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
+  }
+}
+
+//   seller_password;
+
+exports.editSellerPassword = (req, res) => {
+  let now = new Date();
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT enddate, seller_password FROM events WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          if (isBefore(now, result[0].enddate)) {
+            if (req.body.seller_password) {
+              if (bcrypt.compareSync(req.body.seller_password, result[0].seller_password)) {
+                if (req.body.new_seller_password && req.body.new_seller_password_confirmation) {
+                  if (req.body.new_seller_password.trim().length > 7 && req.body.new_seller_password.trim().match(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/)) {
+                    if (req.body.new_seller_password === req.body.new_seller_password_confirmation) {
+                      connection.query('UPDATE events SET seller_password = ? WHERE id = ?', [bcrypt.hashSync(req.body.new_seller_password, 10), req.params.id], (err, result) => {
+                        connection.release();
+                        if (err) throw err;
+                        console.log('Seller password updated');
+                        res.status(200).send({ 'success': 'Seller password updated successfully' });
+                      });
+                    } else {
+                      connection.release();
+                      console.log('New seller password and confirmation do not match');
+                      res.status(400).send({ 'error': 'New seller password and confirmation do not match' });
+                    }
+                  } else {
+                    connection.release();
+                    console.log('New seller password is not valid');
+                    res.status(400).send({ 'error': 'New seller password is not valid' });
+                  }
+                } else {
+                  connection.release();
+                  console.log('New seller password not specified');
+                  res.status(400).send({ 'error': 'New seller password not specified' });
+                }
+              } else {
+                connection.release();
+                console.log('Seller password is incorrect');
+                res.status(400).send({ 'error': 'Seller password is incorrect' });
+              }
+            } else {
+              console.log('No seller password specified');
+              res.status(400).send({ 'error': 'No seller password specified' });
+            }
+          } else {
+            console.log('Event with id ' + req.params.id + ' has ended');
+            res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' has ended' });
+          }
+        } else {
+          connection.release();
+          console.log('Event with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' does not exist' });
+        }
+      });
+    });
+  } else {
+    res.status(404).send({ 'error': 'Invalid id, ' + req.query.id + ' is not a valid uuid' });
+  }
+}
+
+exports.editEvent = (req, res) => {
+  let now = new Date();
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('SELECT name, startdate, enddate, location, description FROM events WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        if (err) throw err;
+        if (result.length === 1) {
+          let isStartDateBefore = isBefore(new Date(), new Date(result[0].startdate));
+          if (isStartDateBefore) {
+            let valuesToEdit = [
+              ((req.body.name && req.body.name != result[0].name) ? true : false),
+              ((req.body.startDate && isValid(parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date())) && parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()) > new Date() && parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()) != result[0].startDate) ? true : false),
+              ((req.body.endDate && isValid(parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date())) && parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()) > new Date() && parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()) != result[0].endDate) ? true : false),
+              ((req.body.location && req.body.location != result[0].location) ? true : false),
+              ((req.body.description && req.body.description != result[0].description) ? true : false)
+            ];
+            if (valuesToEdit.includes(true)) {
+              let sql = 'UPDATE events SET ';
+              let values = [];
+              if (valuesToEdit[0]) {
+                values.push(req.body.name.trim());
+                if (valuesToEdit[1] || valuesToEdit[2] || valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'name = ?, ';
+                } else {
+                  sql += 'name = ?';
+                }
+              }
+              if (valuesToEdit[1]) {
+                values.push(parse(req.body.startDate, 'dd/MM/yyyy HH:mm', new Date()));
+                if (valuesToEdit[2] || valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'startDate = ?, ';
+                } else {
+                  sql += 'startDate = ?';
+                }
+              }
+              if (valuesToEdit[2]) {
+                values.push(parse(req.body.endDate, 'dd/MM/yyyy HH:mm', new Date()));
+                if (valuesToEdit[3] || valuesToEdit[4]) {
+                  sql += 'endDate = ?, ';
+                } else {
+                  sql += 'endDate = ?';
+                }
+              }
+              if (valuesToEdit[3]) {
+                values.push(req.body.location.trim());
+                if (valuesToEdit[4]) {
+                  sql += 'location = ?, ';
+                } else {
+                  sql += 'location = ?';
+                }
+              }
+              if (valuesToEdit[4]) {
+                values.push(req.body.description.trim());
+                sql += 'description = ?';
+              }
+              sql += ' WHERE id = ? AND deleted_at IS null';
+              values.push(req.params.id);
+              connection.query(sql, values, (err, result) => {
+                connection.release();
+                if (err) throw err;
+                console.log('Event edited');
+                res.status(200).send({ 'success': 'Event edited successfully' });
+              });
+            } else {
+              connection.release();
+              console.log('No values to edit');
+              res.status(400).send({ 'error': 'No values to edit' });
+            }
+          } else {
+            connection.release();
+            console.log('Event with id ' + req.params.id + ' has already started');
+            res.status(400).send({ 'error': 'Event with id ' + req.params.id + ' has already started or has ended' });
+          }
+        } else {
+          connection.release();
+          console.log('Event with id ' + req.params.id + ' does not exist');
+          res.status(404).send({ 'error': 'Event with id ' + req.params.id + ' does not exist' });
         }
       });
     });
