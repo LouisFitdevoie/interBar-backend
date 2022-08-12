@@ -133,3 +133,36 @@ exports.getServedCommands = (req, res) => {
     });
   });
 }
+
+exports.getPaidCommands = (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query('SELECT * FROM commands WHERE ispaid = 1 AND deleted_at IS null', (err, result) => {
+      connection.release();
+      if (err) throw err;
+      res.send(result);
+    });
+  });
+}
+
+exports.getUnservedCommands = (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query('SELECT * FROM commands WHERE isserved = 0 AND deleted_at IS null', (err, result) => {
+      connection.release();
+      if (err) throw err;
+      res.send(result);
+    });
+  });
+}
+
+exports.getUnpaidCommands = (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query('SELECT * FROM commands WHERE ispaid = 0 AND deleted_at IS null', (err, result) => {
+      connection.release();
+      if (err) throw err;
+      res.send(result);
+    });
+  });
+}

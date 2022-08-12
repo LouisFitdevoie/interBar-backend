@@ -247,3 +247,12 @@ app.get(baseURL + '/commands-with-served-by-id/:id', (req, res) => {
 app.get(baseURL + '/commands-served', (req, res) => {
   commandController.getServedCommands(req, res);
 });
+app.get(baseURL + '/commands-paid', (req, res) => {
+  commandController.getPaidCommands(req, res);
+});
+app.get(baseURL + '/commands-not-served', (req, res) => {
+  commandController.getUnservedCommands(req, res);
+});
+app.get(baseURL + '/commands-not-paid', (req, res) => {
+  commandController.getUnpaidCommands(req, res);
+});
