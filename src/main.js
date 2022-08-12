@@ -286,3 +286,7 @@ app.get(baseURL + '/commands-not-paid', (req, res) => {
 app.post(baseURL + '/create-command', (req, res) => {
   commandController.createCommand(req, res);
 });
+//Set command served state
+app.put(baseURL + '/set-command-served-state/:commandId', (req, res) => {
+  commandController.setCommandServedState(req, res);
+});
