@@ -19,3 +19,14 @@ class Command {
   created_at = new Date();
   deleted_at = null;
 }
+
+exports.getAllCommands = (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query('SELECT * FROM commands WHERE deleted_at IS null', (err, result) => {
+      connection.release();
+      if (err) throw err;
+      res.send(result);
+    });
+  });
+}

@@ -5,6 +5,7 @@ const eventController = require('./api/controllers/event.controller.js');
 const eventProductController = require('./api/controllers/event_product.controller.js');
 const user_eventController = require('./api/controllers/user_event.controller.js');
 const userController = require('./api/controllers/user.controller.js');
+const commandController = require('./api/controllers/command.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -16,7 +17,9 @@ const db_connection = mysql.createConnection({
   database: 'interbar',
   port: databasePort
 });
-const baseURL = '/api/v1';
+
+const apiVersion = 'v1'
+const baseURL = `/api/${apiVersion}`;
 
 db_connection.connect(function(err) {
   if (err) throw err;
@@ -226,3 +229,6 @@ app.get(baseURL + '/user-age/:id', (req, res) => {
 // COMMANDS
 //#############################################################################
 
+app.get(baseURL + '/commands', (req, res) => {
+  commandController.getAllCommands(req, res);
+});
