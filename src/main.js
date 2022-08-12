@@ -143,7 +143,7 @@ app.get(baseURL + '/event-product-buying-price', (req, res) => {
 app.get(baseURL + '/event-product-selling-price', (req, res) => {
   eventProductController.getProductEventSellingPrice(req, res);
 });
-//Get infods of product at an event
+//Get infos of product at an event
 app.get(baseURL + '/event-products-infos', (req, res) => {
   eventProductController.getProductEventInfos(req, res);
 });
@@ -168,24 +168,31 @@ app.put(baseURL + '/update-event-product-stock', (req, res) => {
 // USERS_EVENTS
 //#############################################################################
 
+//Get all users events
 app.get(baseURL + '/users-events', (req, res) => {
   user_eventController.getAllUsersEvents(req, res);
 });
+//Get all user at specific event
 app.get(baseURL + '/users-for-event/:event_id', (req, res) => {
   user_eventController.getAllUsersForEvent(req, res);
 });
+//Get role for user at event
 app.get(baseURL + '/user-role-for-event', (req, res) => {
   user_eventController.getUserRoleForEvent(req, res);
 });
+//Create user event
 app.post(baseURL + '/user-join-event', (req, res) => {
   user_eventController.userJoinEvent(req, res);
 });
+//Soft delete user event
 app.put(baseURL + '/quit-event', (req, res) => {
   user_eventController.quitEvent(req, res);
 });
+//Update role for user at event : user -> seller
 app.put(baseURL + '/user-to-seller', (req, res) => {
   user_eventController.userToSeller(req, res);
 });
+//Update role for user at event : seller -> user
 app.put(baseURL + '/seller-to-user', (req, res) => {
   user_eventController.sellerToUser(req, res);
 });
@@ -194,33 +201,43 @@ app.put(baseURL + '/seller-to-user', (req, res) => {
 // USERS
 //#############################################################################
 
+//Get all users
 app.get(baseURL + '/users', (req, res) => {
   userController.getAllUsers(req, res);
 });
+//Get user by id
 app.get(baseURL + '/user-with-id', (req, res) => {
   userController.getUserWithId(req, res);
 });
+//Get user by name or by part of name
 app.get(baseURL + '/user-with-name', (req, res) => {
   userController.getUserWithName(req, res);
 });
+//Get user by email
 app.get(baseURL + '/user-with-email', (req, res) => {
   userController.getUserWithEmail(req, res);
 });
+//Create user
 app.post(baseURL + '/create-user', (req, res) => {
   userController.createUser(req, res);
 });
+//Update user data
 app.put(baseURL + '/update-user', (req, res) => {
   userController.updateUser(req, res);
 });
+//Update user password
 app.put(baseURL + '/update-user-password', (req, res) => {
   userController.updateUserPassword(req, res);
 });
+//Login user
 app.get(baseURL + '/login', (req, res) => {
   userController.login(req, res);
 });
+//Soft delete user
 app.put(baseURL + '/delete-user/:id', (req, res) => {
   userController.deleteUser(req, res);
 });
+//Get user age
 app.get(baseURL + '/user-age/:id', (req, res) => {
   userController.isUserAdult(req, res);
 });
@@ -229,30 +246,39 @@ app.get(baseURL + '/user-age/:id', (req, res) => {
 // COMMANDS
 //#############################################################################
 
+//Get all commands
 app.get(baseURL + '/commands', (req, res) => {
   commandController.getAllCommands(req, res);
 });
+//Get command by id
 app.get(baseURL + '/command-with-id/:id', (req, res) => {
   commandController.getCommandById(req, res);
 });
+//Get commands by client id
 app.get(baseURL + '/commands-with-client-id/:id', (req, res) => {
   commandController.getCommandsByClientId(req, res);
 });
+//Get commands by event id
 app.get(baseURL + '/commands-with-event-id/:id', (req, res) => {
   commandController.getCommandsByEventId(req, res);
 });
+//Get commands by servedBy id
 app.get(baseURL + '/commands-with-served-by-id/:id', (req, res) => {
   commandController.getCommandsByServedById(req, res);
 });
+//Get all served commands or with clientId or with eventId
 app.get(baseURL + '/commands-served', (req, res) => {
   commandController.getServedCommands(req, res);
 });
+//Get all paid commands or with clientId or with eventId
 app.get(baseURL + '/commands-paid', (req, res) => {
   commandController.getPaidCommands(req, res);
 });
+//Get all unserved commands or with clientId or with eventId
 app.get(baseURL + '/commands-not-served', (req, res) => {
   commandController.getUnservedCommands(req, res);
 });
+//Get all unpaid commands or with clientId or with eventId
 app.get(baseURL + '/commands-not-paid', (req, res) => {
   commandController.getUnpaidCommands(req, res);
 });
