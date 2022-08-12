@@ -290,3 +290,7 @@ app.post(baseURL + '/create-command', (req, res) => {
 app.put(baseURL + '/set-command-served-state/:commandId', (req, res) => {
   commandController.setCommandServedState(req, res);
 });
+//Set command paid state
+app.put(baseURL + '/set-command-paid-state/:commandId', (req, res) => {
+  commandController.setCommandPaidState(req, res);
+});

@@ -379,13 +379,35 @@ exports.setCommandServedState = (req, res) => {
         connection.query('UPDATE commands SET isserved = ? WHERE id = ? AND deleted_at IS null', [req.body.served, req.params.commandId], (err, result) => {
           connection.release();
           if (err) throw err;
-          console.log('Command served');
+          console.log('Command served = ' + req.body.served);
           res.send(result);
         });
       });
     } else {
       console.log('Invalid served value');
       res.status(400).send({ 'error': 'Served value must be 0 or 1' });
+    }
+  } else {
+    console.log(`Invalid id ${req.params.commandId}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.commandId + ' is not a valid command uuid' });
+  }
+}
+
+exports.setCommandPaidState = (req, res) => {
+  if (uuid.validate(req.params.commandId)) {
+    if (req.body.paid === 0 || req.body.paid === 1) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query('UPDATE commands SET ispaid = ? WHERE id = ? AND deleted_at IS null', [req.body.paid, req.params.commandId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          console.log('Command paid = ' + req.body.paid);
+          res.send(result);
+        });
+      });
+    } else {
+      console.log('Invalid paid value');
+      res.status(400).send({ 'error': 'Paid value must be 0 or 1' });
     }
   } else {
     console.log(`Invalid id ${req.params.commandId}`);
