@@ -241,3 +241,6 @@ app.get(baseURL + '/commands-with-client-id/:id', (req, res) => {
 app.get(baseURL + '/commands-with-event-id/:id', (req, res) => {
   commandController.getCommandsByEventId(req, res);
 });
+app.get(baseURL + '/commands-with-served-by-id/:id', (req, res) => {
+  commandController.getCommandsByServedById(req, res);
+});
