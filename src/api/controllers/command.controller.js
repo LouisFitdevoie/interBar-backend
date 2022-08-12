@@ -124,45 +124,221 @@ exports.getCommandsByServedById = (req, res) => {
 }
 
 exports.getServedCommands = (req, res) => {
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-    connection.query('SELECT * FROM commands WHERE isserved = 1 AND deleted_at IS null', (err, result) => {
-      connection.release();
+  if (req.query.clientId) {
+    if (uuid.validate(req.query.clientId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting served commands with client id ${req.query.clientId}`);
+        connection.query('SELECT * FROM commands WHERE client_id = ? AND isServed = 1 AND deleted_at IS null', [req.query.clientId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the client id ' + req.query.clientId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.clientId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.clientId + ' is not a valid client uuid' });
+    }
+  } else if (req.query.eventId) {
+    if (uuid.validate(req.query.eventId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting served commands with client id ${req.query.eventId}`);
+        connection.query('SELECT * FROM commands WHERE event_id = ? AND isServed = 1 AND deleted_at IS null', [req.query.eventId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the event id ' + req.query.eventId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.eventId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.eventId + ' is not a valid client uuid' });
+    }
+  } else {
+    pool.getConnection((err, connection) => {
       if (err) throw err;
-      res.send(result);
+      connection.query('SELECT * FROM commands WHERE isserved = 1 AND deleted_at IS null', (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.send(result);
+      });
     });
-  });
+  }
 }
 
 exports.getPaidCommands = (req, res) => {
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-    connection.query('SELECT * FROM commands WHERE ispaid = 1 AND deleted_at IS null', (err, result) => {
-      connection.release();
+  if (req.query.clientId) {
+    if (uuid.validate(req.query.clientId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting paid commands with client id ${req.query.clientId}`);
+        connection.query('SELECT * FROM commands WHERE client_id = ? AND isPaid = 1 AND deleted_at IS null', [req.query.clientId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the client id ' + req.query.clientId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.clientId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.clientId + ' is not a valid client uuid' });
+    }
+  } else if (req.query.eventId) {
+    if (uuid.validate(req.query.eventId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting paid commands with client id ${req.query.eventId}`);
+        connection.query('SELECT * FROM commands WHERE event_id = ? AND isPaid = 1 AND deleted_at IS null', [req.query.eventId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the event id ' + req.query.eventId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.eventId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.eventId + ' is not a valid client uuid' });
+    }
+  } else {
+    pool.getConnection((err, connection) => {
       if (err) throw err;
-      res.send(result);
+      connection.query('SELECT * FROM commands WHERE ispaid = 1 AND deleted_at IS null', (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.send(result);
+      });
     });
-  });
+  }
 }
 
 exports.getUnservedCommands = (req, res) => {
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-    connection.query('SELECT * FROM commands WHERE isserved = 0 AND deleted_at IS null', (err, result) => {
-      connection.release();
+  if (req.query.clientId) {
+    if (uuid.validate(req.query.clientId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting unserved commands with client id ${req.query.clientId}`);
+        connection.query('SELECT * FROM commands WHERE client_id = ? AND isServed = 0 AND deleted_at IS null', [req.query.clientId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the client id ' + req.query.clientId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.clientId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.clientId + ' is not a valid client uuid' });
+    }
+  } else if (req.query.eventId) {
+    if (uuid.validate(req.query.eventId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting unserved commands with client id ${req.query.eventId}`);
+        connection.query('SELECT * FROM commands WHERE event_id = ? AND isServed = 0 AND deleted_at IS null', [req.query.eventId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the event id ' + req.query.eventId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.eventId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.eventId + ' is not a valid client uuid' });
+    }
+  } else {
+    pool.getConnection((err, connection) => {
       if (err) throw err;
-      res.send(result);
+      connection.query('SELECT * FROM commands WHERE isserved = 0 AND deleted_at IS null', (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.send(result);
+      });
     });
-  });
+  }
 }
 
 exports.getUnpaidCommands = (req, res) => {
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-    connection.query('SELECT * FROM commands WHERE ispaid = 0 AND deleted_at IS null', (err, result) => {
-      connection.release();
+  if (req.query.clientId) {
+    if (uuid.validate(req.query.clientId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting unpaid commands with client id ${req.query.clientId}`);
+        connection.query('SELECT * FROM commands WHERE client_id = ? AND isPaid = 0 AND deleted_at IS null', [req.query.clientId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the client id ' + req.query.clientId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.clientId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.clientId + ' is not a valid client uuid' });
+    }
+  } else if (req.query.eventId) {
+    if (uuid.validate(req.query.eventId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting unpaid commands with client id ${req.query.eventId}`);
+        connection.query('SELECT * FROM commands WHERE event_id = ? AND isPaid = 0 AND deleted_at IS null', [req.query.eventId], (err, result) => {
+          connection.release();
+          if (err) throw err;
+          if (result.length > 0) {
+            console.log('Number of commands found: ' + result.length + '');
+            res.send(result);
+          } else {
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the event id ' + req.query.eventId });
+          }
+        });
+      });
+    } else {
+      console.log(`Invalid id ${req.query.eventId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.eventId + ' is not a valid client uuid' });
+    }
+  } else {
+    pool.getConnection((err, connection) => {
       if (err) throw err;
-      res.send(result);
+      connection.query('SELECT * FROM commands WHERE ispaid = 0 AND deleted_at IS null', (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.send(result);
+      });
     });
-  });
+  }
 }
