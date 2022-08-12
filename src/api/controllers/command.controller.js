@@ -30,3 +30,26 @@ exports.getAllCommands = (req, res) => {
     });
   });
 }
+
+exports.getCommandById = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log(`Getting command with id ${req.params.id}`);
+      connection.query('SELECT * FROM commands WHERE id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length > 0) {
+          console.log('Number of commands found: ' + result.length + '');
+          res.send(result);
+        } else {
+          console.log('No commands found');
+          res.status(404).send({ 'error': 'No commands found for the id ' + req.params.id });
+        }
+      });
+    });
+  } else {
+    console.log(`Invalid id ${req.params.id}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
+  }
+}

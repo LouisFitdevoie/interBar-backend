@@ -232,3 +232,6 @@ app.get(baseURL + '/user-age/:id', (req, res) => {
 app.get(baseURL + '/commands', (req, res) => {
   commandController.getAllCommands(req, res);
 });
+app.get(baseURL + '/command-with-id/:id', (req, res) => {
+  commandController.getCommandById(req, res);
+});
