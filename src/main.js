@@ -235,6 +235,9 @@ app.get(baseURL + '/commands', (req, res) => {
 app.get(baseURL + '/command-with-id/:id', (req, res) => {
   commandController.getCommandById(req, res);
 });
-app.get(baseURL + '/command-with-client-id/:id', (req, res) => {
-  commandController.getCommandByClientId(req, res);
+app.get(baseURL + '/commands-with-client-id/:id', (req, res) => {
+  commandController.getCommandsByClientId(req, res);
+});
+app.get(baseURL + '/commands-with-event-id/:id', (req, res) => {
+  commandController.getCommandsByEventId(req, res);
 });

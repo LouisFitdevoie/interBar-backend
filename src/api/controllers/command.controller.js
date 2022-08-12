@@ -54,7 +54,7 @@ exports.getCommandById = (req, res) => {
   }
 }
 
-exports.getCommandByClientId = (req, res) => {
+exports.getCommandsByClientId = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
@@ -68,6 +68,29 @@ exports.getCommandByClientId = (req, res) => {
         } else {
           console.log('No commands found');
           res.status(404).send({ 'error': 'No commands found for the client id ' + req.params.id });
+        }
+      });
+    });
+  } else {
+    console.log(`Invalid id ${req.params.id}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
+  }
+}
+
+exports.getCommandsByEventId = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log(`Getting commands with event id ${req.params.id}`);
+      connection.query('SELECT * FROM commands WHERE event_id = ? AND deleted_at IS null', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (result.length > 0) {
+          console.log('Number of commands found: ' + result.length + '');
+          res.send(result);
+        } else {
+          console.log('No commands found');
+          res.status(404).send({ 'error': 'No commands found for the event id ' + req.params.id });
         }
       });
     });
