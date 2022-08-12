@@ -122,3 +122,14 @@ exports.getCommandsByServedById = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
   }
 }
+
+exports.getServedCommands = (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query('SELECT * FROM commands WHERE isserved = 1 AND deleted_at IS null', (err, result) => {
+      connection.release();
+      if (err) throw err;
+      res.send(result);
+    });
+  });
+}
