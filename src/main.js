@@ -6,6 +6,7 @@ const eventProductController = require('./api/controllers/event_product.controll
 const user_eventController = require('./api/controllers/user_event.controller.js');
 const userController = require('./api/controllers/user.controller.js');
 const commandController = require('./api/controllers/command.controller.js');
+const eventProductCommandController = require('./api/controllers/event_product_command.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -308,4 +309,7 @@ app.get(baseURL + '/event-product-command', (req, res) => {
 });
 app.get(baseURL + '/event-product-command-with-id/:id', (req, res) => {
   eventProductCommandController.getEventProductCommandById(req, res);
+});
+app.get(baseURL + '/event-product-command-with-command-id/:id', (req, res) => {
+  eventProductCommandController.getEventProductsCommandsForCommandId(req, res);
 });
