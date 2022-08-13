@@ -61,7 +61,8 @@ CREATE TABLE `events_products_commands` (
   `id` varchar(255) PRIMARY KEY,
   `command_id` varchar(255) NOT NULL,
   `event_product_id` varchar(255) NOT NULL,
-  `number` int NOT NULL
+  `number` int NOT NULL,
+  `deleted_at` datetime DEFAULT null
 );
 
 ALTER TABLE `commands` ADD FOREIGN KEY (`client_id`) REFERENCES `users` (`id`);
