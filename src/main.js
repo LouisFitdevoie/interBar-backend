@@ -300,6 +300,12 @@ app.put(baseURL + '/delete-command/:commandId', (req, res) => {
 });
 
 //#############################################################################
-// EVENT PRODUCT CONTROLLER
+// EVENT PRODUCT COMMAND
 //#############################################################################
 
+app.get(baseURL + '/event-product-command', (req, res) => {
+  eventProductCommandController.getAllEventProductCommands(req, res);
+});
+app.get(baseURL + '/event-product-command-with-id/:id', (req, res) => {
+  eventProductCommandController.getEventProductCommandById(req, res);
+});
