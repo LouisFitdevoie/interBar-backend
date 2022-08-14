@@ -78,3 +78,33 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid uuid' });
   }
 }
+
+exports.getNumber = (req, res) => {
+  if (uuid.validate(req.query.commandId)) {
+    if (uuid.validate(req.query.eventProductId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        console.log(`Getting number for command id ${req.query.commandId} and event product id ${req.query.eventProductId}`);
+        connection.query('SELECT number FROM events_products_commands WHERE command_id = ? AND event_product_id = ? AND deleted_at IS null', [req.query.commandId, req.query.eventProductId], (err, result) => {
+          connection.release();
+            if (err) throw err;
+            if (result.length > 0) {
+              console.log('Number of event products commands found: ' + result.length + '');
+              res.send(result);
+            } else {
+              console.log('No event products commands found');
+              res.status(404).send({ 'error': 'No event products commands found for the command id ' + req.query.commandId + ' and event product id ' + req.query.eventProductId });
+            }
+        }
+        );
+      }
+      );
+    } else {
+      console.log(`Invalid id ${req.query.eventProductId}`);
+      res.status(400).send({ 'error': 'Invalid id, ' + req.query.eventProductId + ' is not a valid uuid' });
+    }
+  } else {
+    console.log(`Invalid command id ${req.query.commandId}`);
+    res.status(400).send({ 'error': `Invalid command id ${req.query.commandId}` });
+  }
+}
