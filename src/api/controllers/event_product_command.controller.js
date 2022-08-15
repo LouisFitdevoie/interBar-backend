@@ -108,3 +108,110 @@ exports.getNumber = (req, res) => {
     res.status(400).send({ 'error': `Invalid command id ${req.query.commandId}` });
   }
 }
+
+exports.getAllInfosForProductCommand = (req, res) => {
+  if (uuid.validate(req.params.commandId)) {
+    let objectToReturn = {
+      command: {
+        event_id: '',
+        isServed: '',
+        isPaid: '',
+        created_at: ''
+      },
+      products: [],
+      seller: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        birthday: '',
+        emailAddress: ''
+      },
+      client: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        birthday: '',
+        emailAddress: ''
+      }
+    }
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log(`Getting all infos for command id ${req.params.commandId}`);
+      connection.query('SELECT id, client_id, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ? AND deleted_at IS null', [req.params.commandId], (err, result) => {
+        if (err) throw err;
+          if (result.length === 1) {
+            let commandId = result[0].id;
+            let clientId = result[0].client_id;
+            let sellerId = result[0].servedby_id;
+            objectToReturn.command.event_id = result[0].event_id;
+            objectToReturn.command.isServed = result[0].isserved;
+            objectToReturn.command.isPaid = result[0].ispaid;
+            objectToReturn.command.created_at = result[0].created_at;
+            connection.query('SELECT events_products_commands.event_product_id, events_products_commands.number, events_products.product_id, events_products.sellingprice, products.name, products.category, products.description FROM events_products_commands INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id INNER JOIN products ON events_products.product_id = products.id WHERE events_products_commands.command_id = ? AND events_products_commands.deleted_at IS null', [commandId], (err, result) => {
+              if (err) throw err;
+              if (result.length > 0) {
+                
+                let products_table = [];
+                result.forEach(product => {
+                  products_table.push({
+                    name: product.name,
+                    category: product.category,
+                    description: product.description,
+                    sellingPrice: product.sellingprice,
+                    number: product.number
+                  });
+                });
+
+                objectToReturn.products = products_table;
+
+                connection.query('SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null', [sellerId], (err, result) => {
+                  if (err) throw err;
+                  if (result.length === 1) {
+                    objectToReturn.seller.id = result[0].id;
+                    objectToReturn.seller.firstName = result[0].firstname;
+                    objectToReturn.seller.lastName = result[0].lastname;
+                    objectToReturn.seller.birthday = result[0].birthday;
+                    objectToReturn.seller.emailAddress = result[0].emailaddress;
+                    connection.query('SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null', [clientId], (err, result) => {
+                      connection.release();
+                      if (err) throw err;
+                      if (result.length === 1) {
+                        objectToReturn.client.id = result[0].id;
+                        objectToReturn.client.firstName = result[0].firstname;
+                        objectToReturn.client.lastName = result[0].lastname;
+                        objectToReturn.client.birthday = result[0].birthday;
+                        objectToReturn.client.emailAddress = result[0].emailaddress;
+                        res.send(objectToReturn);
+                      } else {
+                        connection.release();
+                        console.log('No client found');
+                        res.status(404).send({ 'error': 'No client found for the client id ' + objectToReturn.command.client_id });
+                      }
+                    }
+                    );
+                  } else {
+                    connection.release();
+                    console.log('No seller found');
+                    res.status(404).send({ 'error': 'No seller found for the servedby id ' + objectToReturn.command.servedBy_id });
+                  }
+                });
+
+              } else {
+                connection.release();
+                console.log('No event products commands found');
+                res.status(404).send({ 'error': 'No event products commands found for the command id ' + req.body.commandId });
+              }
+            });
+          } else {
+            connection.release();
+            console.log('No commands found');
+            res.status(404).send({ 'error': 'No commands found for the command id ' + req.body.commandId });
+          }
+      });
+    }
+    );
+  } else {
+    console.log(`Invalid id ${req.body.commandId}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.body.commandId + ' is not a valid command uuid' });
+  }
+}
