@@ -109,7 +109,7 @@ exports.getNumber = (req, res) => {
   }
 }
 
-exports.getAllInfosForProductCommand = (req, res) => {
+exports.getAllInfosForCommand = (req, res) => {
   if (uuid.validate(req.params.commandId)) {
     let objectToReturn = {
       command: {

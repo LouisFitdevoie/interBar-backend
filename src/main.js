@@ -317,5 +317,5 @@ app.get(baseURL + '/number-for-event-product-command', (req, res) => {
   eventProductCommandController.getNumber(req, res);
 });
 app.get(baseURL + '/infos-for-command/:commandId', (req, res) => {
-  eventProductCommandController.getAllInfosForProductCommand(req, res);
+  eventProductCommandController.getAllInfosForCommand(req, res);
 });
