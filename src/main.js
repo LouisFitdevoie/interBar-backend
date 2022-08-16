@@ -304,18 +304,23 @@ app.put(baseURL + '/delete-command/:commandId', (req, res) => {
 // EVENT PRODUCT COMMAND
 //#############################################################################
 
+//Get all event product commands
 app.get(baseURL + '/event-product-command', (req, res) => {
   eventProductCommandController.getAllEventProductCommands(req, res);
 });
+//Get event product command by id
 app.get(baseURL + '/event-product-command-with-id/:id', (req, res) => {
   eventProductCommandController.getEventProductCommandById(req, res);
 });
+//Get event product commands with command id
 app.get(baseURL + '/event-product-command-with-command-id/:id', (req, res) => {
   eventProductCommandController.getEventProductsCommandsForCommandId(req, res);
 });
+//Get number of event products for command id and event product id
 app.get(baseURL + '/number-for-event-product-command', (req, res) => {
   eventProductCommandController.getNumber(req, res);
 });
+//Get all infos of a command
 app.get(baseURL + '/infos-for-command/:commandId', (req, res) => {
   eventProductCommandController.getAllInfosForCommand(req, res);
 });
