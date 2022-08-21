@@ -324,3 +324,7 @@ app.get(baseURL + '/number-for-event-product-command', (req, res) => {
 app.get(baseURL + '/infos-for-command/:commandId', (req, res) => {
   eventProductCommandController.getAllInfosForCommand(req, res);
 });
+//Create event product command
+app.post(baseURL + '/create-event-product-command', (req, res) => {
+  eventProductCommandController.createEventProductCommand(req, res);
+});

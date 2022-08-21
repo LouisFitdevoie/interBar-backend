@@ -215,3 +215,41 @@ exports.getAllInfosForCommand = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.body.commandId + ' is not a valid command uuid' });
   }
 }
+
+exports.createEventProductCommand = (req, res) => {
+  if (uuid.validate(req.body.eventProductId)) {
+    if (uuid.validate(req.body.commandId)) {
+      if (req.body.number && parseInt(req.body.number)) {
+        pool.getConnection((err, connection) => {
+          if (err) throw err;
+          connection.query('SELECT id FROM events_products_commands WHERE event_product_id = ? AND command_id = ? AND deleted_at IS null', [req.body.eventProductId, req.body.commandId], (err, result) => {
+            if (err) throw err;
+            if (result.length === 0) {
+              let epc_to_add = new EventProductCommand(req.body.commandId, req.body.eventProductId, req.body.number);
+              connection.query('INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, `number`) VALUES (?, ?, ?, ?)', [epc_to_add.id, epc_to_add.command_id, epc_to_add.event_product_id, epc_to_add.number], (err, result) => {
+                connection.release();
+                if (err) throw err;
+                console.log('Event product command created');
+                res.send(result);
+              }
+              );
+            } else {
+              connection.release();
+              console.log('Event product command already exists');
+              res.status(400).send({ 'error': 'Event product command already exists' });
+            }
+          })
+        });
+      } else {
+        console.log(`Invalid number ${req.body.number}`);
+        res.status(400).send({ 'error': 'Invalid number, ' + req.body.number + ' is not a valid number' });
+      }
+    } else {
+      console.log(`Invalid command id ${req.body.commandId}`);
+      res.status(400).send({ 'error': `Invalid command id ${req.body.commandId}` });
+    }
+  } else {
+    console.log(`Invalid id ${req.body.eventProductId}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.body.eventProductId + ' is not a valid event product uuid' });
+  }
+}
