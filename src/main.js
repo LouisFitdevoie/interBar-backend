@@ -6,6 +6,7 @@ const eventProductController = require('./api/controllers/event_product.controll
 const user_eventController = require('./api/controllers/user_event.controller.js');
 const userController = require('./api/controllers/user.controller.js');
 const commandController = require('./api/controllers/command.controller.js');
+const eventProductCommandController = require('./api/controllers/event_product_command.controller.js');
 const mysql = require('mysql');
 const uuid = require('uuid');
 
@@ -297,4 +298,41 @@ app.put(baseURL + '/set-command-paid-state/:commandId', (req, res) => {
 //Soft delete command
 app.put(baseURL + '/delete-command/:commandId', (req, res) => {
   commandController.deleteCommand(req, res);
+});
+
+//#############################################################################
+// EVENT PRODUCT COMMAND
+//#############################################################################
+
+//Get all event product commands
+app.get(baseURL + '/event-product-command', (req, res) => {
+  eventProductCommandController.getAllEventProductCommands(req, res);
+});
+//Get event product command by id
+app.get(baseURL + '/event-product-command-with-id/:id', (req, res) => {
+  eventProductCommandController.getEventProductCommandById(req, res);
+});
+//Get event product commands with command id
+app.get(baseURL + '/event-product-command-with-command-id/:id', (req, res) => {
+  eventProductCommandController.getEventProductsCommandsForCommandId(req, res);
+});
+//Get number of event products for command id and event product id
+app.get(baseURL + '/number-for-event-product-command', (req, res) => {
+  eventProductCommandController.getNumber(req, res);
+});
+//Get all infos of a command
+app.get(baseURL + '/infos-for-command/:commandId', (req, res) => {
+  eventProductCommandController.getAllInfosForCommand(req, res);
+});
+//Create event product command
+app.post(baseURL + '/create-event-product-command', (req, res) => {
+  eventProductCommandController.createEventProductCommand(req, res);
+});
+//Delete event product command
+app.put(baseURL + '/delete-event-product-command/:id', (req, res) => {
+  eventProductCommandController.deleteEventProductCommand(req, res);
+});
+//Edit event product command number
+app.put(baseURL + '/edit-event-product-command-number/:id', (req, res) => {
+  eventProductCommandController.editNumber(req, res);
 });

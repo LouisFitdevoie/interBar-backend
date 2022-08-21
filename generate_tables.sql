@@ -1,3 +1,9 @@
+DROP DATABASE IF EXISTS `interbar`;
+
+CREATE DATABASE `interbar`;
+
+USE `interbar`;
+
 CREATE TABLE `users` (
   `id` varchar(255) PRIMARY KEY,
   `emailaddress` varchar(255) NOT NULL,
@@ -61,7 +67,8 @@ CREATE TABLE `events_products_commands` (
   `id` varchar(255) PRIMARY KEY,
   `command_id` varchar(255) NOT NULL,
   `event_product_id` varchar(255) NOT NULL,
-  `number` int NOT NULL
+  `number` int NOT NULL,
+  `deleted_at` datetime DEFAULT null
 );
 
 ALTER TABLE `commands` ADD FOREIGN KEY (`client_id`) REFERENCES `users` (`id`);
