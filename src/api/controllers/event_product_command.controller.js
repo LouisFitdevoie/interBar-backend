@@ -253,3 +253,22 @@ exports.createEventProductCommand = (req, res) => {
     res.status(400).send({ 'error': 'Invalid id, ' + req.body.eventProductId + ' is not a valid event product uuid' });
   }
 }
+
+exports.deleteEventProductCommand = (req, res) => {
+  if (uuid.validate(req.params.id)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query('UPDATE events_products_commands SET deleted_at = NOW() WHERE id = ?', [req.params.id], (err, result) => {
+        connection.release();
+        if (err) throw err;
+        console.log('Event product command deleted');
+        res.status(200).send({ "success": "Event product command deleted successfully" });
+      }
+      );
+    }
+    );
+  } else {
+    console.log(`Invalid id ${req.params.id}`);
+    res.status(400).send({ 'error': 'Invalid id, ' + req.params.id + ' is not a valid event product command uuid' });
+  }
+}

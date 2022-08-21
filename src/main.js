@@ -328,3 +328,6 @@ app.get(baseURL + '/infos-for-command/:commandId', (req, res) => {
 app.post(baseURL + '/create-event-product-command', (req, res) => {
   eventProductCommandController.createEventProductCommand(req, res);
 });
+app.put(baseURL + '/delete-event-product-command/:id', (req, res) => {
+  eventProductCommandController.deleteEventProductCommand(req, res);
+});
