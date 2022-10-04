@@ -36,11 +36,11 @@ INSERT INTO `events_products` (`id`, `event_id`, `product_id`, `stock`, `buyingp
 INSERT INTO `events_products` (`id`, `event_id`, `product_id`, `stock`, `buyingprice`, `sellingprice`) VALUES ('05261191-46bc-4fb6-9f1c-cd139c63363b', 'e0433805-0763-4765-bcb2-03210b111ad2', 'eaa40420-861d-4876-91ac-c2a7f8e50f99', '500', 1.5, 2.5);
 INSERT INTO `events_products` (`id`, `event_id`, `product_id`, `stock`, `buyingprice`, `sellingprice`) VALUES ('5eb3cb7d-2344-4f03-bc2d-f4c4d7e27f7f', 'e0433805-0763-4765-bcb2-03210b111ad2', 'c77d09a7-0a93-4ed1-8028-49d8e88659d7', '600', 1.5, 2.5);
 
-INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`) VALUES ('bc31b102-1d30-407c-949a-435ad895a512', 'test@test.lan', 'test', 'test', '31/12/1999', 'Test123*');
-INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`) VALUES ('738c308c-1595-4df8-b303-5bbdc07c0da6', 'jean@jean.lan', 'jean', 'jean', '31/12/1999', 'Test123*');
-INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`) VALUES ('e05c3e11-ca54-4f66-9a38-9e7204142c85', 'louis@louis.lan', 'louis', 'louis', '31/12/2006', 'Test123*');
-INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`) VALUES ('9bb0dd2c-eaa5-463e-81b7-3641e64d8e61', 'aucun@test.lan', 'aucun', 'test', '31/12/1999', 'Test123*');
-INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`) VALUES ('c308eb69-42c7-4392-b52c-181fa471f1af', 'personne@test.lan', 'personne', 'test', '31/12/1999', 'Test123*');
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES ('bc31b102-1d30-407c-949a-435ad895a512', 'test@test.lan', 'test', 'test', '31/12/1999', 'Test123*', '0');
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES ('738c308c-1595-4df8-b303-5bbdc07c0da6', 'jean@jean.lan', 'jean', 'jean', '31/12/1999', 'Test123*', '0');
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES ('e05c3e11-ca54-4f66-9a38-9e7204142c85', 'louis@louis.lan', 'louis', 'louis', '31/12/2006', 'Test123*', '0');
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES ('9bb0dd2c-eaa5-463e-81b7-3641e64d8e61', 'aucun@test.lan', 'aucun', 'test', '31/12/1999', 'Test123*', '0');
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES ('c308eb69-42c7-4392-b52c-181fa471f1af', 'personne@test.lan', 'personne', 'test', '31/12/1999', 'Test123*', '0');
 
 INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('e85f7e70-e54e-4a0e-8334-0d584e7dcf25', 'bc31b102-1d30-407c-949a-435ad895a512', 'f25c672f-5d36-4d1e-970b-223f3259884d', '0');
 INSERT INTO `users_events` (`id`, `user_id`,`event_id`, `role`) VALUES ('884694b1-4cf4-441c-95d9-017be3c5bc94', 'bc31b102-1d30-407c-949a-435ad895a512', '18936755-3748-48f2-9246-1a75297e885c', '0');
@@ -81,3 +81,4 @@ INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, 
 INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, `number`) VALUES ('faadfeb8-9428-496c-8d52-6d6ac7103ddf', 'f6950c89-485b-44c5-a8c5-c9d136ebbc07', '2f30545c-9b3a-40c2-8140-971a2742fb9f', '3');
 INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, `number`) VALUES ('4a1cf87c-f1cc-4fe2-8651-82a08a824871', 'd53715fd-7bda-4f81-8b30-0623f8fce859', '7df73306-bf78-49ec-8902-b8d762e414f9', '2');
 INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, `number`) VALUES ('d12199e1-1121-4781-84c0-d8bf1e2da5b3', 'd53715fd-7bda-4f81-8b30-0623f8fce859', '5eb3cb7d-2344-4f03-bc2d-f4c4d7e27f7f', '6');
+
