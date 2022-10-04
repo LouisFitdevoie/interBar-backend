@@ -73,9 +73,9 @@ CREATE TABLE `events_products_commands` (
 );
 
 CREATE TABLE `refresh_tokens` (
-  `token`varchar(255) PRIMARY KEY,
-  `user_id` varchar(255) NOT NULL,
-)
+  `token` varchar(255) PRIMARY KEY,
+  `user_id` varchar(255) NOT NULL
+);
 
 ALTER TABLE `commands` ADD FOREIGN KEY (`client_id`) REFERENCES `users` (`id`);
 
