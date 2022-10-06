@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql");
 const uuid = require("uuid");
+require("dotenv").config();
 
 const productController = require("./api/controllers/product.controller.js");
 const eventController = require("./api/controllers/event.controller.js");
@@ -16,7 +17,7 @@ const databasePort = 3306;
 const db_connection = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "test123*",
+  password: process.env.DB_PASSWORD,
   database: "interbar",
   port: databasePort,
 });
