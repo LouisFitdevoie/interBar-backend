@@ -73,7 +73,7 @@ CREATE TABLE `events_products_commands` (
 );
 
 CREATE TABLE `refresh_tokens` (
-  `token` varchar(255) PRIMARY KEY,
+  `token` varchar(500) PRIMARY KEY,
   `user_id` varchar(255) NOT NULL
 );
 

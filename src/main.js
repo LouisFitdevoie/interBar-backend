@@ -11,6 +11,7 @@ const user_eventController = require("./api/controllers/user_event.controller.js
 const userController = require("./api/controllers/user.controller.js");
 const commandController = require("./api/controllers/command.controller.js");
 const eventProductCommandController = require("./api/controllers/event_product_command.controller.js");
+const authenticationController = require("./api/controllers/authentication.controller.js");
 const authTokenMiddleware = require("./api/middlewares/authorization_token.middleware.js");
 
 const databasePort = 3306;
@@ -222,7 +223,7 @@ app.get(baseURL + "/user-with-email", (req, res) => {
 });
 //Create user
 app.post(baseURL + "/create-user", (req, res) => {
-  userController.createUser(req, res);
+  authenticationController.createUser(req, res);
 });
 //Update user data
 app.put(baseURL + "/update-user", (req, res) => {
@@ -234,7 +235,7 @@ app.put(baseURL + "/update-user-password", (req, res) => {
 });
 //Login user
 app.post(baseURL + "/login", (req, res) => {
-  userController.login(req, res);
+  authenticationController.login(req, res);
 });
 //Soft delete user
 app.put(baseURL + "/delete-user/:id", (req, res) => {
