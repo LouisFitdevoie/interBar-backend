@@ -59,7 +59,6 @@ exports.login = (req, res) => {
                   userToLogin,
                   process.env.REFRESH_TOKEN_SECRET
                 );
-                console.log(refreshToken.split("").length);
                 connection.query(
                   "INSERT INTO refresh_tokens (token, user_id) VALUES (?, ?)",
                   [refreshToken, result[0].id],
@@ -96,8 +95,47 @@ exports.login = (req, res) => {
   }
 };
 
-exports.token = (req, res) => {
+exports.updateToken = (req, res) => {
   const refreshToken = req.body.token;
+  if (refreshToken == null) return res.sendStatus(401);
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query(
+      "SELECT * FROM refresh_tokens WHERE token = ?",
+      [refreshToken],
+      (err, result) => {
+        connection.release();
+        if (err) throw err;
+        if (!result) return res.sendStatus(403);
+        const user = jwt.decode(req.body.token);
+        jwt.verify(
+          refreshToken,
+          process.env.REFRESH_TOKEN_SECRET,
+          (err, user) => {
+            if (err) return res.sendStatus(403);
+            const accessToken = generateAccessToken(user);
+            res.json({ accessToken: accessToken });
+          }
+        );
+      }
+    );
+  });
+};
+
+exports.logout = (req, res) => {
+  const refreshToken = req.body.token;
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query(
+      "DELETE FROM refresh_tokens WHERE token = ?",
+      [refreshToken],
+      (err, result) => {
+        connection.release();
+        if (err) throw err;
+        res.status(204).send("User successfully logged out");
+      }
+    );
+  });
 };
 
 exports.createUser = (req, res) => {
