@@ -11,6 +11,7 @@ CREATE TABLE `users` (
   `lastname` varchar(255) NOT NULL,
   `birthday` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `rights` int NOT NULL COMMENT '0 = user, 1 = admin' DEFAULT 0,
   `deleted_at` datetime DEFAULT null
 );
 
@@ -71,6 +72,11 @@ CREATE TABLE `events_products_commands` (
   `deleted_at` datetime DEFAULT null
 );
 
+CREATE TABLE `refresh_tokens` (
+  `token` varchar(500) PRIMARY KEY,
+  `user_id` varchar(255) NOT NULL
+);
+
 ALTER TABLE `commands` ADD FOREIGN KEY (`client_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `commands` ADD FOREIGN KEY (`servedby_id`) REFERENCES `users` (`id`);
@@ -88,3 +94,5 @@ ALTER TABLE `users_events` ADD FOREIGN KEY (`event_id`) REFERENCES `events` (`id
 ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`command_id`) REFERENCES `commands` (`id`);
 
 ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`event_product_id`) REFERENCES `events_products` (`id`);
+
+ALTER TABLE `refresh_tokens` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
