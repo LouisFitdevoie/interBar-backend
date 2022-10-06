@@ -1,11 +1,14 @@
 const uuid = require("uuid");
-const database = require("../../database.js");
-const pool = database.pool;
 const bcrypt = require("bcrypt");
-const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 const isValid = require("date-fns/isValid");
 const parse = require("date-fns/parse");
 var formatDistanceToNowStrict = require("date-fns/formatDistanceToNowStrict");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const database = require("../../database.js");
+const pool = database.pool;
+const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 class User {
   constructor(emailAddress, firstName, lastName, birthday, password) {
@@ -62,11 +65,9 @@ exports.getUserWithId = (req, res) => {
     });
   } else {
     console.log(`Invalid user id ${req.query.id}`);
-    res
-      .status(400)
-      .send({
-        error: "Invalid user id, " + req.query.id + " is not a valid uuid",
-      });
+    res.status(400).send({
+      error: "Invalid user id, " + req.query.id + " is not a valid uuid",
+    });
   }
 };
 exports.getUserWithName = (req, res) => {
@@ -89,15 +90,13 @@ exports.getUserWithName = (req, res) => {
             res.send(result);
           } else {
             console.log("No users found");
-            res
-              .status(404)
-              .send({
-                error:
-                  "No users found for the name " +
-                  req.query.firstName +
-                  " " +
-                  req.query.lastName,
-              });
+            res.status(404).send({
+              error:
+                "No users found for the name " +
+                req.query.firstName +
+                " " +
+                req.query.lastName,
+            });
           }
         }
       );
@@ -125,11 +124,9 @@ exports.getUserWithEmail = (req, res) => {
             res.send(result);
           } else {
             console.log("No users found");
-            res
-              .status(404)
-              .send({
-                error: "No users found for the email " + req.body.emailAddress,
-              });
+            res.status(404).send({
+              error: "No users found for the email " + req.body.emailAddress,
+            });
           }
         }
       );
@@ -189,13 +186,11 @@ exports.createUser = (req, res) => {
                       "User account already exists for email address " +
                         req.body.emailAddress
                     );
-                    res
-                      .status(400)
-                      .send({
-                        error:
-                          "User account already exists for email address " +
-                          req.body.emailAddress,
-                      });
+                    res.status(400).send({
+                      error:
+                        "User account already exists for email address " +
+                        req.body.emailAddress,
+                    });
                   } else {
                     connection.query(
                       "SELECT id FROM users WHERE firstname = ? AND lastname = ? AND deleted_at IS null",
@@ -209,15 +204,13 @@ exports.createUser = (req, res) => {
                               " " +
                               req.body.lastName
                           );
-                          res
-                            .status(400)
-                            .send({
-                              error:
-                                "User account already exists for name " +
-                                req.body.firstName +
-                                " " +
-                                req.body.lastName,
-                            });
+                          res.status(400).send({
+                            error:
+                              "User account already exists for name " +
+                              req.body.firstName +
+                              " " +
+                              req.body.lastName,
+                          });
                         } else {
                           let userToCreate = new User(
                             req.body.emailAddress.trim(),
@@ -261,12 +254,10 @@ exports.createUser = (req, res) => {
         }
       } else {
         console.log("Invalid password");
-        res
-          .status(400)
-          .send({
-            error:
-              "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
-          });
+        res.status(400).send({
+          error:
+            "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
+        });
       }
     } else {
       console.log("Missing firstname or lastname");
@@ -420,20 +411,16 @@ exports.updateUserPassword = (req, res) => {
       }
     } else {
       console.log("New password confirmation does not match new password");
-      res
-        .status(400)
-        .send({
-          error: "New password confirmation does not match new password",
-        });
+      res.status(400).send({
+        error: "New password confirmation does not match new password",
+      });
     }
   } else {
     console.log("Invalid password");
-    res
-      .status(400)
-      .send({
-        error:
-          "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
-      });
+    res.status(400).send({
+      error:
+        "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
+    });
   }
 };
 exports.login = (req, res) => {
@@ -454,20 +441,31 @@ exports.login = (req, res) => {
               if (
                 bcrypt.compareSync(req.body.password.trim(), result[0].password)
               ) {
+                const userToLogin = {
+                  firstName: result[0].firstname,
+                  lastName: result[0].lastname,
+                  emailAddress: result[0].emailaddress,
+                  birthday: result[0].birthday,
+                  id: result[0].id,
+                };
+                const accessToken = jwt.sign(
+                  userToLogin,
+                  process.env.ACCESS_TOKEN_SECRET
+                );
                 console.log("User logged in");
-                res.status(200).send({ message: "User logged in" });
+                res.status(200).send({
+                  message: "User logged in",
+                  accessToken: accessToken,
+                });
               } else {
                 console.log("Invalid password");
                 res.status(400).send({ error: "Invalid password" });
               }
             } else {
               console.log("No users found");
-              res
-                .status(404)
-                .send({
-                  error:
-                    "No users found for the email " + req.body.emailAddress,
-                });
+              res.status(404).send({
+                error: "No users found for the email " + req.body.emailAddress,
+              });
             }
           }
         );

@@ -1,5 +1,8 @@
 const express = require("express");
 const app = express();
+const mysql = require("mysql");
+const uuid = require("uuid");
+
 const productController = require("./api/controllers/product.controller.js");
 const eventController = require("./api/controllers/event.controller.js");
 const eventProductController = require("./api/controllers/event_product.controller.js");
@@ -7,8 +10,7 @@ const user_eventController = require("./api/controllers/user_event.controller.js
 const userController = require("./api/controllers/user.controller.js");
 const commandController = require("./api/controllers/command.controller.js");
 const eventProductCommandController = require("./api/controllers/event_product_command.controller.js");
-const mysql = require("mysql");
-const uuid = require("uuid");
+const authTokenMiddleware = require("./api/middlewares/authorization_token.middleware.js");
 
 const databasePort = 3306;
 const db_connection = mysql.createConnection({
@@ -36,10 +38,9 @@ app.listen(port, () => {
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  let result = {
+  res.send({
     message: "Hello World",
-  };
-  res.send(JSON.stringify(result));
+  });
 });
 
 //#############################################################################
