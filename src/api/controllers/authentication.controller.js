@@ -42,7 +42,7 @@ exports.login = (req, res) => {
           "SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null",
           [req.body.emailAddress.trim()],
           (err, result) => {
-            if (err) throw err;
+            if (err) res.status(400).send({ error: "Invalid email address" });
             if (result.length > 0) {
               if (
                 bcrypt.compareSync(req.body.password.trim(), result[0].password)
@@ -67,8 +67,11 @@ exports.login = (req, res) => {
                     if (err) throw err;
                     console.log("User successfully logged in");
                     res.json({
+                      success: true,
+                      statusCode: 200,
+                      message: "User successfully logged in",
                       accessToken: accessToken,
-                      refreshToken: refreshToken,
+                      user: userToLogin,
                     });
                   }
                 );
