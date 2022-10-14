@@ -71,7 +71,14 @@ exports.login = (req, res) => {
                       statusCode: 200,
                       message: "User successfully logged in",
                       accessToken: accessToken,
-                      user: userToLogin,
+                      refreshToken: refreshToken,
+                      user: {
+                        firstName: userToLogin.firstName,
+                        lastName: userToLogin.lastName,
+                        emailAddress: userToLogin.emailAddress,
+                        birthday: userToLogin.birthday,
+                        id: userToLogin.id,
+                      },
                     });
                   }
                 );
