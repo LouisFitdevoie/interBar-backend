@@ -3,7 +3,6 @@ require("dotenv").config();
 
 exports.verifyAuthorizationToken = (req, res, next) => {
   const authorizationHeader = req.headers["authorization"];
-  console.log(`authorizationHeader: ${authorizationHeader}`);
   const token = authorizationHeader && authorizationHeader.split(" ")[1];
   if (token == null) {
     console.log("Authorization token missing");
