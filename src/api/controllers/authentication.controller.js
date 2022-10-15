@@ -7,7 +7,9 @@ require("dotenv").config();
 
 const database = require("../../database.js");
 const pool = database.pool;
-const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+const emailRegex = new RegExp(
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+);
 
 class User {
   constructor(emailAddress, firstName, lastName, birthday, password) {
