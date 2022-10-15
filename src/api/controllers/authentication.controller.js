@@ -247,7 +247,12 @@ exports.createUser = (req, res) => {
                               connection.release();
                               if (err) throw err;
                               console.log("User created");
-                              res.send(userToCreate);
+                              res.json({
+                                success: true,
+                                statusCode: 200,
+                                message: "User created successfully",
+                                userCreated: userToCreate,
+                              });
                             }
                           );
                         }
