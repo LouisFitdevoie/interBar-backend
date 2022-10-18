@@ -120,13 +120,13 @@ exports.updateToken = (req, res) => {
       (err, result) => {
         connection.release();
         if (err) throw err;
-        if (!result) return res.sendStatus(403);
+        console.log(result);
+        if (result.length === 0) return res.sendStatus(404);
         const user = jwt.decode(req.body.token);
         jwt.verify(
           refreshToken,
           process.env.REFRESH_TOKEN_SECRET,
           (err, user) => {
-            console.log(user);
             if (err) return res.sendStatus(403);
             const userToUpdateToken = {
               firstName: user.firstName,
