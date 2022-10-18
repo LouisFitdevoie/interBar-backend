@@ -29,9 +29,7 @@ class User {
 }
 
 function generateAccessToken(user) {
-  // For now the token expire in 12h for testing purposes
-  // return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "12h" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 }
 
 exports.login = (req, res) => {
@@ -120,7 +118,6 @@ exports.updateToken = (req, res) => {
       (err, result) => {
         connection.release();
         if (err) throw err;
-        console.log(result);
         if (result.length === 0) return res.sendStatus(404);
         const user = jwt.decode(req.body.token);
         jwt.verify(
