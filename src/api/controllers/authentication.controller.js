@@ -126,8 +126,16 @@ exports.updateToken = (req, res) => {
           refreshToken,
           process.env.REFRESH_TOKEN_SECRET,
           (err, user) => {
+            console.log(user);
             if (err) return res.sendStatus(403);
-            const accessToken = generateAccessToken(user);
+            const userToUpdateToken = {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              emailAddress: user.emailAddress,
+              birthday: user.birthday,
+              id: user.id,
+            };
+            const accessToken = generateAccessToken(userToUpdateToken);
             res.json({ accessToken: accessToken });
           }
         );
