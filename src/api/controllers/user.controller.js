@@ -257,7 +257,7 @@ exports.updateUserPassword = (req, res) => {
                       connection.release();
                       if (err) throw err;
                       console.log("Password updated");
-                      res.send({ message: "Password updated" });
+                      res.send({ success: "Password updated" });
                     }
                   );
                 } else {
