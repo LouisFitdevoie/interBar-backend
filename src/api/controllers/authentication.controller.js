@@ -7,7 +7,9 @@ require("dotenv").config();
 
 const database = require("../../database.js");
 const pool = database.pool;
-const emailRegex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+const emailRegex = new RegExp(
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+);
 
 class User {
   constructor(emailAddress, firstName, lastName, birthday, password) {
@@ -42,7 +44,7 @@ exports.login = (req, res) => {
           "SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null",
           [req.body.emailAddress.trim()],
           (err, result) => {
-            if (err) throw err;
+            if (err) res.status(400).send({ error: "Invalid email address" });
             if (result.length > 0) {
               if (
                 bcrypt.compareSync(req.body.password.trim(), result[0].password)
@@ -67,8 +69,18 @@ exports.login = (req, res) => {
                     if (err) throw err;
                     console.log("User successfully logged in");
                     res.json({
+                      success: true,
+                      statusCode: 200,
+                      message: "User successfully logged in",
                       accessToken: accessToken,
                       refreshToken: refreshToken,
+                      user: {
+                        firstName: userToLogin.firstName,
+                        lastName: userToLogin.lastName,
+                        emailAddress: userToLogin.emailAddress,
+                        birthday: userToLogin.birthday,
+                        id: userToLogin.id,
+                      },
                     });
                   }
                 );
@@ -106,14 +118,21 @@ exports.updateToken = (req, res) => {
       (err, result) => {
         connection.release();
         if (err) throw err;
-        if (!result) return res.sendStatus(403);
+        if (result.length === 0) return res.sendStatus(404);
         const user = jwt.decode(req.body.token);
         jwt.verify(
           refreshToken,
           process.env.REFRESH_TOKEN_SECRET,
           (err, user) => {
             if (err) return res.sendStatus(403);
-            const accessToken = generateAccessToken(user);
+            const userToUpdateToken = {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              emailAddress: user.emailAddress,
+              birthday: user.birthday,
+              id: user.id,
+            };
+            const accessToken = generateAccessToken(userToUpdateToken);
             res.json({ accessToken: accessToken });
           }
         );
@@ -235,7 +254,12 @@ exports.createUser = (req, res) => {
                               connection.release();
                               if (err) throw err;
                               console.log("User created");
-                              res.send(userToCreate);
+                              res.json({
+                                success: true,
+                                statusCode: 200,
+                                message: "User created successfully",
+                                userCreated: userToCreate,
+                              });
                             }
                           );
                         }

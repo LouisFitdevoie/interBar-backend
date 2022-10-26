@@ -398,13 +398,9 @@ app.post(baseURL + "/login", (req, res) => {
   authenticationController.login(req, res);
 });
 //Update token
-app.post(
-  baseURL + "/update-token",
-  authTokenMiddleware.verifyAuthorizationToken,
-  (req, res) => {
-    authenticationController.updateToken(req, res);
-  }
-);
+app.post(baseURL + "/update-token", (req, res) => {
+  authenticationController.updateToken(req, res);
+});
 //Logout user
 app.delete(
   baseURL + "/logout",
