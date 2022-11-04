@@ -311,7 +311,10 @@ exports.createEvent = (req, res) => {
                         console.log("Event created");
                         res
                           .status(200)
-                          .send({ success: "Event created successfully" });
+                          .send({
+                            success: "Event created successfully",
+                            eventId: eventToCreate.id,
+                          });
                       }
                     );
                   }
