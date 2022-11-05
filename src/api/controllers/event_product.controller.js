@@ -55,11 +55,9 @@ exports.getAllEventProductsByEventId = (req, res) => {
             );
           } else {
             connection.release();
-            res
-              .status(404)
-              .send({
-                error: "No event was found with the id " + req.query.id,
-              });
+            res.status(404).send({
+              error: "No event was found with the id " + req.query.id,
+            });
           }
         }
       );
@@ -97,22 +95,18 @@ exports.getProductEventStock = (req, res) => {
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(404)
-                      .send({
-                        error:
-                          "No product was found with the id " +
-                          req.query.product_id,
-                      });
+                    res.status(404).send({
+                      error:
+                        "No product was found with the id " +
+                        req.query.product_id,
+                    });
                   }
                 }
               );
             } else {
-              res
-                .status(404)
-                .send({
-                  error: "No event was found with the id " + req.query.event_id,
-                });
+              res.status(404).send({
+                error: "No event was found with the id " + req.query.event_id,
+              });
             }
           }
         );
@@ -157,22 +151,18 @@ exports.getProductEventBuyingPrice = (req, res) => {
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(404)
-                      .send({
-                        error:
-                          "No product was found with the id " +
-                          req.query.product_id,
-                      });
+                    res.status(404).send({
+                      error:
+                        "No product was found with the id " +
+                        req.query.product_id,
+                    });
                   }
                 }
               );
             } else {
-              res
-                .status(404)
-                .send({
-                  error: "No event was found with the id " + req.query.event_id,
-                });
+              res.status(404).send({
+                error: "No event was found with the id " + req.query.event_id,
+              });
             }
           }
         );
@@ -217,22 +207,18 @@ exports.getProductEventSellingPrice = (req, res) => {
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(404)
-                      .send({
-                        error:
-                          "No product was found with the id " +
-                          req.query.product_id,
-                      });
+                    res.status(404).send({
+                      error:
+                        "No product was found with the id " +
+                        req.query.product_id,
+                    });
                   }
                 }
               );
             } else {
-              res
-                .status(404)
-                .send({
-                  error: "No event was found with the id " + req.query.event_id,
-                });
+              res.status(404).send({
+                error: "No event was found with the id " + req.query.event_id,
+              });
             }
           }
         );
@@ -277,22 +263,18 @@ exports.getProductEventInfos = (req, res) => {
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(404)
-                      .send({
-                        error:
-                          "No product was found with the id " +
-                          req.query.product_id,
-                      });
+                    res.status(404).send({
+                      error:
+                        "No product was found with the id " +
+                        req.query.product_id,
+                    });
                   }
                 }
               );
             } else {
-              res
-                .status(404)
-                .send({
-                  error: "No event was found with the id " + req.query.event_id,
-                });
+              res.status(404).send({
+                error: "No event was found with the id " + req.query.event_id,
+              });
             }
           }
         );
@@ -367,36 +349,29 @@ exports.createEventProduct = (req, res) => {
                                 );
                               } else {
                                 connection.release();
-                                res
-                                  .status(409)
-                                  .send({
-                                    error:
-                                      "The product is already in the event",
-                                  });
+                                res.status(409).send({
+                                  error: "The product is already in the event",
+                                });
                               }
                             }
                           );
                         } else {
                           connection.release();
-                          res
-                            .status(404)
-                            .send({
-                              error:
-                                "No product was found with the id " +
-                                eventProductToCreate.product_id,
-                            });
+                          res.status(404).send({
+                            error:
+                              "No product was found with the id " +
+                              eventProductToCreate.product_id,
+                          });
                         }
                       }
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(404)
-                      .send({
-                        error:
-                          "No event was found with the id " +
-                          eventProductToCreate.event_id,
-                      });
+                    res.status(404).send({
+                      error:
+                        "No event was found with the id " +
+                        eventProductToCreate.event_id,
+                    });
                   }
                 }
               );
@@ -447,12 +422,9 @@ exports.deleteEventProduct = (req, res) => {
             );
           } else {
             connection.release();
-            res
-              .status(404)
-              .send({
-                error:
-                  "No event product was found with the id " + req.params.id,
-              });
+            res.status(404).send({
+              error: "No event product was found with the id " + req.params.id,
+            });
           }
         }
       );
@@ -504,33 +476,27 @@ exports.editEventProduct = (req, res) => {
                           if (dataToEdit[0]) {
                             if (parseInt(req.body.stock) <= 0) {
                               connection.release();
-                              res
-                                .status(400)
-                                .send({
-                                  error: "The stock must be a positive number",
-                                });
+                              res.status(400).send({
+                                error: "The stock must be a positive number",
+                              });
                             }
                           }
                           if (dataToEdit[1]) {
                             if (parseFloat(req.body.buyingPrice) < 0.0) {
                               connection.release();
-                              res
-                                .status(400)
-                                .send({
-                                  error:
-                                    "The buying price must be a positive number",
-                                });
+                              res.status(400).send({
+                                error:
+                                  "The buying price must be a positive number",
+                              });
                             }
                           }
                           if (dataToEdit[2]) {
                             if (parseFloat(req.body.sellingPrice) < 0.0) {
                               connection.release();
-                              res
-                                .status(400)
-                                .send({
-                                  error:
-                                    "The selling price must be a positive number",
-                                });
+                              res.status(400).send({
+                                error:
+                                  "The selling price must be a positive number",
+                              });
                             }
                           }
                           if (dataToEdit.includes(true)) {
@@ -568,7 +534,11 @@ exports.editEventProduct = (req, res) => {
                               (err, result) => {
                                 connection.release();
                                 if (err) throw err;
-                                res.send(result);
+                                res
+                                  .status(200)
+                                  .send({
+                                    success: "EventProduct successfully edited",
+                                  });
                               }
                             );
                           } else {
@@ -577,43 +547,34 @@ exports.editEventProduct = (req, res) => {
                           }
                         } else {
                           connection.release();
-                          res
-                            .status(404)
-                            .send({
-                              error:
-                                "No event product was found with the id " +
-                                req.params.id,
-                            });
+                          res.status(404).send({
+                            error:
+                              "No event product was found with the id " +
+                              req.params.id,
+                          });
                         }
                       }
                     );
                   } else {
                     connection.release();
-                    res
-                      .status(403)
-                      .send({
-                        error: "The event is currently active or has ended",
-                      });
+                    res.status(403).send({
+                      error: "The event is currently active or has ended",
+                    });
                   }
                 } else {
                   connection.release();
-                  res
-                    .status(404)
-                    .send({
-                      error:
-                        "No event was found with the id " + result[0].event_id,
-                    });
+                  res.status(404).send({
+                    error:
+                      "No event was found with the id " + result[0].event_id,
+                  });
                 }
               }
             );
           } else {
             connection.release();
-            res
-              .status(404)
-              .send({
-                error:
-                  "No event product was found with the id " + req.params.id,
-              });
+            res.status(404).send({
+              error: "No event product was found with the id " + req.params.id,
+            });
           }
         }
       );
@@ -663,27 +624,23 @@ exports.sellProduct = (req, res) => {
                               );
                             } else {
                               connection.release();
-                              res
-                                .status(400)
-                                .send({
-                                  error:
-                                    "The stock is not enough to sell " +
-                                    req.body.quantity +
-                                    " products",
-                                });
+                              res.status(400).send({
+                                error:
+                                  "The stock is not enough to sell " +
+                                  req.body.quantity +
+                                  " products",
+                              });
                             }
                           }
                         }
                       );
                     } else {
                       connection.release();
-                      res
-                        .status(404)
-                        .send({
-                          error:
-                            "No product was found with the id " +
-                            req.query.productId,
-                        });
+                      res.status(404).send({
+                        error:
+                          "No product was found with the id " +
+                          req.query.productId,
+                      });
                     }
                   }
                 );
@@ -693,11 +650,9 @@ exports.sellProduct = (req, res) => {
               }
             } else {
               connection.release();
-              res
-                .status(404)
-                .send({
-                  error: "No event was found with the id " + req.query.eventId,
-                });
+              res.status(404).send({
+                error: "No event was found with the id " + req.query.eventId,
+              });
             }
           }
         );
