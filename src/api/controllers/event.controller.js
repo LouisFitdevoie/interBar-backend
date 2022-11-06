@@ -59,11 +59,41 @@ exports.getEventById = (req, res) => {
         "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
-          connection.release();
           if (err) throw err;
           if (result.length > 0) {
             console.log("Number of events found: " + result.length + "");
-            res.send(result);
+            const event = result[0];
+            connection.query(
+              "SELECT user_id FROM users_events WHERE event_id=? AND role=2",
+              [req.query.id],
+              (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                  event.organizer_id = result[0].user_id;
+                  connection.query(
+                    "SELECT firstname, lastname FROM users WHERE id=?",
+                    [event.organizer_id],
+                    (err, result) => {
+                      connection.release();
+                      if (err) throw err;
+                      if (result.length > 0) {
+                        event.organizer =
+                          result[0].firstname + " " + result[0].lastname;
+                        res.send(event);
+                      } else {
+                        console.log("User not found with organizerId");
+                        res
+                          .status(404)
+                          .send({ error: "User not found with organizerId" });
+                      }
+                    }
+                  );
+                } else {
+                  console.log("Organizer id not found");
+                  res.status(404).send({ error: "Organizer id not found" });
+                }
+              }
+            );
           } else {
             console.log("No events found");
             res
@@ -309,12 +339,10 @@ exports.createEvent = (req, res) => {
                         connection.release();
                         if (err) throw err;
                         console.log("Event created");
-                        res
-                          .status(200)
-                          .send({
-                            success: "Event created successfully",
-                            eventId: eventToCreate.id,
-                          });
+                        res.status(200).send({
+                          success: "Event created successfully",
+                          eventId: eventToCreate.id,
+                        });
                       }
                     );
                   }
