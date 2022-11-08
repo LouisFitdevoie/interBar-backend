@@ -526,3 +526,37 @@ exports.sellerToUser = (req, res) => {
       .send({ error: req.body.eventId + " is not a valid event id" });
   }
 };
+
+exports.getAllEventsForUser = (req, res) => {
+  //Get all events for user with id
+  if (uuid.validate(req.params.userId)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query(
+        "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+        [req.params.userId],
+        (err, result) => {
+          if (err) throw err;
+          if (result.length > 0) {
+            connection.query(
+              "SELECT * FROM events WHERE id IN (SELECT event_id FROM users_events WHERE user_id = ? AND left_event_at IS null) AND deleted_at IS null",
+              [req.params.userId],
+              (err, result) => {
+                connection.release();
+                if (err) throw err;
+                res.send(result);
+              }
+            );
+          } else {
+            connection.release();
+            res.status(404).send({ error: "User not found" });
+          }
+        }
+      );
+    });
+  } else {
+    res
+      .status(400)
+      .send({ error: req.params.userId + " is not a valid user id" });
+  }
+};

@@ -336,6 +336,14 @@ app.put(
     user_eventController.sellerToUser(req, res);
   }
 );
+//Get all events that joined an user
+app.get(
+  baseURL + "/users-events/:userId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    user_eventController.getAllEventsForUser(req, res);
+  }
+);
 
 //#############################################################################
 // USERS
