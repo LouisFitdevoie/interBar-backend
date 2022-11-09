@@ -539,12 +539,31 @@ exports.getAllEventsForUser = (req, res) => {
           if (err) throw err;
           if (result.length > 0) {
             connection.query(
-              "SELECT * FROM events WHERE id IN (SELECT event_id FROM users_events WHERE user_id = ? AND left_event_at IS null) AND deleted_at IS null",
+              "SELECT events.id, events.name, events.description, events.startdate, events.enddate, events.created_at, events.location, users_events.role FROM events INNER JOIN users_events ON events.id = users_events.event_id WHERE users_events.user_id = ? AND users_events.left_event_at IS null AND events.deleted_at IS null",
               [req.params.userId],
               (err, result) => {
-                connection.release();
                 if (err) throw err;
-                res.send(result);
+                console.log("Getting all events for user");
+                result.sort((a, b) => {
+                  return new Date(a.startdate) - new Date(b.startdate);
+                });
+                let eventsToReturn = [];
+                result.forEach((event) => {
+                  connection.query(
+                    "SELECT users.firstname, users.lastname FROM users INNER JOIN users_events ON users.id = users_events.user_id WHERE users_events.event_id = ?",
+                    [event.id],
+                    (err, result) => {
+                      if (err) throw err;
+                      event.organizer =
+                        result[0].firstname + " " + result[0].lastname;
+                      eventsToReturn.push(event);
+                    }
+                  );
+                });
+                setTimeout(() => {
+                  connection.release();
+                  res.send(eventsToReturn);
+                }, 1000);
               }
             );
           } else {
