@@ -534,11 +534,9 @@ exports.editEventProduct = (req, res) => {
                               (err, result) => {
                                 connection.release();
                                 if (err) throw err;
-                                res
-                                  .status(200)
-                                  .send({
-                                    success: "EventProduct successfully edited",
-                                  });
+                                res.status(200).send({
+                                  success: "EventProduct successfully edited",
+                                });
                               }
                             );
                           } else {
@@ -557,7 +555,7 @@ exports.editEventProduct = (req, res) => {
                     );
                   } else {
                     connection.release();
-                    res.status(403).send({
+                    res.status(404).send({
                       error: "The event is currently active or has ended",
                     });
                   }
