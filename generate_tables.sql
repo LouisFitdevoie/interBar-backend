@@ -37,7 +37,8 @@ CREATE TABLE `products` (
 
 CREATE TABLE `commands` (
   `id` varchar(255) PRIMARY KEY COMMENT 'UUID v4',
-  `client_id` varchar(255) NOT NULL,
+  `client_id` varchar(255),
+  `client_name` varchar(255),
   `servedby_id` varchar(255) NOT NULL,
   `event_id` varchar(255) NOT NULL,
   `isserved` boolean NOT NULL,
@@ -96,3 +97,5 @@ ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`command_id`) REFERENCES
 ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`event_product_id`) REFERENCES `events_products` (`id`);
 
 ALTER TABLE `refresh_tokens` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+INSERT INTO `users` (`id`, `emailaddress`, `firstname`, `lastname`, `birthday`, `password`, `rights`) VALUES (UUID(), 'anonyme@anonyme.be', 'anonyme', 'anonyme', '01/01/1950', '3n0b9KHQTX3P5j*DFxhBi', '0');
