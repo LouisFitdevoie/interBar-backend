@@ -550,7 +550,7 @@ exports.getAllEventsForUser = (req, res) => {
                 let eventsToReturn = [];
                 result.forEach((event) => {
                   connection.query(
-                    "SELECT users.firstname, users.lastname FROM users INNER JOIN users_events ON users.id = users_events.user_id WHERE users_events.event_id = ?",
+                    "SELECT users.firstname, users.lastname FROM users INNER JOIN users_events ON users.id = users_events.user_id WHERE users_events.event_id = ? AND users_events.role = 2",
                     [event.id],
                     (err, result) => {
                       if (err) throw err;
