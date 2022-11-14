@@ -641,10 +641,10 @@ exports.editEvent = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("Event ended successfully");
+                    console.log("Event endDate successfully edited");
                     res
                       .status(200)
-                      .send({ success: "Event ended successfully" });
+                      .send({ success: "Event endDate successfully edited" });
                   }
                 );
               } else {
