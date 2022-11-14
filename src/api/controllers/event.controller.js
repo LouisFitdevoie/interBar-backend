@@ -628,16 +628,30 @@ exports.editEvent = (req, res) => {
                 res.status(400).send({ error: "No values to edit" });
               }
             } else {
-              connection.release();
-              console.log(
-                "Event with id " + req.params.id + " has already started"
-              );
-              res.status(400).send({
-                error:
-                  "Event with id " +
-                  req.params.id +
-                  " has already started or has ended",
-              });
+              if (
+                req.body.endDate &&
+                req.body.startDate === null &&
+                req.body.name === null &&
+                req.body.location === null &&
+                req.body.description === null
+              ) {
+                connection.query(
+                  "UPDATE events SET enddate = ? WHERE id = ? AND deleted_at IS null",
+                  [new Date(req.body.endDate), req.params.id],
+                  (err, result) => {
+                    connection.release();
+                    if (err) throw err;
+                    console.log("Event ended successfully");
+                    res
+                      .status(200)
+                      .send({ success: "Event ended successfully" });
+                  }
+                );
+              } else {
+                connection.release();
+                console.log("Event has already started");
+                res.status(400).send({ error: "Event has already started" });
+              }
             }
           } else {
             connection.release();
