@@ -300,7 +300,11 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "User quit event" });
-                                res.send(result);
+                                res
+                                  .status(200)
+                                  .send({
+                                    success: "User successfully quit event",
+                                  });
                               }
                             );
                           } else if (result[0].role === 1) {
@@ -312,7 +316,11 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "Seller quit event" });
-                                res.send(result);
+                                res
+                                  .status(200)
+                                  .send({
+                                    success: "Seller successfully quit event",
+                                  });
                               }
                             );
                           } else if (result[0].role === 2) {
