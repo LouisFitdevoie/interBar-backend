@@ -300,11 +300,9 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "User quit event" });
-                                res
-                                  .status(200)
-                                  .send({
-                                    success: "User successfully quit event",
-                                  });
+                                res.status(200).send({
+                                  success: "User successfully quit event",
+                                });
                               }
                             );
                           } else if (result[0].role === 1) {
@@ -316,11 +314,9 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "Seller quit event" });
-                                res
-                                  .status(200)
-                                  .send({
-                                    success: "Seller successfully quit event",
-                                  });
+                                res.status(200).send({
+                                  success: "Seller successfully quit event",
+                                });
                               }
                             );
                           } else if (result[0].role === 2) {
@@ -407,7 +403,12 @@ exports.userToSeller = (req, res) => {
                                     connection.release();
                                     if (err) throw err;
                                     console.log({ success: "User to seller" });
-                                    res.send(result);
+                                    res
+                                      .status(200)
+                                      .send({
+                                        success:
+                                          "Successfully changed user to seller",
+                                      });
                                   }
                                 );
                               } else {
@@ -493,14 +494,17 @@ exports.sellerToUser = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "Seller to user" });
-                                res.send(result);
+                                res.status(200).send({
+                                  success:
+                                    "Successfully changed role from seller to user",
+                                });
                               }
                             );
                           } else {
                             connection.release();
                             res
                               .status(400)
-                              .send({ error: "User has not the role user" });
+                              .send({ error: "User has not the role seller" });
                           }
                         } else {
                           connection.release();
