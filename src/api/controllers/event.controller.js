@@ -336,13 +336,28 @@ exports.createEvent = (req, res) => {
                         eventToCreate.deleted_at,
                       ],
                       (err, result) => {
-                        connection.release();
+                        // connection.release();
                         if (err) throw err;
-                        console.log("Event created");
-                        res.status(200).send({
-                          success: "Event created successfully",
-                          eventId: eventToCreate.id,
-                        });
+                        connection.query(
+                          "SELECT id FROM users WHERE emailaddress=?",
+                          ["anonyme@anonyme.be"],
+                          (err, result) => {
+                            if (err) throw err;
+                            connection.query(
+                              "INSERT INTO users_events (id, user_id, event_id, role, left_event_at) VALUES (UUID(), ?, ?, ?, ?)",
+                              [result[0].id, eventToCreate.id, 1, null],
+                              (err, result) => {
+                                connection.release();
+                                if (err) throw err;
+                                console.log("Event created");
+                                res.status(200).send({
+                                  success: "Event created successfully",
+                                  eventId: eventToCreate.id,
+                                });
+                              }
+                            );
+                          }
+                        );
                       }
                     );
                   }
@@ -407,8 +422,6 @@ exports.deleteEvent = (req, res) => {
       .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
   }
 };
-
-//   seller_password;
 
 exports.editSellerPassword = (req, res) => {
   let now = new Date();
@@ -519,7 +532,6 @@ exports.editSellerPassword = (req, res) => {
 };
 
 exports.editEvent = (req, res) => {
-  let now = new Date();
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
