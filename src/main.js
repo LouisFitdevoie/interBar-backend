@@ -462,6 +462,14 @@ app.get(
     commandController.getCommandsByClientId(req, res);
   }
 );
+//Get commands by client name
+app.get(
+  baseURL + "/commands-with-client-name/:name",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getCommandsByClientName(req, res);
+  }
+);
 //Get commands by event id
 app.get(
   baseURL + "/commands-with-event-id/:id",
