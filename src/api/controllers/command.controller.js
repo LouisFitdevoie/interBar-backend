@@ -133,14 +133,51 @@ exports.getCommandsByEventId = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with event id ${req.params.id}`);
       connection.query(
-        "SELECT * FROM commands WHERE event_id = ? AND deleted_at IS null",
+        "SELECT commands.id, commands.client_id, commands.servedBy_id, commands.event_id, commands.isServed, commands.isPaid, commands.created_at, commands.deleted_at, events_products_commands.id AS events_products_commands_id, events_products_commands.command_id, events_products_commands.event_product_id, events_products_commands.number, events_products_commands.deleted_at AS events_products_commands_deleted_at FROM commands LEFT JOIN events_products_commands ON commands.id = events_products_commands.command_id WHERE commands.event_id = ? AND commands.deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of commands found: " + result.length + "");
-            res.send(result);
+            let commandsToReturn = [];
+            result.forEach((command) => {
+              let commandIndex = commandsToReturn.findIndex(
+                (commandToReturn) => commandToReturn.id === command.id
+              );
+              if (commandIndex === -1) {
+                let newCommand = {
+                  id: command.id,
+                  client_id: command.client_id,
+                  servedBy_id: command.servedBy_id,
+                  event_id: command.event_id,
+                  isServed: command.isServed,
+                  isPaid: command.isPaid,
+                  created_at: command.created_at,
+                  deleted_at: command.deleted_at,
+                  events_products_commands: [
+                    {
+                      id: command.events_products_commands_id,
+                      event_product_id: command.event_product_id,
+                      number: command.number,
+                      deleted_at: command.events_products_commands_deleted_at,
+                    },
+                  ],
+                };
+                commandsToReturn.push(newCommand);
+              } else {
+                commandsToReturn[commandIndex].events_products_commands.push({
+                  id: command.events_products_commands_id,
+                  command_id: command.command_id,
+                  event_product_id: command.event_product_id,
+                  number: command.number,
+                  deleted_at: command.events_products_commands_deleted_at,
+                });
+              }
+            });
+            console.log(
+              "Number of commands found: " + commandsToReturn.length + ""
+            );
+            res.send(commandsToReturn);
           } else {
             console.log("No commands found");
             res.status(404).send({
@@ -531,22 +568,39 @@ exports.createCommand = (req, res) => {
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
-            "INSERT INTO commands (id, client_id, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-              newCommand.id,
-              newCommand.client_id,
-              newCommand.servedBy_id,
-              newCommand.event_id,
-              newCommand.isServed,
-              newCommand.isPaid,
-              newCommand.created_at,
-              newCommand.deleted_at,
-            ],
+            "SELECT firstname, lastname FROM users WHERE id = ?",
+            [req.body.clientId],
             (err, result) => {
-              connection.release();
               if (err) throw err;
-              console.log("Command created");
-              res.send(result);
+              if (result.length > 0) {
+                connection.query(
+                  "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  [
+                    newCommand.id,
+                    newCommand.client_id,
+                    result[0].firstname + " " + result[0].lastname,
+                    newCommand.servedBy_id,
+                    newCommand.event_id,
+                    newCommand.isServed,
+                    newCommand.isPaid,
+                    newCommand.created_at,
+                    newCommand.deleted_at,
+                  ],
+                  (err, result) => {
+                    connection.release();
+                    if (err) throw err;
+                    console.log("Command created");
+                    res.status(200).send({
+                      success: "Command created successfully",
+                      commandId: newCommand.id,
+                    });
+                  }
+                );
+              } else {
+                res
+                  .status(404)
+                  .send({ error: "No user found with the client id" });
+              }
             }
           );
         });
