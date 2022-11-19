@@ -133,7 +133,7 @@ exports.getCommandsByEventId = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with event id ${req.params.id}`);
       connection.query(
-        "SELECT commands.id, commands.client_id, commands.client_name, commands.servedBy_id, commands.event_id, commands.isServed, commands.isPaid, commands.created_at, commands.deleted_at, events_products_commands.id AS events_products_commands_id, events_products_commands.command_id, events_products_commands.event_product_id, events_products_commands.number, events_products_commands.deleted_at AS events_products_commands_deleted_at FROM commands LEFT JOIN events_products_commands ON commands.id = events_products_commands.command_id WHERE commands.event_id = ? AND commands.deleted_at IS null",
+        "SELECT commands.id, commands.client_id, commands.client_name, commands.servedBy_id, commands.event_id, commands.isServed, commands.isPaid, commands.created_at, commands.deleted_at, events_products_commands.id AS events_products_commands_id, events_products_commands.command_id, events_products_commands.event_product_id, events_products_commands.number, events_products_commands.deleted_at AS events_products_commands_deleted_at, events_products.sellingprice FROM commands LEFT JOIN events_products_commands ON commands.id = events_products_commands.command_id INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id WHERE commands.event_id = ? AND commands.deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -161,6 +161,7 @@ exports.getCommandsByEventId = (req, res) => {
                       event_product_id: command.event_product_id,
                       number: command.number,
                       deleted_at: command.events_products_commands_deleted_at,
+                      sellingPrice: command.sellingprice,
                     },
                   ],
                 };
@@ -172,13 +173,26 @@ exports.getCommandsByEventId = (req, res) => {
                   event_product_id: command.event_product_id,
                   number: command.number,
                   deleted_at: command.events_products_commands_deleted_at,
+                  sellingPrice: command.sellingprice,
                 });
               }
             });
+            let commandsWithTotalPrice = commandsToReturn.map((command) => {
+              let totalPrice = 0;
+              command.events_products_commands.forEach(
+                (eventProductCommand) => {
+                  totalPrice +=
+                    eventProductCommand.number *
+                    eventProductCommand.sellingPrice;
+                }
+              );
+              command.totalPrice = totalPrice;
+              return command;
+            });
             console.log(
-              "Number of commands found: " + commandsToReturn.length + ""
+              "Number of commands found: " + commandsWithTotalPrice.length + ""
             );
-            res.send(commandsToReturn);
+            res.send(commandsWithTotalPrice);
           } else {
             console.log("No commands found");
             res.status(404).send({
