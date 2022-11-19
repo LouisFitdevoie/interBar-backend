@@ -151,8 +151,8 @@ exports.getCommandsByEventId = (req, res) => {
                   client_name: command.client_name,
                   servedBy_id: command.servedBy_id,
                   event_id: command.event_id,
-                  isServed: command.isServed,
-                  isPaid: command.isPaid,
+                  isServed: new Boolean(command.isServed),
+                  isPaid: new Boolean(command.isPaid),
                   created_at: command.created_at,
                   deleted_at: command.deleted_at,
                   events_products_commands: [
@@ -563,8 +563,8 @@ exports.createCommand = (req, res) => {
           req.body.clientId,
           req.body.servedBy_id,
           req.body.eventId,
-          0,
-          0
+          false,
+          false
         );
         pool.getConnection((err, connection) => {
           if (err) throw err;
