@@ -808,3 +808,26 @@ exports.deleteCommand = (req, res) => {
     });
   }
 };
+
+exports.getClientNamesFromEvent = (req, res) => {
+  if (uuid.validate(req.params.eventId)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query(
+        "SELECT DISTINCT client_name FROM commands WHERE event_id = ? AND deleted_at IS NULL",
+        [req.params.eventId],
+        (err, result) => {
+          connection.release();
+          if (err) throw err;
+          console.log("Client names retrieved");
+          res.status(200).send(result);
+        }
+      );
+    });
+  } else {
+    console.log(`Invalid id ${req.params.eventId}`);
+    res.status(400).send({
+      error: "The event id provided is not valid",
+    });
+  }
+};

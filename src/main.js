@@ -551,6 +551,14 @@ app.put(
   }
 );
 
+app.get(
+  baseURL + "/event-client-names/:eventId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getClientNamesFromEvent(req, res);
+  }
+);
+
 //#############################################################################
 // EVENT PRODUCT COMMAND
 //#############################################################################

@@ -36,7 +36,7 @@ exports.getAllUsersForEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null",
+        "SELECT users.id, users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null",
         [req.params.event_id],
         (err, result) => {
           connection.release();
@@ -403,12 +403,10 @@ exports.userToSeller = (req, res) => {
                                     connection.release();
                                     if (err) throw err;
                                     console.log({ success: "User to seller" });
-                                    res
-                                      .status(200)
-                                      .send({
-                                        success:
-                                          "Successfully changed user to seller",
-                                      });
+                                    res.status(200).send({
+                                      success:
+                                        "Successfully changed user to seller",
+                                    });
                                   }
                                 );
                               } else {
