@@ -559,6 +559,15 @@ app.get(
   }
 );
 
+app.put(
+  baseURL + "/set-command-served-by/:commandId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    console.log("ici");
+    commandController.setSellerId(req, res);
+  }
+);
+
 //#############################################################################
 // EVENT PRODUCT COMMAND
 //#############################################################################

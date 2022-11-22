@@ -831,3 +831,32 @@ exports.getClientNamesFromEvent = (req, res) => {
     });
   }
 };
+
+exports.setSellerId = (req, res) => {
+  if (uuid.validate(req.params.commandId)) {
+    if (uuid.validate(req.body.sellerId)) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query(
+          "UPDATE commands SET servedby_id = ? WHERE id = ? AND deleted_at IS null",
+          [req.body.sellerId, req.params.commandId],
+          (err, result) => {
+            connection.release();
+            if (err) throw err;
+            console.log("Command seller id updated");
+            res.send(result);
+          }
+        );
+      });
+    } else {
+      console.log("Invalid seller id");
+      res.status(400).send({ error: "The seller id provided is not valid" });
+    }
+  } else {
+    console.log(`Invalid id ${req.params.commandId}`);
+    res.status(400).send({
+      error:
+        "Invalid id, " + req.params.commandId + " is not a valid command uuid",
+    });
+  }
+};
