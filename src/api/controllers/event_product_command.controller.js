@@ -49,12 +49,10 @@ exports.getEventProductCommandById = (req, res) => {
             res.send(result);
           } else {
             console.log("No event product commands found");
-            res
-              .status(404)
-              .send({
-                error:
-                  "No event product commands found for the id " + req.params.id,
-              });
+            res.status(404).send({
+              error:
+                "No event product commands found for the id " + req.params.id,
+            });
           }
         }
       );
@@ -88,13 +86,11 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
             res.send(result);
           } else {
             console.log("No event products commands found");
-            res
-              .status(404)
-              .send({
-                error:
-                  "No event products commands found for the command id " +
-                  req.params.id,
-              });
+            res.status(404).send({
+              error:
+                "No event products commands found for the command id " +
+                req.params.id,
+            });
           }
         }
       );
@@ -128,27 +124,23 @@ exports.getNumber = (req, res) => {
               res.send(result);
             } else {
               console.log("No event products commands found");
-              res
-                .status(404)
-                .send({
-                  error:
-                    "No event products commands found for the command id " +
-                    req.query.commandId +
-                    " and event product id " +
-                    req.query.eventProductId,
-                });
+              res.status(404).send({
+                error:
+                  "No event products commands found for the command id " +
+                  req.query.commandId +
+                  " and event product id " +
+                  req.query.eventProductId,
+              });
             }
           }
         );
       });
     } else {
       console.log(`Invalid id ${req.query.eventProductId}`);
-      res
-        .status(400)
-        .send({
-          error:
-            "Invalid id, " + req.query.eventProductId + " is not a valid uuid",
-        });
+      res.status(400).send({
+        error:
+          "Invalid id, " + req.query.eventProductId + " is not a valid uuid",
+      });
     }
   } else {
     console.log(`Invalid command id ${req.query.commandId}`);
@@ -200,7 +192,7 @@ exports.getAllInfosForCommand = (req, res) => {
             objectToReturn.command.isPaid = result[0].ispaid;
             objectToReturn.command.created_at = result[0].created_at;
             connection.query(
-              "SELECT events_products_commands.event_product_id, events_products_commands.number, events_products.product_id, events_products.sellingprice, products.name, products.category, products.description FROM events_products_commands INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id INNER JOIN products ON events_products.product_id = products.id WHERE events_products_commands.command_id = ? AND events_products_commands.deleted_at IS null",
+              "SELECT events_products_commands.id AS events_products_commands_id, events_products_commands.event_product_id, events_products_commands.number, events_products.product_id, events_products.sellingprice, products.name, products.category, products.description FROM events_products_commands INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id INNER JOIN products ON events_products.product_id = products.id WHERE events_products_commands.command_id = ? AND events_products_commands.deleted_at IS null",
               [commandId],
               (err, result) => {
                 if (err) throw err;
@@ -208,6 +200,9 @@ exports.getAllInfosForCommand = (req, res) => {
                   let products_table = [];
                   result.forEach((product) => {
                     products_table.push({
+                      eventProductCommandId:
+                        product.events_products_commands_id,
+                      productId: product.event_product_id,
                       name: product.name,
                       category: product.category,
                       description: product.description,
@@ -250,63 +245,53 @@ exports.getAllInfosForCommand = (req, res) => {
                             } else {
                               connection.release();
                               console.log("No client found");
-                              res
-                                .status(404)
-                                .send({
-                                  error:
-                                    "No client found for the client id " +
-                                    objectToReturn.command.client_id,
-                                });
+                              res.status(404).send({
+                                error:
+                                  "No client found for the client id " +
+                                  objectToReturn.command.client_id,
+                              });
                             }
                           }
                         );
                       } else {
                         connection.release();
                         console.log("No seller found");
-                        res
-                          .status(404)
-                          .send({
-                            error:
-                              "No seller found for the servedby id " +
-                              objectToReturn.command.servedBy_id,
-                          });
+                        res.status(404).send({
+                          error:
+                            "No seller found for the servedby id " +
+                            objectToReturn.command.servedBy_id,
+                        });
                       }
                     }
                   );
                 } else {
                   connection.release();
                   console.log("No event products commands found");
-                  res
-                    .status(404)
-                    .send({
-                      error:
-                        "No event products commands found for the command id " +
-                        req.body.commandId,
-                    });
+                  res.status(404).send({
+                    error:
+                      "No event products commands found for the command id " +
+                      req.body.commandId,
+                  });
                 }
               }
             );
           } else {
             connection.release();
             console.log("No commands found");
-            res
-              .status(404)
-              .send({
-                error:
-                  "No commands found for the command id " + req.body.commandId,
-              });
+            res.status(404).send({
+              error:
+                "No commands found for the command id " + req.body.commandId,
+            });
           }
         }
       );
     });
   } else {
     console.log(`Invalid id ${req.body.commandId}`);
-    res
-      .status(400)
-      .send({
-        error:
-          "Invalid id, " + req.body.commandId + " is not a valid command uuid",
-      });
+    res.status(400).send({
+      error:
+        "Invalid id, " + req.body.commandId + " is not a valid command uuid",
+    });
   }
 };
 
@@ -354,12 +339,10 @@ exports.createEventProductCommand = (req, res) => {
         });
       } else {
         console.log(`Invalid number ${req.body.number}`);
-        res
-          .status(400)
-          .send({
-            error:
-              "Invalid number, " + req.body.number + " is not a valid number",
-          });
+        res.status(400).send({
+          error:
+            "Invalid number, " + req.body.number + " is not a valid number",
+        });
       }
     } else {
       console.log(`Invalid command id ${req.body.commandId}`);
@@ -369,14 +352,12 @@ exports.createEventProductCommand = (req, res) => {
     }
   } else {
     console.log(`Invalid id ${req.body.eventProductId}`);
-    res
-      .status(400)
-      .send({
-        error:
-          "Invalid id, " +
-          req.body.eventProductId +
-          " is not a valid event product uuid",
-      });
+    res.status(400).send({
+      error:
+        "Invalid id, " +
+        req.body.eventProductId +
+        " is not a valid event product uuid",
+    });
   }
 };
 
@@ -399,14 +380,12 @@ exports.deleteEventProductCommand = (req, res) => {
     });
   } else {
     console.log(`Invalid id ${req.params.id}`);
-    res
-      .status(400)
-      .send({
-        error:
-          "Invalid id, " +
-          req.params.id +
-          " is not a valid event product command uuid",
-      });
+    res.status(400).send({
+      error:
+        "Invalid id, " +
+        req.params.id +
+        " is not a valid event product command uuid",
+    });
   }
 };
 
@@ -422,32 +401,25 @@ exports.editNumber = (req, res) => {
             connection.release();
             if (err) throw err;
             console.log("Event product command number updated");
-            res
-              .status(200)
-              .send({
-                success: "Event product command number updated successfully",
-              });
+            res.status(200).send({
+              success: "Event product command number updated successfully",
+            });
           }
         );
       });
     } else {
       console.log(`Invalid number ${req.body.number}`);
-      res
-        .status(400)
-        .send({
-          error:
-            "Invalid number, " + req.body.number + " is not a valid number",
-        });
+      res.status(400).send({
+        error: "Invalid number, " + req.body.number + " is not a valid number",
+      });
     }
   } else {
     console.log(`Invalid id ${req.params.id}`);
-    res
-      .status(400)
-      .send({
-        error:
-          "Invalid id, " +
-          req.params.id +
-          " is not a valid event product command uuid",
-      });
+    res.status(400).send({
+      error:
+        "Invalid id, " +
+        req.params.id +
+        " is not a valid event product command uuid",
+    });
   }
 };
