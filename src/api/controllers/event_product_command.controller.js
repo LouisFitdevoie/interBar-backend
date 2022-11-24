@@ -421,15 +421,22 @@ exports.editNumber = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "UPDATE events_products_commands SET number = ? WHERE id = ?",
-          [req.body.number, req.params.id],
+          "UPDATE commands SET ispaid = 0, isserved = 0 WHERE id = ?",
+          [req.body.commandId],
           (err, result) => {
-            connection.release();
             if (err) throw err;
-            console.log("Event product command number updated");
-            res.status(200).send({
-              success: "Event product command number updated successfully",
-            });
+            connection.query(
+              "UPDATE events_products_commands SET number = ? WHERE id = ?",
+              [req.body.number, req.params.id],
+              (err, result) => {
+                connection.release();
+                if (err) throw err;
+                console.log("Event product command number updated");
+                res.status(200).send({
+                  success: "Event product command number updated successfully",
+                });
+              }
+            );
           }
         );
       });
