@@ -254,13 +254,39 @@ exports.getAllInfosForCommand = (req, res) => {
                           }
                         );
                       } else {
-                        connection.release();
-                        console.log("No seller found");
-                        res.status(404).send({
-                          error:
-                            "No seller found for the servedby id " +
-                            objectToReturn.command.servedBy_id,
-                        });
+                        objectToReturn.seller.id = "";
+                        objectToReturn.seller.firstName = "";
+                        objectToReturn.seller.lastName = "";
+                        objectToReturn.seller.birthday = "";
+                        objectToReturn.seller.emailAddress = "";
+                        connection.query(
+                          "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                          [clientId],
+                          (err, result) => {
+                            connection.release();
+                            if (err) throw err;
+                            if (result.length === 1) {
+                              objectToReturn.client.id = result[0].id;
+                              objectToReturn.client.firstName =
+                                result[0].firstname;
+                              objectToReturn.client.lastName =
+                                result[0].lastname;
+                              objectToReturn.client.birthday =
+                                result[0].birthday;
+                              objectToReturn.client.emailAddress =
+                                result[0].emailaddress;
+                              res.send(objectToReturn);
+                            } else {
+                              connection.release();
+                              console.log("No client found");
+                              res.status(404).send({
+                                error:
+                                  "No client found for the client id " +
+                                  objectToReturn.command.client_id,
+                              });
+                            }
+                          }
+                        );
                       }
                     }
                   );

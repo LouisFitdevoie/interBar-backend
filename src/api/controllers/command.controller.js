@@ -792,11 +792,19 @@ exports.deleteCommand = (req, res) => {
       connection.query(
         "UPDATE commands SET deleted_at = NOW() WHERE id = ?",
         [req.params.commandId],
-        (err, resul) => {
-          connection.release();
-          if (err) throw err;
-          console.log("Command deleted");
-          res.send(resul);
+        (err, result) => {
+          connection.query(
+            "UPDATE events_products_commands SET deleted_at = NOW() WHERE command_id = ?",
+            [req.params.commandId],
+            (err, result) => {
+              connection.release();
+              if (err) throw err;
+              console.log("Command deleted");
+              res
+                .status(200)
+                .send({ success: "Command cancelled successfully" });
+            }
+          );
         }
       );
     });
