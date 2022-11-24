@@ -868,3 +868,32 @@ exports.setSellerId = (req, res) => {
     });
   }
 };
+
+exports.getCommandInfos = (req, res) => {
+  if (uuid.validate(req.params.commandId)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query(
+        "SELECT created_at, servedby_id FROM commands WHERE id = ? AND deleted_at IS null",
+        [req.params.commandId],
+        (err, result) => {
+          if (result[0].servedby_id) {
+            connection.query(
+              "SELECT firstname, lastname FROM users WHERE id = ?",
+              [result[0].servedby_id],
+              (err, seller) => {
+                connection.release();
+                if (err) throw err;
+                console.log("Command infos retrieved");
+                res.send({
+                  createdAt: result[0].created_at,
+                  seller: seller[0],
+                });
+              }
+            );
+          }
+        }
+      );
+    });
+  }
+};

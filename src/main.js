@@ -568,6 +568,14 @@ app.put(
   }
 );
 
+app.get(
+  baseURL + "/command-infos/:commandId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getCommandInfos(req, res);
+  }
+);
+
 //#############################################################################
 // EVENT PRODUCT COMMAND
 //#############################################################################
