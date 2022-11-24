@@ -48,9 +48,33 @@ exports.getAllEventProductsByEventId = (req, res) => {
               "SELECT events_products.id AS events_products_id, events_products.product_id, events_products.event_id, products.name, products.category, products.description, events_products.stock, events_products.buyingPrice, events_products.sellingPrice FROM events_products INNER JOIN products ON events_products.product_id = products.id WHERE events_products.event_id = ? AND events_products.deleted_at IS null ORDER BY products.name",
               [req.query.id],
               (err, result) => {
-                connection.release();
                 if (err) throw err;
-                res.send(result);
+                if (result.length > 0) {
+                  let eventProducts = [];
+                  result.forEach((eventProduct) => {
+                    eventProducts.push(eventProduct);
+                  });
+                  let i = 0;
+                  eventProducts.forEach((eventProduct) => {
+                    connection.query(
+                      "SELECT SUM(number) AS stock FROM events_products_commands WHERE event_product_id = ? AND deleted_at IS null",
+                      [eventProduct.events_products_id],
+                      (err, result) => {
+                        if (err) throw err;
+                        if (result.length > 0) {
+                          eventProduct.stock =
+                            eventProduct.stock - result[0].stock;
+                          i++;
+                          if (i === eventProducts.length) {
+                            res.send(eventProducts);
+                          }
+                        }
+                      }
+                    );
+                  });
+                } else {
+                  res.send(result);
+                }
               }
             );
           } else {
@@ -85,6 +109,7 @@ exports.getProductEventStock = (req, res) => {
                 connection.release();
                 if (err) throw err;
                 res.send({
+                  eventProductId: req.body.event_product_id,
                   stockLeft: initialStock - result[0].stockSold,
                 });
               }
