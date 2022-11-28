@@ -681,7 +681,12 @@ exports.createCommand = (req, res) => {
                 const commandId = uuid.v4();
                 connection.query(
                   "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, ?, ?, 0, 0, NOW(), NULL)",
-                  [commandId, clientName, req.body.sellerId, req.body.eventId],
+                  [
+                    commandId,
+                    req.body.clientName,
+                    req.body.sellerId,
+                    req.body.eventId,
+                  ],
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
