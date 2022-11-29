@@ -179,13 +179,14 @@ exports.getAllInfosForCommand = (req, res) => {
       if (err) throw err;
       console.log(`Getting all infos for command id ${req.params.commandId}`);
       connection.query(
-        "SELECT id, client_id, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ? AND deleted_at IS null",
+        "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ? AND deleted_at IS null",
         [req.params.commandId],
         (err, result) => {
           if (err) throw err;
           if (result.length === 1) {
             let commandId = result[0].id;
             let clientId = result[0].client_id;
+            let clientName = result[0].client_name;
             let sellerId = result[0].servedby_id;
             objectToReturn.command.event_id = result[0].event_id;
             objectToReturn.command.isServed = result[0].isserved;
@@ -225,34 +226,45 @@ exports.getAllInfosForCommand = (req, res) => {
                         objectToReturn.seller.birthday = result[0].birthday;
                         objectToReturn.seller.emailAddress =
                           result[0].emailaddress;
-                        connection.query(
-                          "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
-                          [clientId],
-                          (err, result) => {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length === 1) {
-                              objectToReturn.client.id = result[0].id;
-                              objectToReturn.client.firstName =
-                                result[0].firstname;
-                              objectToReturn.client.lastName =
-                                result[0].lastname;
-                              objectToReturn.client.birthday =
-                                result[0].birthday;
-                              objectToReturn.client.emailAddress =
-                                result[0].emailaddress;
-                              res.send(objectToReturn);
-                            } else {
+
+                        if (clientId != null) {
+                          connection.query(
+                            "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                            [clientId],
+                            (err, result) => {
                               connection.release();
-                              console.log("No client found");
-                              res.status(404).send({
-                                error:
-                                  "No client found for the client id " +
-                                  objectToReturn.command.client_id,
-                              });
+                              if (err) throw err;
+                              if (result.length === 1) {
+                                objectToReturn.client.id = result[0].id;
+                                objectToReturn.client.firstName =
+                                  result[0].firstname;
+                                objectToReturn.client.lastName =
+                                  result[0].lastname;
+                                objectToReturn.client.birthday =
+                                  result[0].birthday;
+                                objectToReturn.client.emailAddress =
+                                  result[0].emailaddress;
+                                res.send(objectToReturn);
+                              } else {
+                                console.log("No client found");
+                                res.status(404).send({
+                                  error:
+                                    "No client found for the client id " +
+                                    objectToReturn.command.client_id,
+                                });
+                              }
                             }
-                          }
-                        );
+                          );
+                        } else {
+                          objectToReturn.client.id = null;
+                          objectToReturn.client.firstName =
+                            clientName.split(" ")[0];
+                          objectToReturn.client.lastName =
+                            clientName.split(" ")[1];
+                          objectToReturn.client.birthday = null;
+                          objectToReturn.client.emailAddress = null;
+                          res.send(objectToReturn);
+                        }
                       } else {
                         objectToReturn.seller.id = "";
                         objectToReturn.seller.firstName = "";

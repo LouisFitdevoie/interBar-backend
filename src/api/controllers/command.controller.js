@@ -882,23 +882,36 @@ exports.getCommandInfos = (req, res) => {
         "SELECT created_at, servedby_id FROM commands WHERE id = ? AND deleted_at IS null",
         [req.params.commandId],
         (err, result) => {
-          if (result[0].servedby_id) {
+          if (err) throw err;
+          const commandData = result[0];
+          if (commandData.servedby_id) {
             connection.query(
               "SELECT firstname, lastname FROM users WHERE id = ?",
-              [result[0].servedby_id],
+              [commandData.servedby_id],
               (err, seller) => {
                 connection.release();
                 if (err) throw err;
                 console.log("Command infos retrieved");
                 res.send({
-                  createdAt: result[0].created_at,
+                  createdAt: commandData.created_at,
                   seller: seller[0],
                 });
               }
             );
+          } else {
+            console.log("Command infos not retrieved");
+            res.status(400).send({
+              error: "The command has not been served yet",
+            });
           }
         }
       );
+    });
+  } else {
+    console.log(`Invalid id ${req.params.commandId}`);
+    res.status(400).send({
+      error:
+        "Invalid id, " + req.params.commandId + " is not a valid command uuid",
     });
   }
 };
