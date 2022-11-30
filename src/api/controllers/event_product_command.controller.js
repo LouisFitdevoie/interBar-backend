@@ -214,94 +214,75 @@ exports.getAllInfosForCommand = (req, res) => {
 
                   objectToReturn.products = products_table;
 
-                  connection.query(
-                    "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
-                    [sellerId],
-                    (err, result) => {
-                      if (err) throw err;
-                      if (result.length === 1) {
-                        objectToReturn.seller.id = result[0].id;
-                        objectToReturn.seller.firstName = result[0].firstname;
-                        objectToReturn.seller.lastName = result[0].lastname;
-                        objectToReturn.seller.birthday = result[0].birthday;
-                        objectToReturn.seller.emailAddress =
-                          result[0].emailaddress;
+                  if (sellerId != null) {
+                    connection.query(
+                      "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                      [sellerId],
+                      (err, result) => {
+                        if (err) throw err;
+                        if (result.length > 0) {
+                          objectToReturn.seller.id = result[0].id;
+                          objectToReturn.seller.firstName = result[0].firstname;
+                          objectToReturn.seller.lastName = result[0].lastname;
+                          objectToReturn.seller.birthday = result[0].birthday;
+                          objectToReturn.seller.emailAddress =
+                            result[0].emailaddress;
 
-                        if (clientId != null) {
-                          connection.query(
-                            "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
-                            [clientId],
-                            (err, result) => {
-                              connection.release();
-                              if (err) throw err;
-                              if (result.length === 1) {
-                                objectToReturn.client.id = result[0].id;
-                                objectToReturn.client.firstName =
-                                  result[0].firstname;
-                                objectToReturn.client.lastName =
-                                  result[0].lastname;
-                                objectToReturn.client.birthday =
-                                  result[0].birthday;
-                                objectToReturn.client.emailAddress =
-                                  result[0].emailaddress;
-                                res.send(objectToReturn);
-                              } else {
-                                console.log("No client found");
-                                res.status(404).send({
-                                  error:
-                                    "No client found for the client id " +
-                                    objectToReturn.command.client_id,
-                                });
+                          if (clientId != null) {
+                            connection.query(
+                              "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                              [clientId],
+                              (err, result) => {
+                                connection.release();
+                                if (err) throw err;
+                                if (result.length > 0) {
+                                  objectToReturn.client.id = result[0].id;
+                                  objectToReturn.client.firstName =
+                                    result[0].firstname;
+                                  objectToReturn.client.lastName =
+                                    result[0].lastname;
+                                  objectToReturn.client.birthday =
+                                    result[0].birthday;
+                                  objectToReturn.client.emailAddress =
+                                    result[0].emailaddress;
+                                  res.send(objectToReturn);
+                                } else {
+                                  console.log("No client found");
+                                  res.status(404).send({
+                                    error:
+                                      "No client found for the client id " +
+                                      objectToReturn.command.client_id,
+                                  });
+                                }
                               }
-                            }
-                          );
-                        } else {
-                          objectToReturn.client.id = null;
-                          objectToReturn.client.firstName =
-                            clientName.split(" ")[0];
-                          objectToReturn.client.lastName =
-                            clientName.split(" ")[1];
-                          objectToReturn.client.birthday = null;
-                          objectToReturn.client.emailAddress = null;
-                          res.send(objectToReturn);
-                        }
-                      } else {
-                        objectToReturn.seller.id = "";
-                        objectToReturn.seller.firstName = "";
-                        objectToReturn.seller.lastName = "";
-                        objectToReturn.seller.birthday = "";
-                        objectToReturn.seller.emailAddress = "";
-                        connection.query(
-                          "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
-                          [clientId],
-                          (err, result) => {
-                            connection.release();
-                            if (err) throw err;
-                            if (result.length === 1) {
-                              objectToReturn.client.id = result[0].id;
-                              objectToReturn.client.firstName =
-                                result[0].firstname;
-                              objectToReturn.client.lastName =
-                                result[0].lastname;
-                              objectToReturn.client.birthday =
-                                result[0].birthday;
-                              objectToReturn.client.emailAddress =
-                                result[0].emailaddress;
-                              res.send(objectToReturn);
-                            } else {
-                              connection.release();
-                              console.log("No client found");
-                              res.status(404).send({
-                                error:
-                                  "No client found for the client id " +
-                                  objectToReturn.command.client_id,
-                              });
-                            }
+                            );
+                          } else {
+                            objectToReturn.client.id = null;
+                            objectToReturn.client.firstName =
+                              clientName.split(" ")[0];
+                            objectToReturn.client.lastName =
+                              clientName.split(" ")[1];
+                            objectToReturn.client.birthday = null;
+                            objectToReturn.client.emailAddress = null;
+                            res.send(objectToReturn);
                           }
-                        );
+                        }
                       }
-                    }
-                  );
+                    );
+                  } else {
+                    objectToReturn.seller.id = "";
+                    objectToReturn.seller.firstName = "";
+                    objectToReturn.seller.lastName = "";
+                    objectToReturn.seller.birthday = "";
+                    objectToReturn.seller.emailAddress = "";
+
+                    objectToReturn.client.id = "";
+                    objectToReturn.client.firstName = clientName.split(" ")[0];
+                    objectToReturn.client.lastName = clientName.split(" ")[1];
+                    objectToReturn.client.birthday = "";
+                    objectToReturn.client.emailAddress = "";
+                    res.send(objectToReturn);
+                  }
                 } else {
                   connection.release();
                   console.log("No event products commands found");
