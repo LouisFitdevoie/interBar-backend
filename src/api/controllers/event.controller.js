@@ -54,16 +54,46 @@ exports.getEventById = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting product with id ${req.query.id}`);
+      console.log(`Getting event with id ${req.query.id}`);
       connection.query(
         "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
-          connection.release();
           if (err) throw err;
           if (result.length > 0) {
             console.log("Number of events found: " + result.length + "");
-            res.send(result);
+            const event = result[0];
+            connection.query(
+              "SELECT user_id FROM users_events WHERE event_id=? AND role=2",
+              [req.query.id],
+              (err, result) => {
+                if (err) throw err;
+                if (result.length > 0) {
+                  event.organizer_id = result[0].user_id;
+                  connection.query(
+                    "SELECT firstname, lastname FROM users WHERE id=?",
+                    [event.organizer_id],
+                    (err, result) => {
+                      connection.release();
+                      if (err) throw err;
+                      if (result.length > 0) {
+                        event.organizer =
+                          result[0].firstname + " " + result[0].lastname;
+                        res.send(event);
+                      } else {
+                        console.log("User not found with organizerId");
+                        res
+                          .status(404)
+                          .send({ error: "User not found with organizerId" });
+                      }
+                    }
+                  );
+                } else {
+                  console.log("Organizer id not found");
+                  res.status(404).send({ error: "Organizer id not found" });
+                }
+              }
+            );
           } else {
             console.log("No events found");
             res
@@ -309,12 +339,10 @@ exports.createEvent = (req, res) => {
                         connection.release();
                         if (err) throw err;
                         console.log("Event created");
-                        res
-                          .status(200)
-                          .send({
-                            success: "Event created successfully",
-                            eventId: eventToCreate.id,
-                          });
+                        res.status(200).send({
+                          success: "Event created successfully",
+                          eventId: eventToCreate.id,
+                        });
                       }
                     );
                   }
@@ -379,8 +407,6 @@ exports.deleteEvent = (req, res) => {
       .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
   }
 };
-
-//   seller_password;
 
 exports.editSellerPassword = (req, res) => {
   let now = new Date();
@@ -491,7 +517,6 @@ exports.editSellerPassword = (req, res) => {
 };
 
 exports.editEvent = (req, res) => {
-  let now = new Date();
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
@@ -600,16 +625,30 @@ exports.editEvent = (req, res) => {
                 res.status(400).send({ error: "No values to edit" });
               }
             } else {
-              connection.release();
-              console.log(
-                "Event with id " + req.params.id + " has already started"
-              );
-              res.status(400).send({
-                error:
-                  "Event with id " +
-                  req.params.id +
-                  " has already started or has ended",
-              });
+              if (
+                req.body.endDate &&
+                req.body.startDate === null &&
+                req.body.name === null &&
+                req.body.location === null &&
+                req.body.description === null
+              ) {
+                connection.query(
+                  "UPDATE events SET enddate = ? WHERE id = ? AND deleted_at IS null",
+                  [new Date(req.body.endDate), req.params.id],
+                  (err, result) => {
+                    connection.release();
+                    if (err) throw err;
+                    console.log("Event endDate successfully edited");
+                    res
+                      .status(200)
+                      .send({ success: "Event endDate successfully edited" });
+                  }
+                );
+              } else {
+                connection.release();
+                console.log("Event has already started");
+                res.status(400).send({ error: "Event has already started" });
+              }
             }
           } else {
             connection.release();

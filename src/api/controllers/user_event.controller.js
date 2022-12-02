@@ -36,7 +36,7 @@ exports.getAllUsersForEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null",
+        "SELECT users.id, users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null",
         [req.params.event_id],
         (err, result) => {
           connection.release();
@@ -300,7 +300,9 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "User quit event" });
-                                res.send(result);
+                                res.status(200).send({
+                                  success: "User successfully quit event",
+                                });
                               }
                             );
                           } else if (result[0].role === 1) {
@@ -312,7 +314,9 @@ exports.quitEvent = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "Seller quit event" });
-                                res.send(result);
+                                res.status(200).send({
+                                  success: "Seller successfully quit event",
+                                });
                               }
                             );
                           } else if (result[0].role === 2) {
@@ -399,7 +403,10 @@ exports.userToSeller = (req, res) => {
                                     connection.release();
                                     if (err) throw err;
                                     console.log({ success: "User to seller" });
-                                    res.send(result);
+                                    res.status(200).send({
+                                      success:
+                                        "Successfully changed user to seller",
+                                    });
                                   }
                                 );
                               } else {
@@ -485,14 +492,17 @@ exports.sellerToUser = (req, res) => {
                                 connection.release();
                                 if (err) throw err;
                                 console.log({ success: "Seller to user" });
-                                res.send(result);
+                                res.status(200).send({
+                                  success:
+                                    "Successfully changed role from seller to user",
+                                });
                               }
                             );
                           } else {
                             connection.release();
                             res
                               .status(400)
-                              .send({ error: "User has not the role user" });
+                              .send({ error: "User has not the role seller" });
                           }
                         } else {
                           connection.release();
@@ -524,5 +534,58 @@ exports.sellerToUser = (req, res) => {
     res
       .status(400)
       .send({ error: req.body.eventId + " is not a valid event id" });
+  }
+};
+
+exports.getAllEventsForUser = (req, res) => {
+  //Get all events for user with id
+  if (uuid.validate(req.params.userId)) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query(
+        "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+        [req.params.userId],
+        (err, result) => {
+          if (err) throw err;
+          if (result.length > 0) {
+            connection.query(
+              "SELECT events.id, events.name, events.description, events.startdate, events.enddate, events.created_at, events.location, users_events.role FROM events INNER JOIN users_events ON events.id = users_events.event_id WHERE users_events.user_id = ? AND users_events.left_event_at IS null AND events.deleted_at IS null",
+              [req.params.userId],
+              (err, result) => {
+                if (err) throw err;
+                console.log("Getting all events for user");
+                result.sort((a, b) => {
+                  return new Date(a.startdate) - new Date(b.startdate);
+                });
+                let eventsToReturn = [];
+                result.forEach((event) => {
+                  connection.query(
+                    "SELECT users.firstname, users.lastname FROM users INNER JOIN users_events ON users.id = users_events.user_id WHERE users_events.event_id = ? AND users_events.role = 2",
+                    [event.id],
+                    (err, result) => {
+                      if (err) throw err;
+                      event.organizer =
+                        result[0].firstname + " " + result[0].lastname;
+                      eventsToReturn.push(event);
+                    }
+                  );
+                });
+                setTimeout(() => {
+                  connection.release();
+                  res.send(eventsToReturn);
+                }, 1000);
+              }
+            );
+          } else {
+            connection.release();
+            res.status(404).send({ error: "User not found" });
+          }
+        }
+      );
+    });
+  } else {
+    res
+      .status(400)
+      .send({ error: req.params.userId + " is not a valid user id" });
   }
 };

@@ -37,8 +37,9 @@ CREATE TABLE `products` (
 
 CREATE TABLE `commands` (
   `id` varchar(255) PRIMARY KEY COMMENT 'UUID v4',
-  `client_id` varchar(255) NOT NULL,
-  `servedby_id` varchar(255) NOT NULL,
+  `client_id` varchar(255),
+  `client_name` varchar(255),
+  `servedby_id` varchar(255),
   `event_id` varchar(255) NOT NULL,
   `isserved` boolean NOT NULL,
   `ispaid` boolean NOT NULL,

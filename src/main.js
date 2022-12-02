@@ -336,6 +336,14 @@ app.put(
     user_eventController.sellerToUser(req, res);
   }
 );
+//Get all events that joined an user
+app.get(
+  baseURL + "/users-events/:userId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    user_eventController.getAllEventsForUser(req, res);
+  }
+);
 
 //#############################################################################
 // USERS
@@ -454,6 +462,14 @@ app.get(
     commandController.getCommandsByClientId(req, res);
   }
 );
+//Get commands by client name
+app.get(
+  baseURL + "/commands-with-client-name/:name",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getCommandsByClientName(req, res);
+  }
+);
 //Get commands by event id
 app.get(
   baseURL + "/commands-with-event-id/:id",
@@ -532,6 +548,31 @@ app.put(
   authTokenMiddleware.verifyAuthorizationToken,
   (req, res) => {
     commandController.deleteCommand(req, res);
+  }
+);
+
+app.get(
+  baseURL + "/event-client-names/:eventId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getClientNamesFromEvent(req, res);
+  }
+);
+
+app.put(
+  baseURL + "/set-command-served-by/:commandId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    console.log("ici");
+    commandController.setSellerId(req, res);
+  }
+);
+
+app.get(
+  baseURL + "/command-infos/:commandId",
+  authTokenMiddleware.verifyAuthorizationToken,
+  (req, res) => {
+    commandController.getCommandInfos(req, res);
   }
 );
 
