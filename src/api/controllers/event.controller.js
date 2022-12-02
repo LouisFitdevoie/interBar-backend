@@ -54,7 +54,7 @@ exports.getEventById = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting product with id ${req.query.id}`);
+      console.log(`Getting event with id ${req.query.id}`);
       connection.query(
         "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
