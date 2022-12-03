@@ -410,13 +410,9 @@ app.post(baseURL + "/update-token", (req, res) => {
   authenticationController.updateToken(req, res);
 });
 //Logout user
-app.delete(
-  baseURL + "/logout",
-  authTokenMiddleware.verifyAuthorizationToken,
-  (req, res) => {
-    authenticationController.logout(req, res);
-  }
-);
+app.delete(baseURL + "/logout", (req, res) => {
+  authenticationController.logout(req, res);
+});
 //Soft delete user
 app.put(
   baseURL + "/delete-user/:id",
