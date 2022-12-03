@@ -179,7 +179,7 @@ exports.getAllInfosForCommand = (req, res) => {
       if (err) throw err;
       console.log(`Getting all infos for command id ${req.params.commandId}`);
       connection.query(
-        "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ? AND deleted_at IS null",
+        "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ?",
         [req.params.commandId],
         (err, result) => {
           if (err) throw err;
@@ -216,7 +216,7 @@ exports.getAllInfosForCommand = (req, res) => {
 
                   if (sellerId != null) {
                     connection.query(
-                      "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                      "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ?",
                       [sellerId],
                       (err, result) => {
                         if (err) throw err;
@@ -230,7 +230,7 @@ exports.getAllInfosForCommand = (req, res) => {
 
                           if (clientId != null) {
                             connection.query(
-                              "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ? AND deleted_at IS null",
+                              "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ?",
                               [clientId],
                               (err, result) => {
                                 connection.release();

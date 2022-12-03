@@ -279,11 +279,9 @@ exports.updateUserPassword = (req, res) => {
                   }
                 } else {
                   console.log("No users found");
-                  res
-                    .status(404)
-                    .send({
-                      error: "No users found for the id " + req.body.id,
-                    });
+                  res.status(404).send({
+                    error: "No users found for the id " + req.body.id,
+                  });
                 }
               }
             );
@@ -314,14 +312,23 @@ exports.deleteUser = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
+      let randomString = uuid.v4().replace(/-/g, "");
+      const emailAnonymized = "anonymous." + randomString + "@anonymized.com";
+      const randomPassword = uuid.v4().replace(/-/g, "");
       connection.query(
-        "UPDATE users SET deleted_at = NOW() WHERE id = ?",
-        [req.params.id],
+        "UPDATE users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, rights = 0, deleted_at = NOW() WHERE id = ?",
+        [
+          emailAnonymized,
+          "Anonymous",
+          randomString,
+          randomPassword,
+          req.params.id,
+        ],
         (err, result) => {
           connection.release();
           if (err) throw err;
-          console.log("User deleted");
-          res.send({ message: "User deleted" });
+          console.log("User deleted and anonymized");
+          res.status(200).send({ success: "User deleted successully" });
         }
       );
     });
