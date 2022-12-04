@@ -534,23 +534,13 @@ exports.editEvent = (req, res) => {
               let valuesToEdit = [
                 req.body.name && req.body.name != result[0].name ? true : false,
                 req.body.startDate &&
-                isValid(
-                  parse(req.body.startDate, "dd/MM/yyyy HH:mm", new Date())
-                ) &&
-                parse(req.body.startDate, "dd/MM/yyyy HH:mm", new Date()) >
-                  new Date() &&
-                parse(req.body.startDate, "dd/MM/yyyy HH:mm", new Date()) !=
-                  result[0].startDate
+                new Date(req.body.startDate) > new Date() &&
+                new Date(req.body.startDate) != new Date(result[0].startdate)
                   ? true
                   : false,
                 req.body.endDate &&
-                isValid(
-                  parse(req.body.endDate, "dd/MM/yyyy HH:mm", new Date())
-                ) &&
-                parse(req.body.endDate, "dd/MM/yyyy HH:mm", new Date()) >
-                  new Date() &&
-                parse(req.body.endDate, "dd/MM/yyyy HH:mm", new Date()) !=
-                  result[0].endDate
+                new Date(req.body.endDate) > new Date() &&
+                new Date(req.body.endDate) != new Date(result[0].endDate)
                   ? true
                   : false,
                 req.body.location && req.body.location != result[0].location
@@ -561,6 +551,7 @@ exports.editEvent = (req, res) => {
                   ? true
                   : false,
               ];
+              console.log(valuesToEdit);
               if (valuesToEdit.includes(true)) {
                 let sql = "UPDATE events SET ";
                 let values = [];
@@ -578,23 +569,19 @@ exports.editEvent = (req, res) => {
                   }
                 }
                 if (valuesToEdit[1]) {
-                  values.push(
-                    parse(req.body.startDate, "dd/MM/yyyy HH:mm", new Date())
-                  );
+                  values.push(new Date(req.body.startDate));
                   if (valuesToEdit[2] || valuesToEdit[3] || valuesToEdit[4]) {
-                    sql += "startDate = ?, ";
+                    sql += "startdate = ?, ";
                   } else {
-                    sql += "startDate = ?";
+                    sql += "startdate = ?";
                   }
                 }
                 if (valuesToEdit[2]) {
-                  values.push(
-                    parse(req.body.endDate, "dd/MM/yyyy HH:mm", new Date())
-                  );
+                  values.push(new Date(req.body.endDate));
                   if (valuesToEdit[3] || valuesToEdit[4]) {
-                    sql += "endDate = ?, ";
+                    sql += "enddate = ?, ";
                   } else {
-                    sql += "endDate = ?";
+                    sql += "enddate = ?";
                   }
                 }
                 if (valuesToEdit[3]) {
