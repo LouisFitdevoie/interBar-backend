@@ -14,7 +14,7 @@ const eventProductCommandController = require("./api/controllers/event_product_c
 const authenticationController = require("./api/controllers/authentication.controller.js");
 const authTokenMiddleware = require("./api/middlewares/authorization_token.middleware.js");
 
-const databasePort = 3306;
+const databasePort = process.env.DATABASE_PORT || 3306;
 const db_connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -23,7 +23,7 @@ const db_connection = mysql.createConnection({
   port: databasePort,
 });
 
-const apiVersion = "v1";
+const apiVersion = "v2.2";
 const baseURL = `/api/${apiVersion}`;
 
 db_connection.connect(function (err) {
@@ -31,7 +31,7 @@ db_connection.connect(function (err) {
   console.log(`Connected to the database on port ${databasePort}!`);
 });
 
-const port = 8000;
+const port = process.env.API_PORT || 8000;
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
