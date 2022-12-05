@@ -1,9 +1,9 @@
-const mysql = require('mysql');
+const mysql = require("mysql");
 exports.pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'test123*',
-  database: 'interbar',
-  port: 3306,
-  connectionLimit: 100
+  host: "localhost",
+  user: "root",
+  password: process.env.DB_PASSWORD,
+  database: "interbar",
+  port: process.env.DATABASE_PORT,
+  connectionLimit: 100,
 });
