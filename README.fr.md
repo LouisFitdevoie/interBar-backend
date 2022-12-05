@@ -3,8 +3,6 @@
 
 # InterBar-backend
 
----
-
 ## Contexte
 
 Ce projet a été développé dans le cadre de ma dernière année de Bachelier en Informatique et systèmes.
