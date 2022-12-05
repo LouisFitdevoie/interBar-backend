@@ -1,5 +1,5 @@
-[![en](https://img.shields.io/badge/language-english-brightgreen)](https://github.com/LouisFitdevoie/interBar-backend/blob/main/README.md)
-[![fr](https://img.shields.io/badge/langue-français-red)](https://github.com/LouisFitdevoie/interBar-backend/blob/main/README.fr.md)
+[![en](https://img.shields.io/badge/language-english-brightgreen)](./README.md)
+[![fr](https://img.shields.io/badge/langue-français-red)](./README.fr.md)
 
 # InterBar-backend
 
