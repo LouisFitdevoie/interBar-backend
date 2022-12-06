@@ -9,7 +9,7 @@ This project is realised as part of the last year of my Bachelor in computer sci
 
 ## Content
 
-This project contains the code to run the backend of the InterBar project, which is a mobile application for iOS and Android that allows users to create and join events and then create commands to order drinks or food. [The repository containing the frontend of this project is available by clicking on this link](https://github.com/LouisFitdevoie/interbar-frontend)
+This project contains the code to run the backend of the InterBar project, which is a mobile application for iOS and Android that allows users to create and join events and then create commands to order drinks or food. [The repository containing the frontend of this project is available by clicking on this link](https://github.com/LouisFitdevoie/interbar-frontend).
 
 In this project, we have a backend server as well as an API to communicate with the mobile application. The backend server and the API are written in NodeJS.
 
