@@ -9,7 +9,7 @@ Ce projet a été développé dans le cadre de ma dernière année de Bachelier 
 
 ## Contenu
 
-Ce projet contient le code pour faire fonctionner le backend du projet InterBar, qui est une application mobile pour iOS et Android qui permet aux utilisateurs de créer et de rejoindre des événements et de créer ensuite des commandes pour commander des boissons ou de la nourriture. [Le dépôt contenant le frontend du projet est disponible en cliquant sur ce lien](https://github.com/LouisFitdevoie/interbar-frontend)
+Ce projet contient le code pour faire fonctionner le backend du projet InterBar, qui est une application mobile pour iOS et Android qui permet aux utilisateurs de créer et de rejoindre des événements et de créer ensuite des commandes pour commander des boissons ou de la nourriture. [Le dépôt contenant le frontend du projet est disponible en cliquant sur ce lien](https://github.com/LouisFitdevoie/interbar-frontend).
 
 Dans ce projet, nous avons un serveur backend ainsi qu'une API pour communiquer avec l'application mobile. Le serveur backend et l'API sont écrits en NodeJS.
 
