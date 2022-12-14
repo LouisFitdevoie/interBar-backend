@@ -24,7 +24,7 @@ exports.getAllCommands = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "SELECT * FROM commands WHERE deleted_at IS null",
+      "SELECT * FROM Commands WHERE deleted_at IS null",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -40,7 +40,7 @@ exports.getCommandById = (req, res) => {
       if (err) throw err;
       console.log(`Getting command with id ${req.params.id}`);
       connection.query(
-        "SELECT * FROM commands WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -71,7 +71,7 @@ exports.getCommandsByClientId = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with client id ${req.params.id}`);
       connection.query(
-        "SELECT * FROM commands WHERE client_id = ? AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE client_id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -102,7 +102,7 @@ exports.getCommandsByClientName = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with client name ${req.params.clientName}`);
       connection.query(
-        "SELECT * FROM commands WHERE client_name = ? AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE client_name = ? AND deleted_at IS null",
         [req.params.clientName],
         (err, result) => {
           connection.release();
@@ -133,7 +133,7 @@ exports.getCommandsByEventId = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with event id ${req.params.id}`);
       connection.query(
-        "SELECT commands.id, commands.client_id, commands.client_name, commands.servedBy_id, commands.event_id, commands.isServed, commands.isPaid, commands.created_at, commands.deleted_at, events_products_commands.id AS events_products_commands_id, events_products_commands.command_id, events_products_commands.event_product_id, events_products_commands.number, events_products_commands.deleted_at AS events_products_commands_deleted_at, events_products.sellingprice, events_products.buyingprice FROM commands LEFT JOIN events_products_commands ON commands.id = events_products_commands.command_id INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id WHERE commands.event_id = ? AND commands.deleted_at IS null AND events_products_commands.deleted_at IS null",
+        "SELECT Commands.id, Commands.client_id, Commands.client_name, Commands.servedBy_id, Commands.event_id, Commands.isServed, Commands.isPaid, Commands.created_at, Commands.deleted_at, EventsProductsCommands.id AS events_products_commands_id, EventsProductsCommands.command_id, EventsProductsCommands.event_product_id, EventsProductsCommands.number, EventsProductsCommands.deleted_at AS events_products_commands_deleted_at, EventsProducts.sellingprice, EventsProducts.buyingprice FROM Commands LEFT JOIN EventsProductsCommands ON Commands.id = EventsProductsCommands.command_id INNER JOIN EventsProducts ON EventsProductsCommands.event_product_id = EventsProducts.id WHERE Commands.event_id = ? AND Commands.deleted_at IS null AND EventsProductsCommands.deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -218,7 +218,7 @@ exports.getCommandsByServedById = (req, res) => {
       if (err) throw err;
       console.log(`Getting commands with served by id ${req.params.id}`);
       connection.query(
-        "SELECT * FROM commands WHERE servedBy_id = ? AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE servedBy_id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -252,7 +252,7 @@ exports.getServedCommands = (req, res) => {
           `Getting served commands with client id ${req.query.clientId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE client_id = ? AND isServed = 1 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE client_id = ? AND isServed = 1 AND deleted_at IS null",
           [req.query.clientId],
           (err, result) => {
             connection.release();
@@ -285,7 +285,7 @@ exports.getServedCommands = (req, res) => {
           `Getting served commands with client id ${req.query.eventId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE event_id = ? AND isServed = 1 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE event_id = ? AND isServed = 1 AND deleted_at IS null",
           [req.query.eventId],
           (err, result) => {
             connection.release();
@@ -314,7 +314,7 @@ exports.getServedCommands = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM commands WHERE isserved = 1 AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE isserved = 1 AND deleted_at IS null",
         (err, result) => {
           connection.release();
           if (err) throw err;
@@ -334,7 +334,7 @@ exports.getPaidCommands = (req, res) => {
           `Getting paid commands with client id ${req.query.clientId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE client_id = ? AND isPaid = 1 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE client_id = ? AND isPaid = 1 AND deleted_at IS null",
           [req.query.clientId],
           (err, result) => {
             connection.release();
@@ -367,7 +367,7 @@ exports.getPaidCommands = (req, res) => {
           `Getting paid commands with client id ${req.query.eventId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE event_id = ? AND isPaid = 1 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE event_id = ? AND isPaid = 1 AND deleted_at IS null",
           [req.query.eventId],
           (err, result) => {
             connection.release();
@@ -396,7 +396,7 @@ exports.getPaidCommands = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM commands WHERE ispaid = 1 AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE ispaid = 1 AND deleted_at IS null",
         (err, result) => {
           connection.release();
           if (err) throw err;
@@ -416,7 +416,7 @@ exports.getUnservedCommands = (req, res) => {
           `Getting unserved commands with client id ${req.query.clientId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE client_id = ? AND isServed = 0 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE client_id = ? AND isServed = 0 AND deleted_at IS null",
           [req.query.clientId],
           (err, result) => {
             connection.release();
@@ -449,7 +449,7 @@ exports.getUnservedCommands = (req, res) => {
           `Getting unserved commands with client id ${req.query.eventId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE event_id = ? AND isServed = 0 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE event_id = ? AND isServed = 0 AND deleted_at IS null",
           [req.query.eventId],
           (err, result) => {
             connection.release();
@@ -478,7 +478,7 @@ exports.getUnservedCommands = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM commands WHERE isserved = 0 AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE isserved = 0 AND deleted_at IS null",
         (err, result) => {
           connection.release();
           if (err) throw err;
@@ -498,7 +498,7 @@ exports.getUnpaidCommands = (req, res) => {
           `Getting unpaid commands with client id ${req.query.clientId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE client_id = ? AND isPaid = 0 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE client_id = ? AND isPaid = 0 AND deleted_at IS null",
           [req.query.clientId],
           (err, result) => {
             connection.release();
@@ -531,7 +531,7 @@ exports.getUnpaidCommands = (req, res) => {
           `Getting unpaid commands with client id ${req.query.eventId}`
         );
         connection.query(
-          "SELECT * FROM commands WHERE event_id = ? AND isPaid = 0 AND deleted_at IS null",
+          "SELECT * FROM Commands WHERE event_id = ? AND isPaid = 0 AND deleted_at IS null",
           [req.query.eventId],
           (err, result) => {
             connection.release();
@@ -560,7 +560,7 @@ exports.getUnpaidCommands = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM commands WHERE ispaid = 0 AND deleted_at IS null",
+        "SELECT * FROM Commands WHERE ispaid = 0 AND deleted_at IS null",
         (err, result) => {
           connection.release();
           if (err) throw err;
@@ -578,7 +578,7 @@ exports.createCommand = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT id FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT id FROM Events WHERE id = ? AND deleted_at IS null",
         [req.body.eventId],
         (err, result) => {
           connection.release();
@@ -598,7 +598,7 @@ exports.createCommand = (req, res) => {
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
-            "SELECT firstname, lastname FROM users WHERE id = ? AND deleted_at IS null",
+            "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
             [req.body.clientId],
             (err, result) => {
               if (err) throw err;
@@ -607,7 +607,7 @@ exports.createCommand = (req, res) => {
                 const clientName =
                   result[0].firstname + " " + result[0].lastname;
                 connection.query(
-                  "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, 0, 0, NOW(), NULL)",
+                  "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, 0, 0, NOW(), NULL)",
                   [
                     commandId,
                     req.body.clientId,
@@ -640,7 +640,7 @@ exports.createCommand = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT firstname, lastname FROM users WHERE id = ? AND deleted_at IS null",
+          "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
           [req.body.clientId],
           (err, result) => {
             if (err) throw err;
@@ -648,7 +648,7 @@ exports.createCommand = (req, res) => {
               const commandId = uuid.v4();
               const clientName = result[0].firstname + " " + result[0].lastname;
               connection.query(
-                "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, NULL, ?, 0, 0, NOW(), NULL)",
+                "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, NULL, ?, 0, 0, NOW(), NULL)",
                 [commandId, req.body.clientId, clientName, req.body.eventId],
                 (err, result) => {
                   connection.release();
@@ -675,14 +675,14 @@ exports.createCommand = (req, res) => {
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
-            "SELECT id FROM users WHERE id = ? AND deleted_at IS NULL",
+            "SELECT id FROM Users WHERE id = ? AND deleted_at IS NULL",
             [req.body.sellerId],
             (err, result) => {
               if (err) throw err;
               if (result.length > 0) {
                 const commandId = uuid.v4();
                 connection.query(
-                  "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, ?, ?, 0, 0, NOW(), NULL)",
+                  "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, ?, ?, 0, 0, NOW(), NULL)",
                   [
                     commandId,
                     req.body.clientName,
@@ -715,7 +715,7 @@ exports.createCommand = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "INSERT INTO commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, NULL, ?, 0, 0, NOW(), NULL)",
+          "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, NULL, ?, 0, 0, NOW(), NULL)",
           [commandId, req.body.clientName, req.body.eventId],
           (err, result) => {
             connection.release();
@@ -740,7 +740,7 @@ exports.setCommandServedState = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "UPDATE commands SET isserved = ? WHERE id = ? AND deleted_at IS null",
+          "UPDATE Commands SET isserved = ? WHERE id = ? AND deleted_at IS null",
           [req.body.served, req.params.commandId],
           (err, result) => {
             connection.release();
@@ -769,7 +769,7 @@ exports.setCommandPaidState = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "UPDATE commands SET ispaid = ? WHERE id = ? AND deleted_at IS null",
+          "UPDATE Commands SET ispaid = ? WHERE id = ? AND deleted_at IS null",
           [req.body.paid, req.params.commandId],
           (err, result) => {
             connection.release();
@@ -797,11 +797,11 @@ exports.deleteCommand = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "UPDATE commands SET deleted_at = NOW() WHERE id = ?",
+        "UPDATE Commands SET deleted_at = NOW() WHERE id = ?",
         [req.params.commandId],
         (err, result) => {
           connection.query(
-            "UPDATE events_products_commands SET deleted_at = NOW() WHERE command_id = ?",
+            "UPDATE EventsProductsCommands SET deleted_at = NOW() WHERE command_id = ?",
             [req.params.commandId],
             (err, result) => {
               connection.release();
@@ -829,7 +829,7 @@ exports.getClientNamesFromEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT DISTINCT client_name FROM commands WHERE event_id = ? AND deleted_at IS NULL",
+        "SELECT DISTINCT client_name FROM Commands WHERE event_id = ? AND deleted_at IS NULL",
         [req.params.eventId],
         (err, result) => {
           connection.release();
@@ -853,7 +853,7 @@ exports.setSellerId = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "UPDATE commands SET servedby_id = ? WHERE id = ? AND deleted_at IS null",
+          "UPDATE Commands SET servedby_id = ? WHERE id = ? AND deleted_at IS null",
           [req.body.sellerId, req.params.commandId],
           (err, result) => {
             connection.release();
@@ -881,14 +881,14 @@ exports.getCommandInfos = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT created_at, servedby_id FROM commands WHERE id = ? AND deleted_at IS null",
+        "SELECT created_at, servedby_id FROM Commands WHERE id = ? AND deleted_at IS null",
         [req.params.commandId],
         (err, result) => {
           if (err) throw err;
           const commandData = result[0];
           if (commandData.servedby_id) {
             connection.query(
-              "SELECT firstname, lastname FROM users WHERE id = ?",
+              "SELECT firstname, lastname FROM Users WHERE id = ?",
               [commandData.servedby_id],
               (err, seller) => {
                 connection.release();

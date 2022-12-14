@@ -3,8 +3,6 @@ const database = require("../../database.js");
 const isAfter = require("date-fns/isAfter");
 const isBefore = require("date-fns/isBefore");
 const bcrypt = require("bcrypt");
-const isValid = require("date-fns/isValid");
-const parse = require("date-fns/parse");
 
 const pool = database.pool;
 
@@ -39,7 +37,7 @@ exports.getAllEvents = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "SELECT * FROM events WHERE deleted_at IS null ORDER BY name",
+      "SELECT * FROM Events WHERE deleted_at IS null ORDER BY name",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -56,7 +54,7 @@ exports.getEventById = (req, res) => {
       if (err) throw err;
       console.log(`Getting event with id ${req.query.id}`);
       connection.query(
-        "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
           if (err) throw err;
@@ -64,14 +62,14 @@ exports.getEventById = (req, res) => {
             console.log("Number of events found: " + result.length + "");
             const event = result[0];
             connection.query(
-              "SELECT user_id FROM users_events WHERE event_id=? AND role=2",
+              "SELECT user_id FROM UsersEvents WHERE event_id=? AND role=2",
               [req.query.id],
               (err, result) => {
                 if (err) throw err;
                 if (result.length > 0) {
                   event.organizer_id = result[0].user_id;
                   connection.query(
-                    "SELECT firstname, lastname FROM users WHERE id=?",
+                    "SELECT firstname, lastname FROM Users WHERE id=?",
                     [event.organizer_id],
                     (err, result) => {
                       connection.release();
@@ -112,12 +110,10 @@ exports.getEventById = (req, res) => {
 };
 
 exports.getEventByName = (req, res) => {
-  //
-  //NEED TO VERIFY THE NAME
   pool.getConnection((err, connection) => {
     console.log("Getting events with name " + req.query.name.trim());
     connection.query(
-      "SELECT * FROM events WHERE name LIKE ? AND deleted_at IS null ORDER BY startDate",
+      "SELECT * FROM Events WHERE name LIKE ? AND deleted_at IS null ORDER BY startDate",
       "%" + req.query.name.trim() + "%",
       function (err, result) {
         connection.release();
@@ -152,7 +148,7 @@ exports.getEventBetweenDates = (req, res) => {
       );
       pool.getConnection((err, connection) => {
         connection.query(
-          "SELECT * FROM events WHERE startDate between ? and ? AND deleted_at IS null ORDER BY startDate",
+          "SELECT * FROM Events WHERE startDate between ? and ? AND deleted_at IS null ORDER BY startDate",
           [startDate, endDate],
           (err, result) => {
             connection.release();
@@ -176,7 +172,7 @@ exports.getEventBetweenDates = (req, res) => {
       );
       pool.getConnection((err, connection) => {
         connection.query(
-          "SELECT * FROM events WHERE endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
+          "SELECT * FROM Events WHERE endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
           [startDate, endDate],
           (err, result) => {
             connection.release();
@@ -203,7 +199,7 @@ exports.getEventBetweenDates = (req, res) => {
       );
       pool.getConnection((err, connection) => {
         connection.query(
-          "SELECT * FROM events WHERE startDate between ? and ? AND endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
+          "SELECT * FROM Events WHERE startDate between ? and ? AND endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
           [startDate, endDate, startDate, endDate],
           (err, result) => {
             connection.release();
@@ -231,7 +227,7 @@ exports.getEventBetweenDates = (req, res) => {
 exports.getFutureEvents = (req, res) => {
   pool.getConnection((err, connection) => {
     connection.query(
-      "SELECT * FROM events WHERE startDate > NOW() AND deleted_at IS null ORDER BY startDate",
+      "SELECT * FROM Events WHERE startDate > NOW() AND deleted_at IS null ORDER BY startDate",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -250,7 +246,7 @@ exports.getFutureEvents = (req, res) => {
 exports.getCurrentEvents = (req, res) => {
   pool.getConnection((err, connection) => {
     connection.query(
-      "SELECT * FROM events WHERE startDate <= NOW() AND endDate >= NOW() AND deleted_at IS null ORDER BY startDate",
+      "SELECT * FROM Events WHERE startDate <= NOW() AND endDate >= NOW() AND deleted_at IS null ORDER BY startDate",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -269,7 +265,7 @@ exports.getCurrentEvents = (req, res) => {
 exports.getPastEvents = (req, res) => {
   pool.getConnection((err, connection) => {
     connection.query(
-      "SELECT * FROM events WHERE endDate < NOW() AND deleted_at IS null ORDER BY startDate",
+      "SELECT * FROM Events WHERE endDate < NOW() AND deleted_at IS null ORDER BY startDate",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -308,7 +304,7 @@ exports.createEvent = (req, res) => {
             pool.getConnection((err, connection) => {
               if (err) throw err;
               connection.query(
-                "SELECT * FROM events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)",
+                "SELECT * FROM Events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)",
                 [
                   eventToCreate.name,
                   eventToCreate.startDate,
@@ -323,7 +319,7 @@ exports.createEvent = (req, res) => {
                     res.status(400).send({ error: "Event already exists" });
                   } else {
                     connection.query(
-                      "INSERT INTO events (id, name, startDate, endDate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                      "INSERT INTO Events (id, name, startDate, endDate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                       [
                         eventToCreate.id,
                         eventToCreate.name,
@@ -372,7 +368,7 @@ exports.deleteEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
@@ -385,7 +381,7 @@ exports.deleteEvent = (req, res) => {
           } else {
             console.log("Event product with id " + req.params.id);
             connection.query(
-              "UPDATE events SET deleted_at = NOW() WHERE id = ?",
+              "UPDATE Events SET deleted_at = NOW() WHERE id = ?",
               [req.params.id],
               (err, result) => {
                 connection.release();
@@ -414,7 +410,7 @@ exports.editSellerPassword = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT enddate, seller_password FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT enddate, seller_password FROM Events WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
@@ -444,7 +440,7 @@ exports.editSellerPassword = (req, res) => {
                         req.body.new_seller_password_confirmation
                       ) {
                         connection.query(
-                          "UPDATE events SET seller_password = ? WHERE id = ?",
+                          "UPDATE Events SET seller_password = ? WHERE id = ?",
                           [
                             bcrypt.hashSync(req.body.new_seller_password, 10),
                             req.params.id,
@@ -521,7 +517,7 @@ exports.editEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT name, startdate, enddate, location, description FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT name, startdate, enddate, location, description FROM Events WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
@@ -553,7 +549,7 @@ exports.editEvent = (req, res) => {
               ];
               console.log(valuesToEdit);
               if (valuesToEdit.includes(true)) {
-                let sql = "UPDATE events SET ";
+                let sql = "UPDATE Events SET ";
                 let values = [];
                 if (valuesToEdit[0]) {
                   values.push(req.body.name.trim());
@@ -620,7 +616,7 @@ exports.editEvent = (req, res) => {
                 req.body.description === null
               ) {
                 connection.query(
-                  "UPDATE events SET enddate = ? WHERE id = ? AND deleted_at IS null",
+                  "UPDATE Events SET enddate = ? WHERE id = ? AND deleted_at IS null",
                   [new Date(req.body.endDate), req.params.id],
                   (err, result) => {
                     connection.release();
