@@ -45,7 +45,7 @@ exports.getAllEventProductsByEventId = (req, res) => {
           if (err) throw err;
           if (result.length > 0) {
             connection.query(
-              "SELECT EventsProducts.id AS EventsProducts_id, EventsProducts.product_id, EventsProducts.event_id, Products.name, Products.category, Products.description, EventsProducts.stock, EventsProducts.buyingPrice, EventsProducts.sellingPrice FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id = Products.id WHERE EventsProducts.event_id = ? AND EventsProducts.deleted_at IS null ORDER BY Products.name",
+              "SELECT EventsProducts.id AS events_products_id, EventsProducts.product_id, EventsProducts.event_id, Products.name, Products.category, Products.description, EventsProducts.stock, EventsProducts.buyingPrice, EventsProducts.sellingPrice FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id = Products.id WHERE EventsProducts.event_id = ? AND EventsProducts.deleted_at IS null ORDER BY Products.name",
               [req.query.id],
               (err, result) => {
                 if (err) throw err;
