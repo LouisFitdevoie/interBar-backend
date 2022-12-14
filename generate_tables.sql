@@ -86,7 +86,7 @@ ALTER TABLE `Commands` ADD FOREIGN KEY (`event_id`) REFERENCES `Events` (`id`);
 
 ALTER TABLE `EventsProducts` ADD FOREIGN KEY (`event_id`) REFERENCES `Events` (`id`);
 
-ALTER TABLE `EventsProducts` ADD FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
+ALTER TABLE `EventsProducts` ADD FOREIGN KEY (`product_id`) REFERENCES `Products` (`id`);
 
 ALTER TABLE `UsersEvents` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
 
