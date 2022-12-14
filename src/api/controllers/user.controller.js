@@ -31,7 +31,7 @@ exports.getAllUsers = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "SELECT * FROM users WHERE deleted_at IS null",
+      "SELECT * FROM Users WHERE deleted_at IS null",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -46,7 +46,7 @@ exports.getUserWithId = (req, res) => {
       if (err) throw err;
       console.log(`Getting user with id ${req.query.id}`);
       connection.query(
-        "SELECT * FROM users WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Users WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
           connection.release();
@@ -77,7 +77,7 @@ exports.getUserWithName = (req, res) => {
   ) {
     pool.getConnection((err, connection) => {
       connection.query(
-        "SELECT * FROM users WHERE firstname LIKE ? AND lastname LIKE ? AND deleted_at IS null",
+        "SELECT * FROM Users WHERE firstname LIKE ? AND lastname LIKE ? AND deleted_at IS null",
         [
           "%" + req.query.firstName.trim() + "%",
           "%" + req.query.lastName.trim() + "%",
@@ -114,7 +114,7 @@ exports.getUserWithEmail = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null",
+        "SELECT * FROM Users WHERE emailAddress = ? AND deleted_at IS null",
         [req.body.emailAddress.trim()],
         (err, result) => {
           connection.release();
@@ -145,7 +145,7 @@ exports.updateUser = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT firstname, lastname, birthday FROM users WHERE id = ? AND deleted_at IS null",
+          "SELECT firstname, lastname, birthday FROM Users WHERE id = ? AND deleted_at IS null",
           [req.body.id],
           (err, result) => {
             if (err) throw err;
@@ -173,7 +173,7 @@ exports.updateUser = (req, res) => {
                   : false,
               ];
               if (dataToEdit.includes(true)) {
-                let sql = "UPDATE users SET ";
+                let sql = "UPDATE Users SET ";
                 let arrayOfEdition = [];
                 if (dataToEdit[0]) {
                   arrayOfEdition.push(req.body.firstName.trim());
@@ -247,7 +247,7 @@ exports.updateUserPassword = (req, res) => {
               10
             );
             connection.query(
-              "SELECT password FROM users WHERE id = ? AND deleted_at IS null",
+              "SELECT password FROM Users WHERE id = ? AND deleted_at IS null",
               [req.body.id],
               (err, result) => {
                 if (err) throw err;
@@ -263,7 +263,7 @@ exports.updateUserPassword = (req, res) => {
                     )
                   ) {
                     connection.query(
-                      "UPDATE users SET password = ? WHERE id = ? AND deleted_at IS null",
+                      "UPDATE Users SET password = ? WHERE id = ? AND deleted_at IS null",
                       [passwordHashed, req.body.id],
                       (err, result) => {
                         connection.release();
@@ -316,7 +316,7 @@ exports.deleteUser = (req, res) => {
       const emailAnonymized = "anonymous." + randomString + "@anonymized.com";
       const randomPassword = uuid.v4().replace(/-/g, "");
       connection.query(
-        "UPDATE users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, rights = 0, deleted_at = NOW() WHERE id = ?",
+        "UPDATE Users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, rights = 0, deleted_at = NOW() WHERE id = ?",
         [
           emailAnonymized,
           "Anonymous",
@@ -341,7 +341,7 @@ exports.isUserAdult = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       connection.query(
-        "SELECT birthday FROM users WHERE id = ? AND deleted_at IS null",
+        "SELECT birthday FROM Users WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();

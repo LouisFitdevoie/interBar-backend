@@ -42,7 +42,7 @@ exports.login = (req, res) => {
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
-            "SELECT * FROM users WHERE emailAddress = ? AND deleted_at IS null",
+            "SELECT * FROM Users WHERE emailAddress = ? AND deleted_at IS null",
             [req.body.emailAddress.trim()],
             (err, result) => {
               if (err) res.status(400).send({ error: "Invalid email address" });
@@ -66,7 +66,7 @@ exports.login = (req, res) => {
                     process.env.REFRESH_TOKEN_SECRET
                   );
                   connection.query(
-                    "INSERT INTO refresh_tokens (token, user_id) VALUES (?, ?)",
+                    "INSERT INTO RefreshTokens (token, user_id) VALUES (?, ?)",
                     [refreshToken, result[0].id],
                     (err, result) => {
                       connection.release();
@@ -122,7 +122,7 @@ exports.updateToken = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "SELECT * FROM refresh_tokens WHERE token = ?",
+      "SELECT * FROM RefreshTokens WHERE token = ?",
       [refreshToken],
       (err, result) => {
         connection.release();
@@ -155,7 +155,7 @@ exports.logout = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "DELETE FROM refresh_tokens WHERE token = ?",
+      "DELETE FROM RefreshTokens WHERE token = ?",
       [refreshToken],
       (err, result) => {
         connection.release();
@@ -206,7 +206,7 @@ exports.createUser = (req, res) => {
                 10
               );
               connection.query(
-                "SELECT id FROM users WHERE emailAddress = ? AND deleted_at IS null",
+                "SELECT id FROM Users WHERE emailAddress = ? AND deleted_at IS null",
                 [req.body.emailAddress],
                 (err, result) => {
                   if (err) throw err;
@@ -222,7 +222,7 @@ exports.createUser = (req, res) => {
                     });
                   } else {
                     connection.query(
-                      "SELECT id FROM users WHERE firstname = ? AND lastname = ? AND deleted_at IS null",
+                      "SELECT id FROM Users WHERE firstname = ? AND lastname = ? AND deleted_at IS null",
                       [req.body.firstName, req.body.lastName],
                       (err, result) => {
                         if (err) throw err;
@@ -249,7 +249,7 @@ exports.createUser = (req, res) => {
                             passwordHashed
                           );
                           connection.query(
-                            "INSERT INTO users (id, emailaddress, firstname, lastname, birthday, password, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            "INSERT INTO Users (id, emailaddress, firstname, lastname, birthday, password, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
                             [
                               userToCreate.id,
                               userToCreate.emailAddress,

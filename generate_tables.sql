@@ -4,7 +4,7 @@ CREATE DATABASE `interbar`;
 
 USE `interbar`;
 
-CREATE TABLE `users` (
+CREATE TABLE `Users` (
   `id` varchar(255) PRIMARY KEY,
   `emailaddress` varchar(255) NOT NULL,
   `firstname` varchar(255) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE `users` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `events` (
+CREATE TABLE `Events` (
   `id` varchar(255) PRIMARY KEY,
   `name` varchar(255) NOT NULL,
   `startdate` datetime NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE `events` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `products` (
+CREATE TABLE `Products` (
   `id` varchar(255) PRIMARY KEY,
   `name` varchar(255) NOT NULL,
   `category` int COMMENT '0 = food, 1 = alcoholic drink, 2 = soft' NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE `products` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `commands` (
+CREATE TABLE `Commands` (
   `id` varchar(255) PRIMARY KEY COMMENT 'UUID v4',
   `client_id` varchar(255),
   `client_name` varchar(255),
@@ -47,7 +47,7 @@ CREATE TABLE `commands` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `events_products` (
+CREATE TABLE `EventsProducts` (
   `id` varchar(255) PRIMARY KEY,
   `event_id` varchar(255) NOT NULL,
   `product_id` varchar(255) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `events_products` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `users_events` (
+CREATE TABLE `UsersEvents` (
   `id` varchar(255) PRIMARY KEY,
   `user_id` varchar(255) NOT NULL,
   `event_id` varchar(255) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE `users_events` (
   `left_event_at` datetime DEFAULT null
 );
 
-CREATE TABLE `events_products_commands` (
+CREATE TABLE `EventsProductsCommands` (
   `id` varchar(255) PRIMARY KEY,
   `command_id` varchar(255) NOT NULL,
   `event_product_id` varchar(255) NOT NULL,
@@ -73,27 +73,27 @@ CREATE TABLE `events_products_commands` (
   `deleted_at` datetime DEFAULT null
 );
 
-CREATE TABLE `refresh_tokens` (
+CREATE TABLE `RefreshTokens` (
   `token` varchar(500) PRIMARY KEY,
   `user_id` varchar(255) NOT NULL
 );
 
-ALTER TABLE `commands` ADD FOREIGN KEY (`client_id`) REFERENCES `users` (`id`);
+ALTER TABLE `Commands` ADD FOREIGN KEY (`client_id`) REFERENCES `Users` (`id`);
 
-ALTER TABLE `commands` ADD FOREIGN KEY (`servedby_id`) REFERENCES `users` (`id`);
+ALTER TABLE `Commands` ADD FOREIGN KEY (`servedby_id`) REFERENCES `Users` (`id`);
 
-ALTER TABLE `commands` ADD FOREIGN KEY (`event_id`) REFERENCES `events` (`id`);
+ALTER TABLE `Commands` ADD FOREIGN KEY (`event_id`) REFERENCES `Events` (`id`);
 
-ALTER TABLE `events_products` ADD FOREIGN KEY (`event_id`) REFERENCES `events` (`id`);
+ALTER TABLE `EventsProducts` ADD FOREIGN KEY (`event_id`) REFERENCES `Events` (`id`);
 
-ALTER TABLE `events_products` ADD FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
+ALTER TABLE `EventsProducts` ADD FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
 
-ALTER TABLE `users_events` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `UsersEvents` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
 
-ALTER TABLE `users_events` ADD FOREIGN KEY (`event_id`) REFERENCES `events` (`id`);
+ALTER TABLE `UsersEvents` ADD FOREIGN KEY (`event_id`) REFERENCES `Events` (`id`);
 
-ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`command_id`) REFERENCES `commands` (`id`);
+ALTER TABLE `EventsProductsCommands` ADD FOREIGN KEY (`command_id`) REFERENCES `Commands` (`id`);
 
-ALTER TABLE `events_products_commands` ADD FOREIGN KEY (`event_product_id`) REFERENCES `events_products` (`id`);
+ALTER TABLE `EventsProductsCommands` ADD FOREIGN KEY (`event_product_id`) REFERENCES `EventsProducts` (`id`);
 
-ALTER TABLE `refresh_tokens` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `RefreshTokens` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
