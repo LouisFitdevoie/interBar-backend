@@ -21,7 +21,7 @@ exports.getAllUsersEvents = (req, res) => {
     if (err) throw err;
     //Return all user_event that are not deleted
     connection.query(
-      "SELECT * FROM users_events WHERE left_event_at IS null",
+      "SELECT * FROM UsersEvents WHERE left_event_at IS null",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -36,7 +36,7 @@ exports.getAllUsersForEvent = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT users.id, users.firstname, users.lastname, users.emailaddress, users_events.role FROM users_events INNER JOIN users ON users_events.user_id = users.id WHERE users_events.event_id = ? AND users_events.left_event_at IS null",
+        "SELECT Users.id, Users.firstname, Users.lastname, Users.emailaddress, UsersEvents.role FROM UsersEvents INNER JOIN Users ON UsersEvents.user_id = Users.id WHERE UsersEvents.event_id = ? AND UsersEvents.left_event_at IS null",
         [req.params.event_id],
         (err, result) => {
           connection.release();
@@ -56,7 +56,7 @@ exports.getUserRoleForEvent = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT users_events.role FROM users_events WHERE users_events.event_id = ? AND users_events.user_id = ? AND users_events.left_event_at IS null",
+          "SELECT UsersEvents.role FROM UsersEvents WHERE UsersEvents.event_id = ? AND UsersEvents.user_id = ? AND UsersEvents.left_event_at IS null",
           [req.query.eventId, req.query.userId],
           (err, result) => {
             connection.release();
@@ -89,7 +89,7 @@ exports.userJoinEvent = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT id, endDate, seller_password FROM events WHERE id = ? AND deleted_at IS null",
+          "SELECT id, endDate, seller_password FROM Events WHERE id = ? AND deleted_at IS null",
           [req.body.eventId],
           (err, result) => {
             if (err) throw err;
@@ -97,7 +97,7 @@ exports.userJoinEvent = (req, res) => {
               let endDate = result[0].endDate;
               const sellerPasswordHash = result[0].seller_password;
               connection.query(
-                "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+                "SELECT id FROM Users WHERE id = ? AND deleted_at IS null",
                 [req.body.userId],
                 (err, result) => {
                   if (err) throw err;
@@ -106,7 +106,7 @@ exports.userJoinEvent = (req, res) => {
                       res.status(400).send({ error: "Event has ended" });
                     } else {
                       connection.query(
-                        "SELECT id FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                        "SELECT id FROM UsersEvents WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                         [req.body.userId, req.body.eventId],
                         (err, result) => {
                           if (err) throw err;
@@ -124,7 +124,7 @@ exports.userJoinEvent = (req, res) => {
                               );
 
                               connection.query(
-                                "INSERT INTO users_events (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
+                                "INSERT INTO UsersEvents (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
                                 [
                                   userEvent.id,
                                   userEvent.user_id,
@@ -157,7 +157,7 @@ exports.userJoinEvent = (req, res) => {
                                   );
 
                                   connection.query(
-                                    "INSERT INTO users_events (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
+                                    "INSERT INTO UsersEvents (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
                                     [
                                       userEvent.id,
                                       userEvent.user_id,
@@ -192,7 +192,7 @@ exports.userJoinEvent = (req, res) => {
                             } else if (req.body.role === 2) {
                               //Organizer
                               connection.query(
-                                "SELECT user_id FROM users_events WHERE event_id = ? AND role = 2 AND left_event_at IS null",
+                                "SELECT user_id FROM UsersEvents WHERE event_id = ? AND role = 2 AND left_event_at IS null",
                                 [req.body.eventId],
                                 (err, result) => {
                                   if (err) throw err;
@@ -210,7 +210,7 @@ exports.userJoinEvent = (req, res) => {
                                     console.log("Organizer ok");
 
                                     connection.query(
-                                      "INSERT INTO users_events (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
+                                      "INSERT INTO UsersEvents (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
                                       [
                                         userEvent.id,
                                         userEvent.user_id,
@@ -274,19 +274,19 @@ exports.quitEvent = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+          "SELECT id FROM Users WHERE id = ? AND deleted_at IS null",
           [req.body.userId],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT id FROM events WHERE id = ? AND deleted_at IS null",
+                "SELECT id FROM Events WHERE id = ? AND deleted_at IS null",
                 [req.body.eventId],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.query(
-                      "SELECT id, role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                      "SELECT id, role FROM UsersEvents WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                       [req.body.userId, req.body.eventId],
                       (err, result) => {
                         if (err) throw err;
@@ -294,7 +294,7 @@ exports.quitEvent = (req, res) => {
                           if (result[0].role === 0) {
                             //User
                             connection.query(
-                              "UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                              "UPDATE UsersEvents SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                               [req.body.userId, req.body.eventId],
                               (err, result) => {
                                 connection.release();
@@ -308,7 +308,7 @@ exports.quitEvent = (req, res) => {
                           } else if (result[0].role === 1) {
                             //Seller
                             connection.query(
-                              "UPDATE users_events SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                              "UPDATE UsersEvents SET left_event_at = NOW() WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                               [req.body.userId, req.body.eventId],
                               (err, result) => {
                                 connection.release();
@@ -370,13 +370,13 @@ exports.userToSeller = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+          "SELECT id FROM Users WHERE id = ? AND deleted_at IS null",
           [req.body.userId],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT id, seller_password FROM events WHERE id = ? AND deleted_at IS null",
+                "SELECT id, seller_password FROM Events WHERE id = ? AND deleted_at IS null",
                 [req.body.eventId],
                 (err, result) => {
                   if (err) throw err;
@@ -389,7 +389,7 @@ exports.userToSeller = (req, res) => {
                         )
                       ) {
                         connection.query(
-                          "SELECT role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                          "SELECT role FROM UsersEvents WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                           [req.body.userId, req.body.eventId],
                           (err, result) => {
                             if (err) throw err;
@@ -397,7 +397,7 @@ exports.userToSeller = (req, res) => {
                               if (result[0].role === 0) {
                                 //User
                                 connection.query(
-                                  "UPDATE users_events SET role = 1 WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                                  "UPDATE UsersEvents SET role = 1 WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                                   [req.body.userId, req.body.eventId],
                                   (err, result) => {
                                     connection.release();
@@ -466,19 +466,19 @@ exports.sellerToUser = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+          "SELECT id FROM Users WHERE id = ? AND deleted_at IS null",
           [req.body.userId],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT id FROM events WHERE id = ? AND deleted_at IS null",
+                "SELECT id FROM Events WHERE id = ? AND deleted_at IS null",
                 [req.body.eventId],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.query(
-                      "SELECT role FROM users_events WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                      "SELECT role FROM UsersEvents WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                       [req.body.userId, req.body.eventId],
                       (err, result) => {
                         if (err) throw err;
@@ -486,7 +486,7 @@ exports.sellerToUser = (req, res) => {
                           if (result[0].role === 1) {
                             //User
                             connection.query(
-                              "UPDATE users_events SET role = 0 WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
+                              "UPDATE UsersEvents SET role = 0 WHERE user_id = ? AND event_id = ? AND left_event_at IS null",
                               [req.body.userId, req.body.eventId],
                               (err, result) => {
                                 connection.release();
@@ -543,13 +543,13 @@ exports.getAllEventsForUser = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT id FROM users WHERE id = ? AND deleted_at IS null",
+        "SELECT id FROM Users WHERE id = ? AND deleted_at IS null",
         [req.params.userId],
         (err, result) => {
           if (err) throw err;
           if (result.length > 0) {
             connection.query(
-              "SELECT events.id, events.name, events.description, events.startdate, events.enddate, events.created_at, events.location, users_events.role FROM events INNER JOIN users_events ON events.id = users_events.event_id WHERE users_events.user_id = ? AND users_events.left_event_at IS null AND events.deleted_at IS null",
+              "SELECT Events.id, Events.name, Events.description, Events.startdate, Events.enddate, Events.created_at, Events.location, UsersEvents.role FROM Events INNER JOIN UsersEvents ON Events.id = UsersEvents.event_id WHERE UsersEvents.user_id = ? AND UsersEvents.left_event_at IS null AND Events.deleted_at IS null",
               [req.params.userId],
               (err, result) => {
                 if (err) throw err;
@@ -560,7 +560,7 @@ exports.getAllEventsForUser = (req, res) => {
                 let eventsToReturn = [];
                 result.forEach((event) => {
                   connection.query(
-                    "SELECT users.firstname, users.lastname FROM users INNER JOIN users_events ON users.id = users_events.user_id WHERE users_events.event_id = ? AND users_events.role = 2",
+                    "SELECT Users.firstname, Users.lastname FROM Users INNER JOIN UsersEvents ON Users.id = UsersEvents.user_id WHERE UsersEvents.event_id = ? AND UsersEvents.role = 2",
                     [event.id],
                     (err, result) => {
                       if (err) throw err;

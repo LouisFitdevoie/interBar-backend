@@ -20,7 +20,7 @@ exports.getAllEventProductCommands = (req, res) => {
     if (err) throw err;
     //Return all products that are not deleted
     connection.query(
-      "SELECT * FROM events_products_commands WHERE deleted_at IS null",
+      "SELECT * FROM EventsProductsCommands WHERE deleted_at IS null",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -37,7 +37,7 @@ exports.getEventProductCommandById = (req, res) => {
       if (err) throw err;
       console.log(`Getting event product command with id ${req.params.id}`);
       connection.query(
-        "SELECT * FROM events_products_commands WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM EventsProductsCommands WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -74,7 +74,7 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
         `Getting event products commands for command id ${req.params.id}`
       );
       connection.query(
-        "SELECT * FROM events_products_commands WHERE command_id = ? AND deleted_at IS null",
+        "SELECT * FROM EventsProductsCommands WHERE command_id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -112,7 +112,7 @@ exports.getNumber = (req, res) => {
           `Getting number for command id ${req.query.commandId} and event product id ${req.query.eventProductId}`
         );
         connection.query(
-          "SELECT number FROM events_products_commands WHERE command_id = ? AND event_product_id = ? AND deleted_at IS null",
+          "SELECT number FROM EventsProductsCommands WHERE command_id = ? AND event_product_id = ? AND deleted_at IS null",
           [req.query.commandId, req.query.eventProductId],
           (err, result) => {
             connection.release();
@@ -179,7 +179,7 @@ exports.getAllInfosForCommand = (req, res) => {
       if (err) throw err;
       console.log(`Getting all infos for command id ${req.params.commandId}`);
       connection.query(
-        "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM commands WHERE id = ?",
+        "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM Commands WHERE id = ?",
         [req.params.commandId],
         (err, result) => {
           if (err) throw err;
@@ -193,7 +193,7 @@ exports.getAllInfosForCommand = (req, res) => {
             objectToReturn.command.isPaid = result[0].ispaid;
             objectToReturn.command.created_at = result[0].created_at;
             connection.query(
-              "SELECT events_products_commands.id AS events_products_commands_id, events_products_commands.event_product_id, events_products_commands.number, events_products.product_id, events_products.sellingprice, products.name, products.category, products.description FROM events_products_commands INNER JOIN events_products ON events_products_commands.event_product_id = events_products.id INNER JOIN products ON events_products.product_id = products.id WHERE events_products_commands.command_id = ? AND events_products_commands.deleted_at IS null",
+              "SELECT EventsProductsCommands.id AS events_products_commands_id, EventsProductsCommands.event_product_id, EventsProductsCommands.number, EventsProducts.product_id, EventsProducts.sellingprice, Products.name, Products.category, Products.description FROM EventsProductsCommands INNER JOIN EventsProducts ON EventsProductsCommands.event_product_id = EventsProducts.id INNER JOIN Products ON EventsProducts.product_id = Products.id WHERE EventsProductsCommands.command_id = ? AND EventsProductsCommands.deleted_at IS null",
               [commandId],
               (err, result) => {
                 if (err) throw err;
@@ -216,7 +216,7 @@ exports.getAllInfosForCommand = (req, res) => {
 
                   if (sellerId != null) {
                     connection.query(
-                      "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ?",
+                      "SELECT id, firstname, lastname, birthday, emailaddress FROM Users WHERE id = ?",
                       [sellerId],
                       (err, result) => {
                         if (err) throw err;
@@ -230,7 +230,7 @@ exports.getAllInfosForCommand = (req, res) => {
 
                           if (clientId != null) {
                             connection.query(
-                              "SELECT id, firstname, lastname, birthday, emailaddress FROM users WHERE id = ?",
+                              "SELECT id, firstname, lastname, birthday, emailaddress FROM Users WHERE id = ?",
                               [clientId],
                               (err, result) => {
                                 connection.release();
@@ -321,7 +321,7 @@ exports.createEventProductCommand = (req, res) => {
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
-            "SELECT id FROM events_products_commands WHERE event_product_id = ? AND command_id = ? AND deleted_at IS null",
+            "SELECT id FROM EventsProductsCommands WHERE event_product_id = ? AND command_id = ? AND deleted_at IS null",
             [req.body.eventProductId, req.body.commandId],
             (err, result) => {
               if (err) throw err;
@@ -332,7 +332,7 @@ exports.createEventProductCommand = (req, res) => {
                   req.body.number
                 );
                 connection.query(
-                  "INSERT INTO `events_products_commands` (`id`, `command_id`, `event_product_id`, `number`) VALUES (?, ?, ?, ?)",
+                  "INSERT INTO `EventsProductsCommands` (`id`, `command_id`, `event_product_id`, `number`) VALUES (?, ?, ?, ?)",
                   [
                     epc_to_add.id,
                     epc_to_add.command_id,
@@ -385,7 +385,7 @@ exports.deleteEventProductCommand = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "UPDATE events_products_commands SET deleted_at = NOW() WHERE id = ?",
+        "UPDATE EventsProductsCommands SET deleted_at = NOW() WHERE id = ?",
         [req.params.id],
         (err, result) => {
           connection.release();
@@ -414,12 +414,12 @@ exports.editNumber = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "UPDATE commands SET ispaid = 0, isserved = 0 WHERE id = ?",
+          "UPDATE Commands SET ispaid = 0, isserved = 0 WHERE id = ?",
           [req.body.commandId],
           (err, result) => {
             if (err) throw err;
             connection.query(
-              "UPDATE events_products_commands SET number = ? WHERE id = ?",
+              "UPDATE EventsProductsCommands SET number = ? WHERE id = ?",
               [req.body.number, req.params.id],
               (err, result) => {
                 connection.release();

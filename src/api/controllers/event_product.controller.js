@@ -24,7 +24,7 @@ exports.getAllEventProducts = (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
-      "SELECT * FROM events_products WHERE deleted_at IS null",
+      "SELECT * FROM EventsProducts WHERE deleted_at IS null",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -39,13 +39,13 @@ exports.getAllEventProductsByEventId = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
           if (err) throw err;
           if (result.length > 0) {
             connection.query(
-              "SELECT events_products.id AS events_products_id, events_products.product_id, events_products.event_id, products.name, products.category, products.description, events_products.stock, events_products.buyingPrice, events_products.sellingPrice FROM events_products INNER JOIN products ON events_products.product_id = products.id WHERE events_products.event_id = ? AND events_products.deleted_at IS null ORDER BY products.name",
+              "SELECT EventsProducts.id AS EventsProducts_id, EventsProducts.product_id, EventsProducts.event_id, Products.name, Products.category, Products.description, EventsProducts.stock, EventsProducts.buyingPrice, EventsProducts.sellingPrice FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id = Products.id WHERE EventsProducts.event_id = ? AND EventsProducts.deleted_at IS null ORDER BY Products.name",
               [req.query.id],
               (err, result) => {
                 if (err) throw err;
@@ -57,7 +57,7 @@ exports.getAllEventProductsByEventId = (req, res) => {
                   let i = 0;
                   eventProducts.forEach((eventProduct) => {
                     connection.query(
-                      "SELECT SUM(number) AS stock FROM events_products_commands WHERE event_product_id = ? AND deleted_at IS null",
+                      "SELECT SUM(number) AS stock FROM EventsProductsCommands WHERE event_product_id = ? AND deleted_at IS null",
                       [eventProduct.events_products_id],
                       (err, result) => {
                         if (err) throw err;
@@ -96,14 +96,14 @@ exports.getProductEventStock = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM events_products WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM EventsProducts WHERE id = ? AND deleted_at IS null",
         [req.body.event_product_id],
         (err, result) => {
           if (err) throw err;
           if (result.length > 0) {
             const initialStock = result[0].stock;
             connection.query(
-              "SELECT SUM(number) AS stockSold FROM events_products_commands WHERE event_product_id = ? AND deleted_at IS null",
+              "SELECT SUM(number) AS stockSold FROM EventsProductsCommands WHERE event_product_id = ? AND deleted_at IS null",
               [result[0].id],
               (err, result) => {
                 connection.release();
@@ -138,19 +138,19 @@ exports.getProductEventBuyingPrice = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+          "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
           [req.query.event_id],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT * FROM products WHERE id = ? AND deleted_at IS null",
+                "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
                 [req.query.product_id],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.query(
-                      "SELECT events_products.buyingPrice, products.name FROM events_products INNER JOIN products ON events_products.product_id=products.id WHERE (events_products.event_id = ? AND events_products.product_id = ? AND events_products.deleted_at IS null)",
+                      "SELECT EventsProducts.buyingPrice, Products.name FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id=Products.id WHERE (EventsProducts.event_id = ? AND EventsProducts.product_id = ? AND EventsProducts.deleted_at IS null)",
                       [req.query.event_id, req.query.product_id],
                       (err, result) => {
                         connection.release();
@@ -194,19 +194,19 @@ exports.getProductEventSellingPrice = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+          "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
           [req.query.event_id],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT * FROM products WHERE id = ? AND deleted_at IS null",
+                "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
                 [req.query.product_id],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.query(
-                      "SELECT events_products.sellingPrice, products.name FROM events_products INNER JOIN products ON events_products.product_id=products.id WHERE (events_products.event_id = ? AND events_products.product_id = ? AND events_products.deleted_at IS null)",
+                      "SELECT EventsProducts.sellingPrice, Products.name FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id=Products.id WHERE (EventsProducts.event_id = ? AND EventsProducts.product_id = ? AND EventsProducts.deleted_at IS null)",
                       [req.query.event_id, req.query.product_id],
                       (err, result) => {
                         connection.release();
@@ -250,19 +250,19 @@ exports.getProductEventInfos = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT * FROM events WHERE id = ? AND deleted_at IS null",
+          "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
           [req.query.event_id],
           (err, result) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.query(
-                "SELECT * FROM products WHERE id = ? AND deleted_at IS null",
+                "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
                 [req.query.product_id],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.query(
-                      "SELECT events_products.id AS events_products_id, events_products.product_id, events_products.event_id, products.name, products.category, products.description, events_products.stock, events_products.buyingPrice, events_products.sellingPrice FROM events_products INNER JOIN products ON events_products.product_id=products.id WHERE (events_products.event_id = ? AND events_products.product_id = ? AND events_products.deleted_at IS null)",
+                      "SELECT EventsProducts.id AS events_products_id, EventsProducts.product_id, EventsProducts.event_id, Products.name, Products.category, Products.description, EventsProducts.stock, EventsProducts.buyingPrice, EventsProducts.sellingPrice FROM EventsProducts INNER JOIN Products ON EventsProducts.product_id=Products.id WHERE (EventsProducts.event_id = ? AND EventsProducts.product_id = ? AND EventsProducts.deleted_at IS null)",
                       [req.query.event_id, req.query.product_id],
                       (err, result) => {
                         connection.release();
@@ -316,19 +316,19 @@ exports.createEventProduct = (req, res) => {
             pool.getConnection((err, connection) => {
               if (err) throw err;
               connection.query(
-                "SELECT id FROM events WHERE id = ? AND deleted_at IS null",
+                "SELECT id FROM Events WHERE id = ? AND deleted_at IS null",
                 [eventProductToCreate.event_id],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length === 1) {
                     connection.query(
-                      "SELECT id FROM products WHERE id = ? AND deleted_at IS null",
+                      "SELECT id FROM Products WHERE id = ? AND deleted_at IS null",
                       [eventProductToCreate.product_id],
                       (err, result) => {
                         if (err) throw err;
                         if (result.length === 1) {
                           connection.query(
-                            "SELECT id FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
+                            "SELECT id FROM EventsProducts WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
                             [
                               eventProductToCreate.event_id,
                               eventProductToCreate.product_id,
@@ -337,7 +337,7 @@ exports.createEventProduct = (req, res) => {
                               if (err) throw err;
                               if (result.length === 0) {
                                 connection.query(
-                                  "INSERT INTO events_products (id, event_id, product_id, stock, buyingPrice, sellingPrice, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                  "INSERT INTO EventsProducts (id, event_id, product_id, stock, buyingPrice, sellingPrice, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
                                   [
                                     eventProductToCreate.id,
                                     eventProductToCreate.event_id,
@@ -415,13 +415,13 @@ exports.deleteEventProduct = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT id FROM events_products WHERE id = ? AND deleted_at IS null",
+        "SELECT id FROM EventsProducts WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
           if (result.length === 1) {
             connection.query(
-              "UPDATE events_products SET deleted_at = NOW() WHERE id = ? AND deleted_at IS null",
+              "UPDATE EventsProducts SET deleted_at = NOW() WHERE id = ? AND deleted_at IS null",
               [req.params.id],
               (err, result) => {
                 connection.release();
@@ -449,21 +449,21 @@ exports.editEventProduct = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT event_id FROM events_products WHERE id = ? AND deleted_at IS null",
+        "SELECT event_id FROM EventsProducts WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
           if (result.length === 1) {
             let eventId = result[0].event_id;
             connection.query(
-              "SELECT startDate FROM events WHERE id = ? AND deleted_at IS null",
+              "SELECT startDate FROM Events WHERE id = ? AND deleted_at IS null",
               [eventId],
               (err, result) => {
                 if (err) throw err;
                 if (result.length === 1) {
                   if (now < result[0].startDate) {
                     connection.query(
-                      "SELECT stock, buyingPrice, sellingPrice FROM events_products WHERE id = ? AND deleted_at IS null",
+                      "SELECT stock, buyingPrice, sellingPrice FROM EventsProducts WHERE id = ? AND deleted_at IS null",
                       [req.params.id],
                       (err, result) => {
                         if (err) throw err;
@@ -509,7 +509,7 @@ exports.editEventProduct = (req, res) => {
                             }
                           }
                           if (dataToEdit.includes(true)) {
-                            let sql = "UPDATE events_products SET ";
+                            let sql = "UPDATE EventsProducts SET ";
                             let arrayOfEdition = [];
                             if (dataToEdit[0]) {
                               arrayOfEdition.push(parseInt(req.body.stock));
@@ -597,27 +597,27 @@ exports.sellProduct = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT id, startDate, endDate FROM events WHERE id = ? AND deleted_at IS null",
+          "SELECT id, startDate, endDate FROM Events WHERE id = ? AND deleted_at IS null",
           [req.query.eventId],
           (err, result) => {
             if (err) throw err;
             if (result.length === 1) {
               if (now > result[0].startDate && now < result[0].endDate) {
                 connection.query(
-                  "SELECT id FROM products WHERE id = ? AND deleted_at IS null",
+                  "SELECT id FROM Products WHERE id = ? AND deleted_at IS null",
                   [req.query.productId],
                   (err, result) => {
                     if (err) throw err;
                     if (result.length === 1) {
                       connection.query(
-                        "SELECT stock FROM events_products WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
+                        "SELECT stock FROM EventsProducts WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
                         [req.query.eventId, req.query.productId],
                         (err, result) => {
                           if (err) throw err;
                           if (result.length === 1) {
                             if (result[0].stock - req.body.quantity >= 0) {
                               connection.query(
-                                "UPDATE events_products SET stock = stock - ? WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
+                                "UPDATE EventsProducts SET stock = stock - ? WHERE event_id = ? AND product_id = ? AND deleted_at IS null",
                                 [
                                   req.body.quantity,
                                   req.query.eventId,

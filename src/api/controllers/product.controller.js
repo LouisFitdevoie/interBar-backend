@@ -20,7 +20,7 @@ exports.getAllProducts = (req, res) => {
     if (err) throw err;
     //Return all products that are not deleted and order them by name
     connection.query(
-      "SELECT * FROM products WHERE deleted_at IS null ORDER BY name",
+      "SELECT * FROM Products WHERE deleted_at IS null ORDER BY name",
       (err, result) => {
         connection.release();
         if (err) throw err;
@@ -37,7 +37,7 @@ exports.getProductById = (req, res) => {
       if (err) throw err;
       console.log(`Getting product with id ${req.query.id}`);
       connection.query(
-        "SELECT * FROM products WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
           connection.release();
@@ -63,12 +63,10 @@ exports.getProductById = (req, res) => {
 };
 
 exports.getProductByName = (req, res) => {
-  //
-  //NEED TO VERIFY THE NAME
   pool.getConnection((err, connection) => {
     console.log("Getting products with name " + req.query.name.trim());
     connection.query(
-      "SELECT * FROM products WHERE name LIKE ? AND deleted_at IS null ORDER BY name",
+      "SELECT * FROM Products WHERE name LIKE ? AND deleted_at IS null ORDER BY name",
       "%" + req.query.name.trim() + "%",
       function (err, result) {
         connection.release();
@@ -103,7 +101,7 @@ exports.getProductByCategory = (req, res) => {
           "Getting products with category " + req.query.category.trim()
         );
         connection.query(
-          "SELECT * FROM products WHERE category = ? AND deleted_at IS null ORDER BY name",
+          "SELECT * FROM Products WHERE category = ? AND deleted_at IS null ORDER BY name",
           [req.query.category.trim()],
           (err, result) => {
             connection.release();
@@ -154,7 +152,7 @@ exports.createProduct = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         connection.query(
-          "SELECT * FROM products WHERE name = ? AND deleted_at IS null",
+          "SELECT * FROM Products WHERE name = ? AND deleted_at IS null",
           [newProduct.name],
           (err, result) => {
             if (err) throw err;
@@ -165,7 +163,7 @@ exports.createProduct = (req, res) => {
             } else {
               console.log("Creating product with name " + newProduct.name);
               connection.query(
-                "INSERT INTO products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO Products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)",
                 [
                   newProduct.id,
                   newProduct.name,
@@ -201,7 +199,7 @@ exports.deleteProduct = (req, res) => {
     pool.getConnection((err, connection) => {
       if (err) throw err;
       connection.query(
-        "SELECT * FROM products WHERE id = ? AND deleted_at IS null",
+        "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
         [req.params.id],
         (err, result) => {
           if (err) throw err;
@@ -214,7 +212,7 @@ exports.deleteProduct = (req, res) => {
           } else {
             console.log("Deleting product with id " + req.params.id);
             connection.query(
-              "UPDATE products SET deleted_at = NOW() WHERE id = ?",
+              "UPDATE Products SET deleted_at = NOW() WHERE id = ?",
               [req.params.id],
               (err, result) => {
                 connection.release();
