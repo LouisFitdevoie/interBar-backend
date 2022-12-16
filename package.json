@@ -4,9 +4,9 @@
   "description": "",
   "main": "./src/main.js",
   "scripts": {
-    "test": "NODE_ENV=testing mocha --exit --recursive --timeout 10000",
+    "test": "NODE_ENV=testing mocha src/test/**/*.js --exit --recursive --timeout 10000",
     "start:dev": "NODE_ENV=development nodemon --watch './src/main.js'",
-    "start": "NODE_ENV=production node ./src/main.js"
+    "start": "NODE_ENV=production node ./app.js"
   },
   "author": "Louis Fitdevoie",
   "license": "ISC",

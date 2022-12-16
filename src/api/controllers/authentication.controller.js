@@ -8,7 +8,7 @@ require("dotenv").config();
 const database = require("../../database.js");
 const pool = database.pool;
 const emailRegex = new RegExp(
-  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 );
 
 class User {
@@ -37,78 +37,69 @@ exports.login = (req, res) => {
     req.body.emailAddress.trim().length > 0 &&
     emailRegex.test(req.body.emailAddress.trim())
   ) {
-    if (req.body.emailAddress.trim() != "anonyme@anonyme.be") {
-      if (req.body.password.trim().length > 0) {
-        pool.getConnection((err, connection) => {
-          if (err) throw err;
-          connection.query(
-            "SELECT * FROM Users WHERE emailAddress = ? AND deleted_at IS null",
-            [req.body.emailAddress.trim()],
-            (err, result) => {
-              if (err) res.status(400).send({ error: "Invalid email address" });
-              if (result.length > 0) {
-                if (
-                  bcrypt.compareSync(
-                    req.body.password.trim(),
-                    result[0].password
-                  )
-                ) {
-                  const userToLogin = {
-                    firstName: result[0].firstname,
-                    lastName: result[0].lastname,
-                    emailAddress: result[0].emailaddress,
-                    birthday: result[0].birthday,
-                    id: result[0].id,
-                  };
-                  const accessToken = generateAccessToken(userToLogin);
-                  const refreshToken = jwt.sign(
-                    userToLogin,
-                    process.env.REFRESH_TOKEN_SECRET
-                  );
-                  connection.query(
-                    "INSERT INTO RefreshTokens (token, user_id) VALUES (?, ?)",
-                    [refreshToken, result[0].id],
-                    (err, result) => {
-                      connection.release();
-                      if (err) throw err;
-                      console.log("User successfully logged in");
-                      res.json({
-                        success: true,
-                        statusCode: 200,
-                        message: "User successfully logged in",
-                        accessToken: accessToken,
-                        refreshToken: refreshToken,
-                        user: {
-                          firstName: userToLogin.firstName,
-                          lastName: userToLogin.lastName,
-                          emailAddress: userToLogin.emailAddress,
-                          birthday: userToLogin.birthday,
-                          id: userToLogin.id,
-                        },
-                      });
-                    }
-                  );
-                } else {
-                  console.log("Invalid password");
-                  res.status(400).send({ error: "Invalid password" });
-                }
+    if (req.body.password.trim().length > 0) {
+      pool.getConnection((err, connection) => {
+        if (err) throw err;
+        connection.query(
+          "SELECT * FROM Users WHERE emailAddress = ? AND deleted_at IS null",
+          [req.body.emailAddress.trim()],
+          (err, result) => {
+            if (err) res.status(400).send({ error: "Invalid email address" });
+            if (result.length > 0) {
+              if (
+                bcrypt.compareSync(req.body.password.trim(), result[0].password)
+              ) {
+                const userToLogin = {
+                  firstName: result[0].firstname,
+                  lastName: result[0].lastname,
+                  emailAddress: result[0].emailaddress,
+                  birthday: result[0].birthday,
+                  id: result[0].id,
+                };
+                const accessToken = generateAccessToken(userToLogin);
+                const refreshToken = jwt.sign(
+                  userToLogin,
+                  process.env.REFRESH_TOKEN_SECRET
+                );
+                connection.query(
+                  "INSERT INTO RefreshTokens (token, user_id) VALUES (?, ?)",
+                  [refreshToken, result[0].id],
+                  (err, result) => {
+                    connection.release();
+                    if (err) throw err;
+                    console.log("User successfully logged in");
+                    res.json({
+                      success: true,
+                      statusCode: 200,
+                      message: "User successfully logged in",
+                      accessToken: accessToken,
+                      refreshToken: refreshToken,
+                      user: {
+                        firstName: userToLogin.firstName,
+                        lastName: userToLogin.lastName,
+                        emailAddress: userToLogin.emailAddress,
+                        birthday: userToLogin.birthday,
+                        id: userToLogin.id,
+                      },
+                    });
+                  }
+                );
               } else {
-                console.log("No users found");
-                res.status(404).send({
-                  error:
-                    "No users found for the email " + req.body.emailAddress,
-                });
+                console.log("Invalid password");
+                res.status(400).send({ error: "Invalid password" });
               }
+            } else {
+              console.log("No users found");
+              res.status(404).send({
+                error: "No users found for the email " + req.body.emailAddress,
+              });
             }
-          );
-        });
-      } else {
-        console.log("Missing password");
-        res.status(400).send({ error: "Missing password" });
-      }
+          }
+        );
+      });
     } else {
-      console.log("Tried to login with " + req.body.emailAddress);
-      res.status(400).send({ error: "Invalid email address" });
+      console.log("Missing password");
+      res.status(400).send({ error: "Missing password" });
     }
   } else {
     console.log("Invalid email address");
