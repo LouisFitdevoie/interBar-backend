@@ -27,7 +27,11 @@ exports.startServer = () => {
     database = process.env.DATABASE_TESTING;
   }
   const baseURL = `/api/${process.env.API_VERSION}`;
-  app.use(baseURL + "/", authTokenMiddleware);
+
+  if (process.env.NODE_ENV != "testing") {
+    app.use(baseURL + "/", authTokenMiddleware);
+  }
+
   const db_connection = mysql.createConnection({
     host: "localhost",
     user: "root",
