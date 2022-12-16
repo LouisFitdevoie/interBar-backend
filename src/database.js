@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === "production") {
   database = process.env.DATABASE_TESTING;
 }
 exports.pool = mysql.createPool({
-  host: "localhost",
+  host: process.env.API_HOST,
   user: "root",
   password: process.env.DB_PASSWORD,
   database: database,

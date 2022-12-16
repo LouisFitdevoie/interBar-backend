@@ -33,7 +33,7 @@ exports.startServer = () => {
   }
 
   const db_connection = mysql.createConnection({
-    host: "localhost",
+    host: process.env.API_HOST,
     user: "root",
     password: process.env.DB_PASSWORD,
     database: database,
