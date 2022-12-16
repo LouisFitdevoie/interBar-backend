@@ -1,28 +1,16 @@
 const expect = require("chai").expect;
-const mysql = require("mysql");
-require("dotenv").config();
+
+const {
+  login,
+  createUser,
+} = require("../../api/controllers/authentication.controller.js");
 
 before(function (done) {
   this.timeout(10000);
   setTimeout(done, 2000);
 });
-const db_connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE_TESTING,
-  port: process.env.DATABASE_PORT || 3306,
-});
-db_connection.connect(function (err) {
-  if (err) throw err;
-  console.log(
-    `Connected to the database on port ${process.env.DATABASE_PORT}!`
-  );
-});
-const {
-  login,
-  createUser,
-} = require("../../api/controllers/authentication.controller.js");
+const server = require("../../main.js");
+server.startServer();
 
 describe("createUser", () => {
   it("should return an error if the email address is not provided", () => {
