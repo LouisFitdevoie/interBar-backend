@@ -13,6 +13,8 @@ const eventProductCommandController = require("./api/controllers/event_product_c
 const authenticationController = require("./api/controllers/authentication.controller.js");
 const authTokenMiddleware = require("./api/middlewares/authorization_token.middleware.js");
 
+console.log("NODE_ENV: " + process.env.NODE_ENV);
+
 const databasePort = process.env.DATABASE_PORT || 3306;
 const db_connection = mysql.createConnection({
   host: "localhost",
