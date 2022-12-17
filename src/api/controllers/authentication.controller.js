@@ -109,7 +109,7 @@ exports.login = (req, res) => {
 
 exports.updateToken = (req, res) => {
   const refreshToken = req.body.token;
-  if (refreshToken == null) return res.sendStatus(401);
+  if (refreshToken == "") return res.sendStatus(401);
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(

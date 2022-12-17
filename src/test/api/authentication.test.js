@@ -14,6 +14,8 @@ before(function (done) {
 const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
 
+let userCreated;
+
 describe("Testing createUser function...", () => {
   it("should return an error if the email address is not provided", (done) => {
     chai
@@ -174,6 +176,8 @@ describe("Testing createUser function...", () => {
         res.body.should.have
           .property("message")
           .eql("User created successfully");
+        res.body.should.have.property("userCreated");
+        userCreated = res.body.userCreated;
         done();
       });
   });
@@ -280,19 +284,50 @@ describe("Testing login function...", () => {
           .eql("User successfully logged in");
         res.body.should.have.property("user");
         res.body.user.should.be.a("object");
-        res.body.user.should.have.property("id");
+        res.body.user.should.have.property("id").eql(userCreated.id);
         res.body.user.should.have
           .property("emailAddress")
-          .eql("valid@email.com");
-        res.body.user.should.have.property("firstName").eql("First");
-        res.body.user.should.have.property("lastName").eql("Last");
+          .eql(userCreated.emailAddress);
         res.body.user.should.have
-          .property("birthday")
-          .eql("1970-01-01 00:00:00.000");
+          .property("firstName")
+          .eql(userCreated.firstName);
+        res.body.user.should.have
+          .property("lastName")
+          .eql(userCreated.lastName);
+        res.body.user.should.have.property("birthday");
+        let birthdayToVerify = new Date(res.body.user.birthday).toISOString();
+        birthdayToVerify.should.eql(userCreated.birthday);
         res.body.should.have.property("accessToken");
         res.body.should.have.property("refreshToken");
         done();
       });
+  });
+});
+
+describe("Testing update token function...", () => {
+  it("should return an error if the refresh token is missing", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/update-token")
+      .send({
+        token: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(401);
+      });
+    done();
+  });
+  it("should return an error if the refresh token is not found in the database", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/update-token")
+      .send({
+        token: "notExistingToken",
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+      });
+    done();
   });
 });
 
