@@ -11,7 +11,6 @@ CREATE TABLE `Users` (
   `lastname` varchar(255) NOT NULL,
   `birthday` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `rights` int NOT NULL COMMENT '0 = user, 1 = admin' DEFAULT 0,
   `deleted_at` datetime DEFAULT null
 );
 

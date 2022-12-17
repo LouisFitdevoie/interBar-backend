@@ -316,7 +316,7 @@ exports.deleteUser = (req, res) => {
       const emailAnonymized = "anonymous." + randomString + "@anonymized.com";
       const randomPassword = uuid.v4().replace(/-/g, "");
       connection.query(
-        "UPDATE Users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, rights = 0, deleted_at = NOW() WHERE id = ?",
+        "UPDATE Users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, deleted_at = NOW() WHERE id = ?",
         [
           emailAnonymized,
           "Anonymous",
