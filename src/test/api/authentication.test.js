@@ -15,6 +15,7 @@ const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
 
 let userCreated;
+let refreshToken;
 
 describe("Testing createUser function...", () => {
   it("should return an error if the email address is not provided", (done) => {
@@ -299,6 +300,7 @@ describe("Testing login function...", () => {
         birthdayToVerify.should.eql(userCreated.birthday);
         res.body.should.have.property("accessToken");
         res.body.should.have.property("refreshToken");
+        refreshToken = res.body.refreshToken;
         done();
       });
   });
@@ -328,6 +330,20 @@ describe("Testing update token function...", () => {
         res.should.have.status(404);
       });
     done();
+  });
+});
+
+describe("Testing logout function...", () => {
+  it("should return a success message when the user is successfully logged out", (done) => {
+    chai
+      .request(serverAddress)
+      .delete(baseURL + "/logout")
+      .send({ token: refreshToken })
+      .end((err, res) => {
+        toLog = res;
+        res.should.have.status(204);
+        done();
+      });
   });
 });
 

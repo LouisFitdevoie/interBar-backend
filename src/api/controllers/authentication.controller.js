@@ -151,7 +151,7 @@ exports.logout = (req, res) => {
       (err, result) => {
         connection.release();
         if (err) throw err;
-        res.status(204).send("User successfully logged out");
+        res.status(204).send({ message: "User successfully logged out" });
       }
     );
   });
