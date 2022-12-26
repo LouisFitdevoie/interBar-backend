@@ -358,8 +358,11 @@ after((done) => {
         if (err) throw err;
         connection.query("DELETE FROM Users", (err, result) => {
           if (err) throw err;
-          connection.release();
-          done();
+          connection.query("DELETE FROM Products", (err, result) => {
+            if (err) throw err;
+            connection.release();
+            done();
+          });
         });
       });
     });

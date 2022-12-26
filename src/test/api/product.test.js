@@ -80,6 +80,19 @@ describe("Testing createProduct function...", () => {
   });
 });
 
+describe("Testing getAllProducts function...", () => {
+  it("should return an array of products", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/products")
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("array");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
@@ -91,8 +104,11 @@ after((done) => {
         if (err) throw err;
         connection.query("DELETE FROM Users", (err, result) => {
           if (err) throw err;
-          connection.release();
-          done();
+          connection.query("DELETE FROM Products", (err, result) => {
+            if (err) throw err;
+            connection.release();
+            done();
+          });
         });
       });
     });
