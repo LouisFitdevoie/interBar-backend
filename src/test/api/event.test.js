@@ -10,6 +10,7 @@ before(function (done) {
 });
 const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
+let eventIdCreated = "";
 
 describe("Testing createEvent function...", () => {
   it("should return an error message if start date is before current date", (done) => {
@@ -129,6 +130,8 @@ describe("Testing createEvent function...", () => {
         res.should.have.status(200);
         res.body.should.have.property("success");
         res.body.success.should.equal("Event created successfully");
+        res.body.should.have.property("eventId");
+        eventIdCreated = res.body.eventId;
         done();
       });
   });
@@ -148,6 +151,22 @@ describe("Testing createEvent function...", () => {
         res.should.have.status(400);
         res.body.should.have.property("error");
         res.body.error.should.equal("Event already exists");
+        done();
+      });
+  });
+});
+
+describe("Testing getEventById function...", () => {
+  it("should return an error message if the provided id is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/eventId?id=invalidId")
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid uuid"
+        );
         done();
       });
   });

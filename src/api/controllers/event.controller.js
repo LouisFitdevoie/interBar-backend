@@ -296,8 +296,8 @@ exports.createEvent = (req, res) => {
           ) {
             let eventToCreate = new Event(
               req.body.name.trim(),
-              new Date(req.body.startDate),
-              new Date(req.body.endDate),
+              format(new Date(req.body.startDate), "yyyy-MM-dd HH:mm:ss"),
+              format(new Date(req.body.endDate), "yyyy-MM-dd HH:mm:ss"),
               req.body.location.trim(),
               req.body.description ? req.body.description.trim() : null,
               req.body.seller_password.trim()
