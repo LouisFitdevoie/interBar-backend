@@ -3,6 +3,7 @@ const database = require("../../database.js");
 const isAfter = require("date-fns/isAfter");
 const isBefore = require("date-fns/isBefore");
 const bcrypt = require("bcrypt");
+const format = require("date-fns/format");
 
 const pool = database.pool;
 
@@ -304,11 +305,11 @@ exports.createEvent = (req, res) => {
             pool.getConnection((err, connection) => {
               if (err) throw err;
               connection.query(
-                "SELECT * FROM Events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)",
+                "SELECT * FROM Events WHERE name=? AND startdate=? AND enddate=? AND location=? AND deleted_at IS null",
                 [
                   eventToCreate.name,
-                  eventToCreate.startDate,
-                  eventToCreate.endDate,
+                  format(new Date(req.body.startDate), "yyyy-MM-dd HH:mm:ss"),
+                  format(new Date(req.body.endDate), "yyyy-MM-dd HH:mm:ss"),
                   eventToCreate.location,
                 ],
                 (err, result) => {
@@ -319,7 +320,7 @@ exports.createEvent = (req, res) => {
                     res.status(400).send({ error: "Event already exists" });
                   } else {
                     connection.query(
-                      "INSERT INTO Events (id, name, startDate, endDate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                      "INSERT INTO Events (id, name, startdate, enddate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                       [
                         eventToCreate.id,
                         eventToCreate.name,
