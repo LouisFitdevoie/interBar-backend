@@ -10,7 +10,7 @@ before(function (done) {
 });
 const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
-let eventIdCreated = "";
+let eventIdCreated = new Array(3).fill("");
 
 describe("Testing createEvent function...", () => {
   it("should return an error message if start date is before current date", (done) => {
@@ -119,7 +119,7 @@ describe("Testing createEvent function...", () => {
       .request(serverAddress)
       .post(baseURL + "/create-event")
       .send({
-        name: "Event test",
+        name: "Event test 1",
         startDate: startDate,
         endDate: endDate,
         location: "Event location",
@@ -131,8 +131,46 @@ describe("Testing createEvent function...", () => {
         res.body.should.have.property("success");
         res.body.success.should.equal("Event created successfully");
         res.body.should.have.property("eventId");
-        eventIdCreated = res.body.eventId;
-        done();
+        eventIdCreated[0] = res.body.eventId;
+        chai
+          .request(serverAddress)
+          .post(baseURL + "/create-event")
+          .send({
+            name: "Event test 2",
+            startDate: startDate,
+            endDate: endDate,
+            location: "Event location",
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            seller_password: "Test123*",
+          })
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.have.property("success");
+            res.body.success.should.equal("Event created successfully");
+            res.body.should.have.property("eventId");
+            eventIdCreated[1] = res.body.eventId;
+            chai
+              .request(serverAddress)
+              .post(baseURL + "/create-event")
+              .send({
+                name: "Event test 3",
+                startDate: startDate,
+                endDate: endDate,
+                location: "Event location",
+                description:
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                seller_password: "Test123*",
+              })
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property("success");
+                res.body.success.should.equal("Event created successfully");
+                res.body.should.have.property("eventId");
+                eventIdCreated[2] = res.body.eventId;
+                done();
+              });
+          });
       });
   });
   it("should return an error message if the event already exists", (done) => {
@@ -140,7 +178,7 @@ describe("Testing createEvent function...", () => {
       .request(serverAddress)
       .post(baseURL + "/create-event")
       .send({
-        name: "Event test",
+        name: "Event test 1",
         startDate: startDate,
         endDate: endDate,
         location: "Event location",
@@ -186,11 +224,51 @@ describe("Testing getEventById function...", () => {
   it("should return an error if the event has no organizer", (done) => {
     chai
       .request(serverAddress)
-      .get(baseURL + "/eventId?id=" + eventIdCreated)
+      .get(baseURL + "/eventId?id=" + eventIdCreated[0])
       .end((err, res) => {
         res.should.have.status(404);
         res.should.have.property("error");
         res.body.error.should.equal("Organizer id not found");
+        done();
+      });
+  });
+});
+
+describe("Testing the deleteEvent function...", () => {
+  it("should return an error if the provided id is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event/invalidId")
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error if the id provided does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event/00000000-0000-0000-0000-000000000000")
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Event with id 00000000-0000-0000-0000-000000000000 does not exist"
+        );
+        done();
+      });
+  });
+  it("should return a success message if the event is deleted", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event/" + eventIdCreated[0])
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Event deleted successfully");
         done();
       });
   });
