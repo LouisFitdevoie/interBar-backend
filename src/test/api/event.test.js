@@ -170,6 +170,30 @@ describe("Testing getEventById function...", () => {
         done();
       });
   });
+  it("should return an error if no event is found with the id provided", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/eventId?id=00000000-0000-0000-0000-000000000000")
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No events found for the id 00000000-0000-0000-0000-000000000000"
+        );
+        done();
+      });
+  });
+  it("should return an error if the event has no organizer", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/eventId?id=" + eventIdCreated)
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.should.have.property("error");
+        res.body.error.should.equal("Organizer id not found");
+        done();
+      });
+  });
 });
 
 after((done) => {
