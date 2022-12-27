@@ -10,6 +10,16 @@ before(function (done) {
 });
 const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
+
+const startDate = new Date(
+  new Date().setDate(new Date().getDate() + 1)
+).toISOString();
+const startNowDate = new Date(
+  new Date().setSeconds(new Date().getSeconds() + 7)
+).toISOString();
+const endDate = new Date(
+  new Date().setDate(new Date().getDate() + 2)
+).toISOString();
 let eventIdCreated = new Array(3).fill("");
 
 describe("Testing createEvent function...", () => {
@@ -108,12 +118,6 @@ describe("Testing createEvent function...", () => {
         done();
       });
   });
-  const startDate = new Date(
-    new Date().setDate(new Date().getDate() + 1)
-  ).toISOString();
-  const endDate = new Date(
-    new Date().setDate(new Date().getDate() + 2)
-  ).toISOString();
   it("should return a success message if the event is created", (done) => {
     chai
       .request(serverAddress)
@@ -137,7 +141,7 @@ describe("Testing createEvent function...", () => {
           .post(baseURL + "/create-event")
           .send({
             name: "Event test 2",
-            startDate: startDate,
+            startDate: startNowDate,
             endDate: endDate,
             location: "Event location",
             description:
@@ -269,6 +273,124 @@ describe("Testing the deleteEvent function...", () => {
         res.should.have.status(200);
         res.body.should.have.property("success");
         res.body.success.should.equal("Event deleted successfully");
+        done();
+      });
+  });
+});
+
+describe("Testing the updateEvent function...", () => {
+  it("should return an error if the provided id is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/invalidId")
+      .send({
+        name: "Event test 1",
+        startDate: startDate,
+        endDate: endDate,
+        location: "Event location",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        seller_password: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error if the id provided does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/00000000-0000-0000-0000-000000000000")
+      .send({
+        name: "Event test 1",
+        startDate: startDate,
+        endDate: endDate,
+        location: "Event location",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        seller_password: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Event with id 00000000-0000-0000-0000-000000000000 does not exist"
+        );
+        done();
+      });
+  });
+  it("should return an error if the event has already started", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/" + eventIdCreated[1])
+      .send({
+        name: "Event test 1",
+        startDate: startDate,
+        endDate: endDate,
+        location: "Event location",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        seller_password: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Event has already started");
+        done();
+      });
+  });
+  it("should return an error message if no values are provided", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/" + eventIdCreated[2])
+      .send({
+        name: null,
+        startDate: null,
+        endDate: null,
+        location: null,
+        description: null,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("No values to edit");
+        done();
+      });
+  });
+  it("should return a success message if the event hasn't started and is successfully updated", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/" + eventIdCreated[2])
+      .send({
+        name: "Event test 3",
+        startDate: startDate,
+        endDate: endDate,
+        location: "Event location edited",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Event edited successfully");
+        done();
+      });
+  });
+  it("should return a success message if the event endDate only is successfully updated", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-event/" + eventIdCreated[1])
+      .send({
+        name: null,
+        startDate: null,
+        endDate: endDate,
+        location: null,
+        description: null,
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Event endDate successfully edited");
         done();
       });
   });

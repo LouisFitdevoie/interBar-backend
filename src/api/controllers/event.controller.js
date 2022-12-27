@@ -647,6 +647,6 @@ exports.editEvent = (req, res) => {
   } else {
     res
       .status(404)
-      .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
+      .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
   }
 };
