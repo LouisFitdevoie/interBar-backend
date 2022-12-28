@@ -67,7 +67,8 @@ exports.login = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("User successfully logged in");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("User successfully logged in");
                     res.json({
                       success: true,
                       statusCode: 200,
@@ -85,11 +86,13 @@ exports.login = (req, res) => {
                   }
                 );
               } else {
-                console.log("Invalid password");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Invalid password");
                 res.status(400).send({ error: "Invalid password" });
               }
             } else {
-              console.log("No users found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No users found");
               res.status(404).send({
                 error: "No users found for the email " + req.body.emailAddress,
               });
@@ -98,11 +101,12 @@ exports.login = (req, res) => {
         );
       });
     } else {
-      console.log("Missing password");
+      if (process.env.NODE_ENV !== "testing") console.log("Missing password");
       res.status(400).send({ error: "Missing password" });
     }
   } else {
-    console.log("Invalid email address");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Invalid email address");
     res.status(400).send({ error: "Invalid email address" });
   }
 };
@@ -202,10 +206,11 @@ exports.createUser = (req, res) => {
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
-                    console.log(
-                      "User account already exists for email address " +
-                        req.body.emailAddress
-                    );
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log(
+                        "User account already exists for email address " +
+                          req.body.emailAddress
+                      );
                     res.status(400).send({
                       error:
                         "User account already exists for email address " +
@@ -218,12 +223,13 @@ exports.createUser = (req, res) => {
                       (err, result) => {
                         if (err) throw err;
                         if (result.length > 0) {
-                          console.log(
-                            "User account already exists for name " +
-                              req.body.firstName +
-                              " " +
-                              req.body.lastName
-                          );
+                          if (process.env.NODE_ENV !== "testing")
+                            console.log(
+                              "User account already exists for name " +
+                                req.body.firstName +
+                                " " +
+                                req.body.lastName
+                            );
                           res.status(400).send({
                             error:
                               "User account already exists for name " +
@@ -253,7 +259,8 @@ exports.createUser = (req, res) => {
                             (err, result) => {
                               connection.release();
                               if (err) throw err;
-                              console.log("User created");
+                              if (process.env.NODE_ENV !== "testing")
+                                console.log("User created");
                               res.json({
                                 success: true,
                                 statusCode: 200,
@@ -270,26 +277,30 @@ exports.createUser = (req, res) => {
               );
             });
           } else {
-            console.log("Invalid birthday");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Invalid birthday");
             res.status(400).send({ error: "Invalid birthday" });
           }
         } else {
-          console.log("Passwords do not match");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Passwords do not match");
           res.status(400).send({ error: "Passwords do not match" });
         }
       } else {
-        console.log("Invalid password");
+        if (process.env.NODE_ENV !== "testing") console.log("Invalid password");
         res.status(400).send({
           error:
             "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
         });
       }
     } else {
-      console.log("Missing firstname or lastname");
+      if (process.env.NODE_ENV !== "testing")
+        console.log("Missing firstname or lastname");
       res.status(400).send({ error: "Missing firstname or lastname" });
     }
   } else {
-    console.log("Invalid email address");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Invalid email address");
     res.status(400).send({ error: "Invalid email address" });
   }
 };

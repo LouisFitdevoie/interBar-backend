@@ -38,7 +38,8 @@ exports.getCommandById = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting command with id ${req.params.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting command with id ${req.params.id}`);
       connection.query(
         "SELECT * FROM Commands WHERE id = ? AND deleted_at IS null",
         [req.params.id],
@@ -46,10 +47,12 @@ exports.getCommandById = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of commands found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of commands found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res
               .status(404)
               .send({ error: "No commands found for the id " + req.params.id });
@@ -58,7 +61,8 @@ exports.getCommandById = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -69,7 +73,8 @@ exports.getCommandsByClientId = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting commands with client id ${req.params.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting commands with client id ${req.params.id}`);
       connection.query(
         "SELECT * FROM Commands WHERE client_id = ? AND deleted_at IS null",
         [req.params.id],
@@ -77,10 +82,12 @@ exports.getCommandsByClientId = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of commands found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of commands found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res.status(404).send({
               error: "No commands found for the client id " + req.params.id,
             });
@@ -89,7 +96,8 @@ exports.getCommandsByClientId = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -100,7 +108,10 @@ exports.getCommandsByClientName = (req, res) => {
   if (req.params.clientName != null) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting commands with client name ${req.params.clientName}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(
+          `Getting commands with client name ${req.params.clientName}`
+        );
       connection.query(
         "SELECT * FROM Commands WHERE client_name = ? AND deleted_at IS null",
         [req.params.clientName],
@@ -108,10 +119,12 @@ exports.getCommandsByClientName = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of commands found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of commands found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res.status(404).send({
               error:
                 "No commands found for the client name " +
@@ -122,7 +135,8 @@ exports.getCommandsByClientName = (req, res) => {
       );
     });
   } else {
-    console.log("Client name unspecified");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Client name unspecified");
     res.status(400).send({ error: "Client name must be specified" });
   }
 };
@@ -131,7 +145,8 @@ exports.getCommandsByEventId = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting commands with event id ${req.params.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting commands with event id ${req.params.id}`);
       connection.query(
         "SELECT Commands.id, Commands.client_id, Commands.client_name, Commands.servedBy_id, Commands.event_id, Commands.isServed, Commands.isPaid, Commands.created_at, Commands.deleted_at, EventsProductsCommands.id AS events_products_commands_id, EventsProductsCommands.command_id, EventsProductsCommands.event_product_id, EventsProductsCommands.number, EventsProductsCommands.deleted_at AS events_products_commands_deleted_at, EventsProducts.sellingprice, EventsProducts.buyingprice FROM Commands LEFT JOIN EventsProductsCommands ON Commands.id = EventsProductsCommands.command_id INNER JOIN EventsProducts ON EventsProductsCommands.event_product_id = EventsProducts.id WHERE Commands.event_id = ? AND Commands.deleted_at IS null AND EventsProductsCommands.deleted_at IS null",
         [req.params.id],
@@ -191,12 +206,16 @@ exports.getCommandsByEventId = (req, res) => {
               command.totalPrice = totalPrice;
               return command;
             });
-            console.log(
-              "Number of commands found: " + commandsWithTotalPrice.length + ""
-            );
+            if (process.env.NODE_ENV !== "testing")
+              console.log(
+                "Number of commands found: " +
+                  commandsWithTotalPrice.length +
+                  ""
+              );
             res.send(commandsWithTotalPrice);
           } else {
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res.status(404).send({
               error: "No commands found for the event id " + req.params.id,
             });
@@ -205,7 +224,8 @@ exports.getCommandsByEventId = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -216,7 +236,8 @@ exports.getCommandsByServedById = (req, res) => {
   if (uuid.validate(req.params.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting commands with served by id ${req.params.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting commands with served by id ${req.params.id}`);
       connection.query(
         "SELECT * FROM Commands WHERE servedBy_id = ? AND deleted_at IS null",
         [req.params.id],
@@ -224,10 +245,12 @@ exports.getCommandsByServedById = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of commands found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of commands found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res.status(404).send({
               error: "No commands found for the served by id " + req.params.id,
             });
@@ -236,7 +259,8 @@ exports.getCommandsByServedById = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -248,9 +272,10 @@ exports.getServedCommands = (req, res) => {
     if (uuid.validate(req.query.clientId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting served commands with client id ${req.query.clientId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting served commands with client id ${req.query.clientId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE client_id = ? AND isServed = 1 AND deleted_at IS null",
           [req.query.clientId],
@@ -258,10 +283,12 @@ exports.getServedCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the client id " + req.query.clientId,
@@ -271,7 +298,8 @@ exports.getServedCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.clientId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.clientId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.clientId + " is not a valid client uuid",
@@ -281,9 +309,10 @@ exports.getServedCommands = (req, res) => {
     if (uuid.validate(req.query.eventId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting served commands with client id ${req.query.eventId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting served commands with client id ${req.query.eventId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE event_id = ? AND isServed = 1 AND deleted_at IS null",
           [req.query.eventId],
@@ -291,10 +320,12 @@ exports.getServedCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the event id " + req.query.eventId,
@@ -304,7 +335,8 @@ exports.getServedCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.eventId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.eventId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.eventId + " is not a valid client uuid",
@@ -330,9 +362,10 @@ exports.getPaidCommands = (req, res) => {
     if (uuid.validate(req.query.clientId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting paid commands with client id ${req.query.clientId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting paid commands with client id ${req.query.clientId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE client_id = ? AND isPaid = 1 AND deleted_at IS null",
           [req.query.clientId],
@@ -340,10 +373,12 @@ exports.getPaidCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the client id " + req.query.clientId,
@@ -353,7 +388,8 @@ exports.getPaidCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.clientId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.clientId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.clientId + " is not a valid client uuid",
@@ -363,9 +399,10 @@ exports.getPaidCommands = (req, res) => {
     if (uuid.validate(req.query.eventId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting paid commands with client id ${req.query.eventId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting paid commands with client id ${req.query.eventId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE event_id = ? AND isPaid = 1 AND deleted_at IS null",
           [req.query.eventId],
@@ -373,10 +410,12 @@ exports.getPaidCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the event id " + req.query.eventId,
@@ -386,7 +425,8 @@ exports.getPaidCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.eventId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.eventId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.eventId + " is not a valid client uuid",
@@ -412,9 +452,10 @@ exports.getUnservedCommands = (req, res) => {
     if (uuid.validate(req.query.clientId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting unserved commands with client id ${req.query.clientId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting unserved commands with client id ${req.query.clientId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE client_id = ? AND isServed = 0 AND deleted_at IS null",
           [req.query.clientId],
@@ -422,10 +463,12 @@ exports.getUnservedCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the client id " + req.query.clientId,
@@ -435,7 +478,8 @@ exports.getUnservedCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.clientId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.clientId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.clientId + " is not a valid client uuid",
@@ -445,9 +489,10 @@ exports.getUnservedCommands = (req, res) => {
     if (uuid.validate(req.query.eventId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting unserved commands with client id ${req.query.eventId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting unserved commands with client id ${req.query.eventId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE event_id = ? AND isServed = 0 AND deleted_at IS null",
           [req.query.eventId],
@@ -455,10 +500,12 @@ exports.getUnservedCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the event id " + req.query.eventId,
@@ -468,7 +515,8 @@ exports.getUnservedCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.eventId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.eventId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.eventId + " is not a valid client uuid",
@@ -494,9 +542,10 @@ exports.getUnpaidCommands = (req, res) => {
     if (uuid.validate(req.query.clientId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting unpaid commands with client id ${req.query.clientId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting unpaid commands with client id ${req.query.clientId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE client_id = ? AND isPaid = 0 AND deleted_at IS null",
           [req.query.clientId],
@@ -504,10 +553,12 @@ exports.getUnpaidCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the client id " + req.query.clientId,
@@ -517,7 +568,8 @@ exports.getUnpaidCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.clientId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.clientId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.clientId + " is not a valid client uuid",
@@ -527,9 +579,10 @@ exports.getUnpaidCommands = (req, res) => {
     if (uuid.validate(req.query.eventId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting unpaid commands with client id ${req.query.eventId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting unpaid commands with client id ${req.query.eventId}`
+          );
         connection.query(
           "SELECT * FROM Commands WHERE event_id = ? AND isPaid = 0 AND deleted_at IS null",
           [req.query.eventId],
@@ -537,10 +590,12 @@ exports.getUnpaidCommands = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of commands found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of commands found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No commands found");
               res.status(404).send({
                 error:
                   "No commands found for the event id " + req.query.eventId,
@@ -550,7 +605,8 @@ exports.getUnpaidCommands = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.eventId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.eventId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.eventId + " is not a valid client uuid",
@@ -618,7 +674,8 @@ exports.createCommand = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("Command created");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Command created");
                     res.status(200).send({
                       success: "Command created successfully",
                       commandId: commandId,
@@ -653,7 +710,8 @@ exports.createCommand = (req, res) => {
                 (err, result) => {
                   connection.release();
                   if (err) throw err;
-                  console.log("Command created");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Command created");
                   res.status(200).send({
                     success: "Command created successfully",
                     commandId: commandId,
@@ -692,7 +750,8 @@ exports.createCommand = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("Command created");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Command created");
                     res.status(200).send({
                       success: "Command created successfully",
                       commandId: commandId,
@@ -720,7 +779,8 @@ exports.createCommand = (req, res) => {
           (err, result) => {
             connection.release();
             if (err) throw err;
-            console.log("Command created");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Command created");
             res.status(200).send({
               success: "Command created successfully",
               commandId: commandId,
@@ -745,17 +805,20 @@ exports.setCommandServedState = (req, res) => {
           (err, result) => {
             connection.release();
             if (err) throw err;
-            console.log("Command served = " + req.body.served);
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Command served = " + req.body.served);
             res.send(result);
           }
         );
       });
     } else {
-      console.log("Invalid served value");
+      if (process.env.NODE_ENV !== "testing")
+        console.log("Invalid served value");
       res.status(400).send({ error: "Served value must be 0 or 1" });
     }
   } else {
-    console.log(`Invalid id ${req.params.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
         "Invalid id, " + req.params.commandId + " is not a valid command uuid",
@@ -774,17 +837,19 @@ exports.setCommandPaidState = (req, res) => {
           (err, result) => {
             connection.release();
             if (err) throw err;
-            console.log("Command paid = " + req.body.paid);
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Command paid = " + req.body.paid);
             res.send(result);
           }
         );
       });
     } else {
-      console.log("Invalid paid value");
+      if (process.env.NODE_ENV !== "testing") console.log("Invalid paid value");
       res.status(400).send({ error: "Paid value must be 0 or 1" });
     }
   } else {
-    console.log(`Invalid id ${req.params.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
         "Invalid id, " + req.params.commandId + " is not a valid command uuid",
@@ -806,7 +871,8 @@ exports.deleteCommand = (req, res) => {
             (err, result) => {
               connection.release();
               if (err) throw err;
-              console.log("Command deleted");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Command deleted");
               res
                 .status(200)
                 .send({ success: "Command cancelled successfully" });
@@ -816,7 +882,8 @@ exports.deleteCommand = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
         "Invalid id, " + req.params.commandId + " is not a valid command uuid",
@@ -834,13 +901,15 @@ exports.getClientNamesFromEvent = (req, res) => {
         (err, result) => {
           connection.release();
           if (err) throw err;
-          console.log("Client names retrieved");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Client names retrieved");
           res.status(200).send(result);
         }
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.eventId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.eventId}`);
     res.status(400).send({
       error: "The event id provided is not valid",
     });
@@ -858,17 +927,19 @@ exports.setSellerId = (req, res) => {
           (err, result) => {
             connection.release();
             if (err) throw err;
-            console.log("Command seller id updated");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Command seller id updated");
             res.send(result);
           }
         );
       });
     } else {
-      console.log("Invalid seller id");
+      if (process.env.NODE_ENV !== "testing") console.log("Invalid seller id");
       res.status(400).send({ error: "The seller id provided is not valid" });
     }
   } else {
-    console.log(`Invalid id ${req.params.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
         "Invalid id, " + req.params.commandId + " is not a valid command uuid",
@@ -893,7 +964,8 @@ exports.getCommandInfos = (req, res) => {
               (err, seller) => {
                 connection.release();
                 if (err) throw err;
-                console.log("Command infos retrieved");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Command infos retrieved");
                 res.send({
                   createdAt: commandData.created_at,
                   seller: seller[0],
@@ -901,7 +973,8 @@ exports.getCommandInfos = (req, res) => {
               }
             );
           } else {
-            console.log("Command infos not retrieved");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Command infos not retrieved");
             res.send({
               createdAt: commandData.created_at,
               seller: null,
@@ -911,7 +984,8 @@ exports.getCommandInfos = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
         "Invalid id, " + req.params.commandId + " is not a valid command uuid",
