@@ -104,6 +104,112 @@ describe("Testing the updateUser function...", () => {
   });
 });
 
+describe("Testing the updateUserPassword function...", () => {
+  it("should return an error message if the new password is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-user-password")
+      .send({
+        id: userCreatedId,
+        oldPassword: "Test123*",
+        newPassword: "invalid",
+        newPasswordConfirmation: "invalid",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the new password and password confirmation do not match", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-user-password")
+      .send({
+        id: userCreatedId,
+        oldPassword: "Test123*",
+        newPassword: "Test1234*",
+        newPasswordConfirmation: "NotTheSame",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "New password confirmation does not match new password"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the old password is not provided", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-user-password")
+      .send({
+        id: userCreatedId,
+        oldPassword: "",
+        newPassword: "Test1234*",
+        newPasswordConfirmation: "Test1234*",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Missing old password");
+        chai
+          .request(serverAddress)
+          .put(baseURL + "/update-user-password")
+          .send({
+            id: "invalidId",
+            oldPassword: "Test123*",
+            newPassword: "Test1234*",
+            newPasswordConfirmation: "Test1234*",
+          })
+          .end((err, res) => {
+            res.should.have.status(404);
+            res.body.should.have.property("error");
+            res.body.error.should.equal("No users found for the id invalidId");
+            done();
+          });
+      });
+  });
+  it("should return an error message if the old password provided is incorrect", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-user-password")
+      .send({
+        id: userCreatedId,
+        oldPassword: "WrongPassword123*",
+        newPassword: "Test1234*",
+        newPasswordConfirmation: "Test1234*",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Invalid old password");
+        done();
+      });
+  });
+  it("should return a success message if the password is updated", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/update-user-password")
+      .send({
+        id: userCreatedId,
+        oldPassword: "Test123*",
+        newPassword: "Test1234*",
+        newPasswordConfirmation: "Test1234*",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Password updated");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
