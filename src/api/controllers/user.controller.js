@@ -354,7 +354,7 @@ exports.deleteUser = (req, res) => {
           if (err) throw err;
           if (process.env.NODE_ENV !== "testing")
             console.log("User deleted and anonymized");
-          res.status(200).send({ success: "User deleted successully" });
+          res.status(200).send({ success: "User deleted successfully" });
         }
       );
     });

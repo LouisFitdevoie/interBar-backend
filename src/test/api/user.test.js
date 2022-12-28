@@ -210,6 +210,31 @@ describe("Testing the updateUserPassword function...", () => {
   });
 });
 
+describe("Testing the deleteUser function...", () => {
+  it("should return an error message if the id provided is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-user/invalidId")
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Invalid id");
+        done();
+      });
+  });
+  it("should return a success message if the user is successfully deleted", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-user/" + userCreatedId)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("User deleted successfully");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
