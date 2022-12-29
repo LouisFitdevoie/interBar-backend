@@ -240,6 +240,65 @@ describe("POST /create-event-product", () => {
   });
 });
 
+describe("Testing GET /events-products-by-event-id?id={eventId}", () => {
+  it("should return an error message if the event id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/event-products-by-event-id?id=" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid id");
+        done();
+      });
+  });
+  it("should return an error message if the event id provided does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .get(
+        baseURL +
+          "/event-products-by-event-id?id=" +
+          "00000000-0000-0000-0000-000000000000"
+      )
+      .end((err, res) => {
+        res.status.should.equal(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No event was found with the id 00000000-0000-0000-0000-000000000000"
+        );
+        done();
+      });
+  });
+  it("should return an array of products associated with the event", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/event-products-by-event-id?id=" + eventIdCreated)
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.be.a("array");
+        res.body[0].should.have.property("events_products_id");
+        res.body[0].events_products_id.should.be.a("string");
+        res.body[0].should.have.property("product_id");
+        res.body[0].product_id.should.be.a("string");
+        res.body[0].should.have.property("event_id");
+        res.body[0].event_id.should.be.a("string");
+        res.body[0].should.have.property("name");
+        res.body[0].name.should.be.a("string");
+        res.body[0].should.have.property("category");
+        res.body[0].category.should.be.a("number");
+        res.body[0].should.have.property("description");
+        res.body[0].description.should.be.a("string");
+        res.body[0].should.have.property("stock");
+        res.body[0].stock.should.be.a("number");
+        res.body[0].should.have.property("buyingPrice");
+        res.body[0].buyingPrice.should.be.a("number");
+        res.body[0].should.have.property("sellingPrice");
+        res.body[0].sellingPrice.should.be.a("number");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
