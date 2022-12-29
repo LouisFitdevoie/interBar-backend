@@ -367,6 +367,153 @@ describe("GET /users-events/{userId}", () => {
   });
 });
 
+describe("PUT /user-to-seller", () => {
+  it("should return an error message if the event id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: "invalidId",
+        userId: "invalidId",
+        sellerPassword: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid event id");
+        done();
+      });
+  });
+  it("should return an error message if the user id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: "00000000-0000-0000-0000-000000000000",
+        userId: "invalidId",
+        sellerPassword: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid user id");
+        done();
+      });
+  });
+  it("should return an error message if the user does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: "00000000-0000-0000-0000-000000000000",
+        userId: "00000000-0000-0000-0000-000000000000",
+        sellerPassword: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("User not found");
+        done();
+      });
+  });
+  it("should return an error message if the event does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: "00000000-0000-0000-0000-000000000000",
+        userId: usersCreatedId[0],
+        sellerPassword: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Event not found");
+        done();
+      });
+  });
+  it("should return an error message if the seller password is not provided", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: eventIdCreated,
+        userId: usersCreatedId[0],
+        sellerPassword: "",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Seller password required");
+        done();
+      });
+  });
+  it("should return an error message if the seller password is incorrect", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: eventIdCreated,
+        userId: usersCreatedId[0],
+        sellerPassword: "IncorrectPassword",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Seller password incorrect");
+        done();
+      });
+  });
+  it("should return an error message if the user did not join the event", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: eventIdCreated,
+        userId: usersCreatedId[3],
+        sellerPassword: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("User not joined this event");
+        done();
+      });
+  });
+  it("should return an error message if the user has not the user role", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: eventIdCreated,
+        userId: usersCreatedId[1],
+        sellerPassword: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("User has not the role user");
+        done();
+      });
+  });
+  it("should return a success message if the user is now a seller", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/user-to-seller")
+      .send({
+        eventId: eventIdCreated,
+        userId: usersCreatedId[0],
+        sellerPassword: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Successfully changed user to seller");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
