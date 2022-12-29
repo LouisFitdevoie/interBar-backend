@@ -17,7 +17,7 @@ const baseURL = "/api/" + process.env.API_VERSION;
 let userCreated;
 let refreshToken;
 
-describe("Testing createUser function...", () => {
+describe("POST /create-user", () => {
   it("should return an error if the email address is not provided", (done) => {
     chai
       .request(serverAddress)
@@ -205,7 +205,7 @@ describe("Testing createUser function...", () => {
   });
 });
 
-describe("Testing login function...", () => {
+describe("POST /login", () => {
   it("should return an error if the email address is invalid", (done) => {
     chai
       .request(serverAddress)
@@ -306,7 +306,7 @@ describe("Testing login function...", () => {
   });
 });
 
-describe("Testing update token function...", () => {
+describe("POST /update-token", () => {
   it("should return an error if the refresh token is missing", (done) => {
     chai
       .request(serverAddress)
@@ -333,7 +333,7 @@ describe("Testing update token function...", () => {
   });
 });
 
-describe("Testing logout function...", () => {
+describe("DELETE /logout", () => {
   it("should return a success message when the user is successfully logged out", (done) => {
     chai
       .request(serverAddress)

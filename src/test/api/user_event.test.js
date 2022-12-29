@@ -14,7 +14,7 @@ const baseURL = "/api/" + process.env.API_VERSION;
 let usersCreatedId = new Array(4).fill("");
 let eventIdCreated = "";
 
-describe("Testing the userJoinEvent function", () => {
+describe("POST /user-join-event", () => {
   it("should return an error message if the event id provided is invalid", (done) => {
     chai
       .request(serverAddress)

@@ -13,7 +13,7 @@ const baseURL = "/api/" + process.env.API_VERSION;
 
 let userCreatedId = "";
 
-describe("Testing the updateUser function...", () => {
+describe("PUT /update-user", () => {
   it("should return an error message if the id provided is not valid", (done) => {
     chai
       .request(serverAddress)
@@ -104,7 +104,7 @@ describe("Testing the updateUser function...", () => {
   });
 });
 
-describe("Testing the updateUserPassword function...", () => {
+describe("PUT /update-user-password", () => {
   it("should return an error message if the new password is invalid", (done) => {
     chai
       .request(serverAddress)
@@ -210,7 +210,7 @@ describe("Testing the updateUserPassword function...", () => {
   });
 });
 
-describe("Testing the deleteUser function...", () => {
+describe("PUT /delete-user/{userId}", () => {
   it("should return an error message if the id provided is invalid", (done) => {
     chai
       .request(serverAddress)

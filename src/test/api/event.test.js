@@ -22,7 +22,7 @@ const endDate = new Date(
 ).toISOString();
 let eventIdCreated = new Array(3).fill("");
 
-describe("Testing createEvent function...", () => {
+describe("POST /create-event", () => {
   it("should return an error message if start date is before current date", (done) => {
     chai
       .request(serverAddress)
@@ -198,7 +198,7 @@ describe("Testing createEvent function...", () => {
   });
 });
 
-describe("Testing getEventById function...", () => {
+describe("GET /eventId?id={eventId}", () => {
   it("should return an error message if the provided id is invalid", (done) => {
     chai
       .request(serverAddress)
@@ -238,7 +238,7 @@ describe("Testing getEventById function...", () => {
   });
 });
 
-describe("Testing the deleteEvent function...", () => {
+describe("PUT /delete-event/{eventId}", () => {
   it("should return an error if the provided id is invalid", (done) => {
     chai
       .request(serverAddress)
@@ -278,7 +278,7 @@ describe("Testing the deleteEvent function...", () => {
   });
 });
 
-describe("Testing the updateEvent function...", () => {
+describe("PUT /update-event/{eventId}", () => {
   it("should return an error if the provided id is invalid", (done) => {
     chai
       .request(serverAddress)

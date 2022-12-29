@@ -11,7 +11,7 @@ before(function (done) {
 const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
 
-describe("Testing createProduct function...", () => {
+describe("POST /create-product", () => {
   it("should return an error message if name, category and description are not provided", (done) => {
     chai
       .request(serverAddress)
@@ -80,7 +80,7 @@ describe("Testing createProduct function...", () => {
   });
 });
 
-describe("Testing getAllProducts function...", () => {
+describe("GET /products", () => {
   it("should return an array of products", (done) => {
     chai
       .request(serverAddress)
