@@ -13,6 +13,7 @@ const baseURL = "/api/" + process.env.API_VERSION;
 
 let eventIdCreated = "";
 let productIdCreated = "";
+let eventProductIdCreated = "";
 
 describe("POST /create-event-product", () => {
   it("should return an error message if the event id provided is not valid", (done) => {
@@ -240,7 +241,7 @@ describe("POST /create-event-product", () => {
   });
 });
 
-describe("Testing GET /events-products-by-event-id?id={eventId}", () => {
+describe("Testing GET /event-products-by-event-id?id={eventId}", () => {
   it("should return an error message if the event id provided is not valid", (done) => {
     chai
       .request(serverAddress)
@@ -278,6 +279,7 @@ describe("Testing GET /events-products-by-event-id?id={eventId}", () => {
         res.body.should.be.a("array");
         res.body[0].should.have.property("events_products_id");
         res.body[0].events_products_id.should.be.a("string");
+        eventProductIdCreated = res.body[0].events_products_id;
         res.body[0].should.have.property("product_id");
         res.body[0].product_id.should.be.a("string");
         res.body[0].should.have.property("event_id");
@@ -294,6 +296,44 @@ describe("Testing GET /events-products-by-event-id?id={eventId}", () => {
         res.body[0].buyingPrice.should.be.a("number");
         res.body[0].should.have.property("sellingPrice");
         res.body[0].sellingPrice.should.be.a("number");
+        done();
+      });
+  });
+});
+
+describe("Testing PUT /delete-event-product/{eventProductId}", () => {
+  it("should return an error message if the id provided is not a valid id", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event-product/invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("The id specified is not a valid id");
+        done();
+      });
+  });
+  it("should return an error message if the id provided does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .put(
+        baseURL + "/delete-event-product/00000000-0000-0000-0000-000000000000"
+      )
+      .end((err, res) => {
+        res.status.should.equal(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No event product was found with the id 00000000-0000-0000-0000-000000000000"
+        );
+        done();
+      });
+  });
+  it("should return a success message if the product was successfully deleted from the event", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event-product/" + eventProductIdCreated)
+      .end((err, res) => {
+        res.status.should.equal(200);
         done();
       });
   });
