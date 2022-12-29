@@ -1,0 +1,353 @@
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const should = chai.should();
+
+chai.use(chaiHttp);
+
+before(function (done) {
+  this.timeout(10000);
+  setTimeout(done, 2000);
+});
+const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
+const baseURL = "/api/" + process.env.API_VERSION;
+
+let usersCreatedId = new Array(4).fill("");
+let eventIdCreated = "";
+
+describe("Testing the userJoinEvent function", () => {
+  it("should return an error message if the event id provided is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .post(`${baseURL}/user-join-event`)
+      .send({
+        userId: "invalidId",
+        eventId: "invalidId",
+        role: 0,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid event id");
+        done();
+      });
+  });
+  it("should return an error message if the user id provided is invalid", (done) => {
+    chai
+      .request(serverAddress)
+      .post(`${baseURL}/user-join-event`)
+      .send({
+        userId: "invalidId",
+        eventId: "00000000-0000-0000-0000-000000000000",
+        role: 0,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid user id");
+        done();
+      });
+  });
+  it("should return an error message if no event exists with the id provided", (done) => {
+    chai
+      .request(serverAddress)
+      .post(`${baseURL}/user-join-event`)
+      .send({
+        userId: "00000000-0000-0000-0000-000000000000",
+        eventId: "00000000-0000-0000-0000-000000000000",
+        role: 0,
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Event not found");
+        done();
+      });
+  });
+  it("should return an error message if no user exists with the id provided", (done) => {
+    //Before, we need to create an event
+    const startDate = new Date(
+      new Date().setDate(new Date().getDate() + 1)
+    ).toISOString();
+    const endDate = new Date(
+      new Date().setDate(new Date().getDate() + 2)
+    ).toISOString();
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/create-event")
+      .send({
+        name: "Event test 1",
+        startDate: startDate,
+        endDate: endDate,
+        location: "Event location",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        seller_password: "Test123*",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Event created successfully");
+        res.body.should.have.property("eventId");
+        eventIdCreated = res.body.eventId;
+        //Now we can test the function
+        chai
+          .request(serverAddress)
+          .post(`${baseURL}/user-join-event`)
+          .send({
+            userId: "00000000-0000-0000-0000-000000000000",
+            eventId: eventIdCreated,
+            role: 0,
+          })
+          .end((err, res) => {
+            res.should.have.status(404);
+            res.body.should.have.property("error");
+            res.body.error.should.equal("User not found");
+            done();
+          });
+      });
+  });
+  it("should return an error message if the role provided is different from 0, 1 or 2", (done) => {
+    //Before, we need to create four users for the following tests
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/create-user")
+      .send({
+        emailAddress: "john.doe@testing.lan",
+        firstName: "John",
+        lastName: "Doe",
+        password: "Test123*",
+        passwordConfirmation: "Test123*",
+        birthday: "01/01/1990",
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("object");
+        res.body.should.have
+          .property("message")
+          .eql("User created successfully");
+        res.body.should.have.property("userCreated");
+        usersCreatedId[0] = res.body.userCreated.id;
+        chai
+          .request(serverAddress)
+          .post(baseURL + "/create-user")
+          .send({
+            emailAddress: "jane.doe@testing.lan",
+            firstName: "Jane",
+            lastName: "Doe",
+            password: "Test123*",
+            passwordConfirmation: "Test123*",
+            birthday: "01/01/1990",
+          })
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have
+              .property("message")
+              .eql("User created successfully");
+            res.body.should.have.property("userCreated");
+            usersCreatedId[1] = res.body.userCreated.id;
+            chai
+              .request(serverAddress)
+              .post(baseURL + "/create-user")
+              .send({
+                emailAddress: "johnny.doey@testing.lan",
+                firstName: "Johnny",
+                lastName: "Doey",
+                password: "Test123*",
+                passwordConfirmation: "Test123*",
+                birthday: "01/01/1990",
+              })
+              .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have
+                  .property("message")
+                  .eql("User created successfully");
+                res.body.should.have.property("userCreated");
+                usersCreatedId[2] = res.body.userCreated.id;
+                chai
+                  .request(serverAddress)
+                  .post(baseURL + "/create-user")
+                  .send({
+                    emailAddress: "janey.doey@testing.lan",
+                    firstName: "Janey",
+                    lastName: "Doey",
+                    password: "Test123*",
+                    passwordConfirmation: "Test123*",
+                    birthday: "01/01/1990",
+                  })
+                  .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+                    res.body.should.have
+                      .property("message")
+                      .eql("User created successfully");
+                    res.body.should.have.property("userCreated");
+                    usersCreatedId[3] = res.body.userCreated.id;
+                    //Now we can test the function
+                    chai
+                      .request(serverAddress)
+                      .post(`${baseURL}/user-join-event`)
+                      .send({
+                        userId: usersCreatedId[0],
+                        eventId: eventIdCreated,
+                        role: 3,
+                      })
+                      .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.have.property("error");
+                        res.body.error.should.equal(
+                          "Invalid role, must be 0, 1 or 2"
+                        );
+                        done();
+                      });
+                  });
+              });
+          });
+      });
+  });
+  it("should return a success message if a user joined the event successfully", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[0],
+        eventId: eventIdCreated,
+        role: 0,
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("User successfully joined event");
+        done();
+      });
+  });
+  it("should return an error message if the user already joined the event", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[0],
+        eventId: eventIdCreated,
+        role: 0,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("User already joined this event");
+        done();
+      });
+  });
+  it("should return an error message if the seller password is not provided", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[1],
+        eventId: eventIdCreated,
+        sellerPassword: "",
+        role: 1,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Seller password required");
+        done();
+      });
+  });
+  it("should return an error message if the seller password is incorrect", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[1],
+        eventId: eventIdCreated,
+        sellerPassword: "InvalidPassword",
+        role: 1,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Seller password incorrect");
+        done();
+      });
+  });
+  it("should return a success message if the seller joined the event successfully", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[1],
+        eventId: eventIdCreated,
+        sellerPassword: "Test123*",
+        role: 1,
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Seller successfully joined event");
+        done();
+      });
+  });
+  it("should return a success message if the organizer joined the event successfully", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[2],
+        eventId: eventIdCreated,
+        role: 2,
+      })
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Organizer successfully joined event");
+        done();
+      });
+  });
+  it("should return an error message if an organizer already joined the event", (done) => {
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/user-join-event")
+      .send({
+        userId: usersCreatedId[3],
+        eventId: eventIdCreated,
+        role: 2,
+      })
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Organizer already joined this event");
+        done();
+      });
+  });
+});
+
+after((done) => {
+  const database = require("../../database.js");
+  const pool = database.pool;
+  process.env.TEST_FILES_COMPLETED++;
+  if (process.env.TEST_FILES_COMPLETED === process.env.TEST_FILES_TOTAL) {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      connection.query("DELETE FROM RefreshTokens", (err, result) => {
+        if (err) throw err;
+        connection.query("DELETE FROM UsersEvents", (err, result) => {
+          if (err) throw err;
+          connection.query("DELETE FROM Users", (err, result) => {
+            if (err) throw err;
+            connection.query("DELETE FROM Products", (err, result) => {
+              if (err) throw err;
+              connection.query("DELETE FROM Events", (err, result) => {
+                if (err) throw err;
+                connection.release();
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  } else {
+    done();
+  }
+});

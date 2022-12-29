@@ -102,12 +102,18 @@ after((done) => {
       if (err) throw err;
       connection.query("DELETE FROM RefreshTokens", (err, result) => {
         if (err) throw err;
-        connection.query("DELETE FROM Users", (err, result) => {
+        connection.query("DELETE FROM UsersEvents", (err, result) => {
           if (err) throw err;
-          connection.query("DELETE FROM Products", (err, result) => {
+          connection.query("DELETE FROM Users", (err, result) => {
             if (err) throw err;
-            connection.release();
-            done();
+            connection.query("DELETE FROM Products", (err, result) => {
+              if (err) throw err;
+              connection.query("DELETE FROM Events", (err, result) => {
+                if (err) throw err;
+                connection.release();
+                done();
+              });
+            });
           });
         });
       });
