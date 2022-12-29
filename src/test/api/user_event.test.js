@@ -322,6 +322,51 @@ describe("POST /user-join-event", () => {
   });
 });
 
+describe("GET /users-events/{userId}", () => {
+  it("should return an error message if the userID is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/users-events/" + "invalidUserId")
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidUserId is not a valid user id");
+        done();
+      });
+  });
+  it("should return an error message if the user does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/users-events/" + "00000000-0000-0000-0000-000000000000")
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("User not found");
+        done();
+      });
+  });
+  it("should return the events the user is participating in", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/users-events/" + usersCreatedId[0])
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("array");
+        res.body.length.should.be.eql(1);
+        res.body[0].should.have.property("id");
+        res.body[0].should.have.property("name");
+        res.body[0].should.have.property("description");
+        res.body[0].should.have.property("startdate");
+        res.body[0].should.have.property("enddate");
+        res.body[0].should.have.property("created_at");
+        res.body[0].should.have.property("location");
+        res.body[0].should.have.property("role");
+        res.body[0].should.have.property("organizer");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
