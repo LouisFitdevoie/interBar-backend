@@ -747,6 +747,36 @@ describe("PUT /quit-event", () => {
   });
 });
 
+describe("GET /users-for-event/{eventId}", () => {
+  it("should return an error message if the event id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/users-for-event/invalidId")
+      .end((err, res) => {
+        res.should.have.status(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("invalidId is not a valid id");
+        done();
+      });
+  });
+  it("should return the list of the users that joined the event", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/users-for-event/" + eventIdCreated)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a("array");
+        res.body.length.should.be.eql(1);
+        res.body[0].should.have.property("id");
+        res.body[0].should.have.property("firstname");
+        res.body[0].should.have.property("lastname");
+        res.body[0].should.have.property("emailaddress");
+        res.body[0].should.have.property("role");
+        done();
+      });
+  });
+});
+
 after((done) => {
   const database = require("../../database.js");
   const pool = database.pool;
