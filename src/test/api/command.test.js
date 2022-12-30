@@ -565,7 +565,51 @@ describe("PUT /set-command-paid-state/{commandId}", () => {
       });
   });
 });
-// - Set command as served
+
+describe("PUT /set-command-served-state/{commandId}", () => {
+  it("should return an error message if the command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-state/" + "invalidId")
+      .send({
+        served: 1,
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the served value provided is not 0 or 1", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-state/" + commandsIdCreated[1])
+      .send({
+        served: 2,
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Served value must be 0 or 1");
+        done();
+      });
+  });
+  it("should return a success message if the command is set as served", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-state/" + commandsIdCreated[1])
+      .send({
+        served: 1,
+      })
+      .end((err, res) => {
+        res.status.should.equal(200);
+        done();
+      });
+  });
+});
 // - Get commands by event id
 // - Cancel command
 // - Get command infos
