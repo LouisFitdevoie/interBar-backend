@@ -31,20 +31,24 @@ ACCESS_TOKEN_SECRET=your_secret_access_token // This is used to generate the acc
 REFRESH_TOKEN_SECRET=your_secret_refresh_token // This is used to generate the refresh token of users with jwt
 DATABASE_PORT=your_database_port // This is the port of your MySQL server
 API_PORT=your_api_port // This is the port on which the API will be available
+NODE_ENV=development
+DATABASE_PROD=interbar // This is the name of the database that will be used in production
+DATABASE_TESTING=interbar-testing // This is the name of the database that will be used for testing
+DATABASE_DEV=interbar-dev // This is the name of the database that will be used in development
+API_VERSION=v3 // This is the version of the API
+API_HOST=localhost // This is the host of the API
+TEST_FILES_TOTAL=8 // This is the total number of test files
+TEST_FILES_COMPLETED=0
 ```
 
 8. Open a terminal and access to the root of the project
 9. Run the command `npm install` to install all the dependencies
-10. Run the command `npm start` to start the server or `npm run start:dev` to start the server in development mode
+10. Run the command `npm start` to start the server or `npm run start:dev` to start the server in development mode or `npm test` to run the tests.
 
 ## Usage
 
-The server is running on the port that you specified. You can access to the API at the following address: `http://localhost:8000/api/v2.2/`
+The server is running on the port that you specified. You can access to the API at the following address: `http://localhost:8000/api/v3/`
 
 If you want to access to the API from another device, you can use the IP address of your computer instead of `localhost`.
 
 If you set the API_PORT to another value than 8000, you have to replace 8000 by the value that you set.
-
-## Documentation (currently working on it)
-
-The documentation of the API will be available at the following address: `http://localhost:8000/api/v2.2/docs/`.
