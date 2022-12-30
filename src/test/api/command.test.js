@@ -610,9 +610,77 @@ describe("PUT /set-command-served-state/{commandId}", () => {
       });
   });
 });
-// - Get commands by event id
-// - Cancel command
+
+describe("GET /commands-with-event-id/{eventId}", () => {
+  it("should return an error message if the event id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/commands-with-event-id/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if no command was found for the event id provided", (done) => {
+    chai
+      .request(serverAddress)
+      .get(
+        baseURL +
+          "/commands-with-event-id/" +
+          "00000000-0000-0000-0000-000000000000"
+      )
+      .end((err, res) => {
+        res.status.should.equal(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No commands found for the event id 00000000-0000-0000-0000-000000000000"
+        );
+        done();
+      });
+  });
+  it("should return a list of commands for the event id provided", (done) => {
+    //First, we need to add an event_product to the command
+    chai
+      .request(serverAddress)
+      .post(baseURL + "/create-event-product-command")
+      .send({
+        commandId: commandsIdCreated[0],
+        eventProductId: eventProductIdCreated,
+        number: 1,
+      })
+      .end((err, res) => {
+        res.status.should.equal(200);
+        chai
+          .request(serverAddress)
+          .get(baseURL + "/commands-with-event-id/" + eventIdCreated)
+          .end((err, res) => {
+            res.status.should.equal(200);
+            res.body.should.be.a("array");
+            res.body[0].should.be.a("object");
+            res.body[0].should.have.property("id");
+            res.body[0].should.have.property("client_id");
+            res.body[0].should.have.property("client_name");
+            res.body[0].should.have.property("servedBy_id");
+            res.body[0].should.have.property("event_id");
+            res.body[0].should.have.property("isServed");
+            res.body[0].should.have.property("isPaid");
+            res.body[0].should.have.property("created_at");
+            res.body[0].should.have.property("deleted_at");
+            res.body[0].should.have.property("events_products_commands");
+            res.body[0].events_products_commands.should.be.a("array");
+            res.body[0].events_products_commands[0].should.be.a("object");
+            res.body[0].should.have.property("totalPrice");
+            done();
+          });
+      });
+  });
+});
 // - Get command infos
+// - Cancel command
 
 after((done) => {
   const database = require("../../database.js");
