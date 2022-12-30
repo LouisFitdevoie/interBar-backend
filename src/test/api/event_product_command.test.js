@@ -525,7 +525,39 @@ describe("PUT /edit-event-product-command-number/{eventProductCommandId}", () =>
       });
   });
 });
-//deleteProductFromCommand
+
+describe("Testing PUT /delete-event-product-command/{eventProductCommandId}", () => {
+  it("should return an error if the event product command if provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-event-product-command/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid event product command uuid"
+        );
+        done();
+      });
+  });
+  it("should return a success message if the event product command is deleted", (done) => {
+    chai
+      .request(serverAddress)
+      .put(
+        baseURL +
+          "/delete-event-product-command/" +
+          eventProductCommandIdCreated
+      )
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal(
+          "Event product command deleted successfully"
+        );
+        done();
+      });
+  });
+});
 
 after((done) => {
   const database = require("../../database.js");
