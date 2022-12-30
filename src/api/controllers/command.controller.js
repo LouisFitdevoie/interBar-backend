@@ -643,154 +643,170 @@ exports.createCommand = (req, res) => {
             res
               .status(404)
               .send({ error: "No event found with the id provided" });
+          } else {
+            if (req.body.clientId != null && uuid.validate(req.body.clientId)) {
+              if (req.body.sellerId != null) {
+                if (uuid.validate(req.body.sellerId)) {
+                  pool.getConnection((err, connection) => {
+                    if (err) throw err;
+                    connection.query(
+                      "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
+                      [req.body.clientId],
+                      (err, result) => {
+                        if (err) throw err;
+                        if (result.length > 0) {
+                          const commandId = uuid.v4();
+                          const clientName =
+                            result[0].firstname + " " + result[0].lastname;
+                          connection.query(
+                            "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, 0, 0, NOW(), NULL)",
+                            [
+                              commandId,
+                              req.body.clientId,
+                              clientName,
+                              req.body.sellerId,
+                              req.body.eventId,
+                            ],
+                            (err, result) => {
+                              connection.release();
+                              if (err) throw err;
+                              if (process.env.NODE_ENV !== "testing")
+                                console.log("Command created");
+                              res.status(200).send({
+                                success: "Command created successfully",
+                                commandId: commandId,
+                              });
+                            }
+                          );
+                        } else {
+                          res.status(404).send({
+                            error: "No user found with the client id provided",
+                          });
+                        }
+                      }
+                    );
+                  });
+                } else {
+                  res
+                    .status(400)
+                    .send({ error: "The sellerId provided is not valid" });
+                }
+              } else {
+                pool.getConnection((err, connection) => {
+                  if (err) throw err;
+                  connection.query(
+                    "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
+                    [req.body.clientId],
+                    (err, result) => {
+                      if (err) throw err;
+                      if (result.length > 0) {
+                        const commandId = uuid.v4();
+                        const clientName =
+                          result[0].firstname + " " + result[0].lastname;
+                        connection.query(
+                          "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, NULL, ?, 0, 0, NOW(), NULL)",
+                          [
+                            commandId,
+                            req.body.clientId,
+                            clientName,
+                            req.body.eventId,
+                          ],
+                          (err, result) => {
+                            connection.release();
+                            if (err) throw err;
+                            if (process.env.NODE_ENV !== "testing")
+                              console.log("Command created");
+                            res.status(200).send({
+                              success: "Command created successfully",
+                              commandId: commandId,
+                            });
+                          }
+                        );
+                      } else {
+                        res.status(404).send({
+                          error: "No user found with the client id provided",
+                        });
+                      }
+                    }
+                  );
+                });
+              }
+            } else if (
+              req.body.clientId === null &&
+              req.body.clientName != null
+            ) {
+              if (req.body.sellerId != null) {
+                if (uuid.validate(req.body.sellerId)) {
+                  pool.getConnection((err, connection) => {
+                    if (err) throw err;
+                    connection.query(
+                      "SELECT id FROM Users WHERE id = ? AND deleted_at IS NULL",
+                      [req.body.sellerId],
+                      (err, result) => {
+                        if (err) throw err;
+                        if (result.length > 0) {
+                          const commandId = uuid.v4();
+                          connection.query(
+                            "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, ?, ?, 0, 0, NOW(), NULL)",
+                            [
+                              commandId,
+                              req.body.clientName,
+                              req.body.sellerId,
+                              req.body.eventId,
+                            ],
+                            (err, result) => {
+                              connection.release();
+                              if (err) throw err;
+                              if (process.env.NODE_ENV !== "testing")
+                                console.log("Command created");
+                              res.status(200).send({
+                                success: "Command created successfully",
+                                commandId: commandId,
+                              });
+                            }
+                          );
+                        } else {
+                          res.status(404).send({
+                            error: "No user found with the seller id provided",
+                          });
+                        }
+                      }
+                    );
+                  });
+                } else {
+                  res
+                    .status(400)
+                    .send({ error: "The sellerId provided is not valid" });
+                }
+              } else {
+                const commandId = uuid.v4();
+                pool.getConnection((err, connection) => {
+                  if (err) throw err;
+                  connection.query(
+                    "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, NULL, ?, 0, 0, NOW(), NULL)",
+                    [commandId, req.body.clientName, req.body.eventId],
+                    (err, result) => {
+                      connection.release();
+                      if (err) throw err;
+                      if (process.env.NODE_ENV !== "testing")
+                        console.log("Command created");
+                      res.status(200).send({
+                        success: "Command created successfully",
+                        commandId: commandId,
+                      });
+                    }
+                  );
+                });
+              }
+            } else {
+              res
+                .status(400)
+                .send({ error: "A client id or a client name is required" });
+            }
           }
         }
       );
     });
-  }
-  if (req.body.clientId != null && uuid.validate(req.body.clientId)) {
-    if (req.body.sellerId != null) {
-      if (uuid.validate(req.body.sellerId)) {
-        pool.getConnection((err, connection) => {
-          if (err) throw err;
-          connection.query(
-            "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
-            [req.body.clientId],
-            (err, result) => {
-              if (err) throw err;
-              if (result.length > 0) {
-                const commandId = uuid.v4();
-                const clientName =
-                  result[0].firstname + " " + result[0].lastname;
-                connection.query(
-                  "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, 0, 0, NOW(), NULL)",
-                  [
-                    commandId,
-                    req.body.clientId,
-                    clientName,
-                    req.body.sellerId,
-                    req.body.eventId,
-                  ],
-                  (err, result) => {
-                    connection.release();
-                    if (err) throw err;
-                    if (process.env.NODE_ENV !== "testing")
-                      console.log("Command created");
-                    res.status(200).send({
-                      success: "Command created successfully",
-                      commandId: commandId,
-                    });
-                  }
-                );
-              } else {
-                res
-                  .status(404)
-                  .send({ error: "No user found with the client id provided" });
-              }
-            }
-          );
-        });
-      } else {
-        res.status(400).send({ error: "The sellerId provided is not valid" });
-      }
-    } else {
-      pool.getConnection((err, connection) => {
-        if (err) throw err;
-        connection.query(
-          "SELECT firstname, lastname FROM Users WHERE id = ? AND deleted_at IS null",
-          [req.body.clientId],
-          (err, result) => {
-            if (err) throw err;
-            if (result.length > 0) {
-              const commandId = uuid.v4();
-              const clientName = result[0].firstname + " " + result[0].lastname;
-              connection.query(
-                "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, ?, ?, NULL, ?, 0, 0, NOW(), NULL)",
-                [commandId, req.body.clientId, clientName, req.body.eventId],
-                (err, result) => {
-                  connection.release();
-                  if (err) throw err;
-                  if (process.env.NODE_ENV !== "testing")
-                    console.log("Command created");
-                  res.status(200).send({
-                    success: "Command created successfully",
-                    commandId: commandId,
-                  });
-                }
-              );
-            } else {
-              res
-                .status(404)
-                .send({ error: "No user found with the client id provided" });
-            }
-          }
-        );
-      });
-    }
-  } else if (req.body.clientId === null && req.body.clientName != null) {
-    if (req.body.sellerId != null) {
-      if (uuid.validate(req.body.sellerId)) {
-        pool.getConnection((err, connection) => {
-          if (err) throw err;
-          connection.query(
-            "SELECT id FROM Users WHERE id = ? AND deleted_at IS NULL",
-            [req.body.sellerId],
-            (err, result) => {
-              if (err) throw err;
-              if (result.length > 0) {
-                const commandId = uuid.v4();
-                connection.query(
-                  "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, ?, ?, 0, 0, NOW(), NULL)",
-                  [
-                    commandId,
-                    req.body.clientName,
-                    req.body.sellerId,
-                    req.body.eventId,
-                  ],
-                  (err, result) => {
-                    connection.release();
-                    if (err) throw err;
-                    if (process.env.NODE_ENV !== "testing")
-                      console.log("Command created");
-                    res.status(200).send({
-                      success: "Command created successfully",
-                      commandId: commandId,
-                    });
-                  }
-                );
-              } else {
-                res
-                  .status(404)
-                  .send({ error: "No user found with the seller id provided" });
-              }
-            }
-          );
-        });
-      } else {
-        res.status(400).send({ error: "The sellerId provided is not valid" });
-      }
-    } else {
-      const commandId = uuid.v4();
-      pool.getConnection((err, connection) => {
-        if (err) throw err;
-        connection.query(
-          "INSERT INTO Commands (id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at, deleted_at) VALUES (?, NULL, ?, NULL, ?, 0, 0, NOW(), NULL)",
-          [commandId, req.body.clientName, req.body.eventId],
-          (err, result) => {
-            connection.release();
-            if (err) throw err;
-            if (process.env.NODE_ENV !== "testing")
-              console.log("Command created");
-            res.status(200).send({
-              success: "Command created successfully",
-              commandId: commandId,
-            });
-          }
-        );
-      });
-    }
-  } else {
-    res.status(400).send({ error: "A client id or a client name is required" });
   }
 };
 

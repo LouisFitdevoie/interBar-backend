@@ -15,7 +15,7 @@ const startDate = new Date(
   new Date().setDate(new Date().getDate() + 1)
 ).toISOString();
 const startNowDate = new Date(
-  new Date().setSeconds(new Date().getSeconds() + 13) //IF ERROR DURING THE TEST FOR CREATING AN EVENT WITH START DATE NOW, EDIT THE NUMBER OF SECONDS TO ADD
+  new Date().setSeconds(new Date().getSeconds() + 15) //IF ERROR DURING THE TEST FOR CREATING AN EVENT WITH START DATE NOW, EDIT THE NUMBER OF SECONDS TO ADD
 ).toISOString();
 const endDate = new Date(
   new Date().setDate(new Date().getDate() + 2)
@@ -405,41 +405,32 @@ after((done) => {
       if (err) throw err;
       connection.query("DELETE FROM RefreshTokens", (err, result) => {
         if (err) throw err;
-        connection.query("DELETE FROM UsersEvents", (err, result) => {
-          if (err) throw err;
-          connection.query("DELETE FROM Users", (err, result) => {
+        connection.query(
+          "DELETE FROM EventsProductsCommands",
+          (err, result) => {
             if (err) throw err;
-            connection.query(
-              "DELETE FROM EventsProductsCommands",
-              (err, result) => {
+            connection.query("DELETE FROM EventsProducts", (err, result) => {
+              if (err) throw err;
+              connection.query("DELETE FROM Products", (err, result) => {
                 if (err) throw err;
-                connection.query(
-                  "DELETE FROM EventsProducts",
-                  (err, result) => {
+                connection.query("DELETE FROM Commands", (err, result) => {
+                  if (err) throw err;
+                  connection.query("DELETE FROM UsersEvents", (err, result) => {
                     if (err) throw err;
-                    connection.query("DELETE FROM Events", (err, result) => {
+                    connection.query("DELETE FROM Users", (err, result) => {
                       if (err) throw err;
-                      connection.query(
-                        "DELETE FROM Products",
-                        (err, result) => {
-                          if (err) throw err;
-                          connection.query(
-                            "DELETE FROM Commands",
-                            (err, result) => {
-                              if (err) throw err;
-                              connection.release();
-                              done();
-                            }
-                          );
-                        }
-                      );
+                      connection.query("DELETE FROM Events", (err, result) => {
+                        if (err) throw err;
+                        connection.release();
+                        done();
+                      });
                     });
-                  }
-                );
-              }
-            );
-          });
-        });
+                  });
+                });
+              });
+            });
+          }
+        );
       });
     });
   } else {
