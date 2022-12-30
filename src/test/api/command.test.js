@@ -456,7 +456,51 @@ describe("POST /create-command", () => {
       });
   });
 });
-// - Set served by id
+// - Set served by id --> Use commandIdCreated[1]
+describe("PUT /set-command-served-by/{commandId}", () => {
+  it("should return an error message if the command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-by/" + "invalidId")
+      .send({
+        sellerId: "invalidId",
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the seller id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-by/" + commandsIdCreated[1])
+      .send({
+        sellerId: "invalidId",
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("The seller id provided is not valid");
+        done();
+      });
+  });
+  it("should return a success message if the command is set as served", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-served-by/" + commandsIdCreated[1])
+      .send({
+        sellerId: usersIdCreated[1],
+      })
+      .end((err, res) => {
+        res.status.should.equal(200);
+        done();
+      });
+  });
+});
 // - Get client names for event
 // - Create seller command
 // - Set command as paid

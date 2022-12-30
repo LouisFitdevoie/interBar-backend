@@ -332,7 +332,6 @@ exports.startServer = () => {
   });
 
   app.put(baseURL + "/set-command-served-by/:commandId", (req, res) => {
-    console.log("ici");
     commandController.setSellerId(req, res);
   });
 
