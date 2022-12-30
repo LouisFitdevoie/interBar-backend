@@ -226,9 +226,6 @@ chai
                                                   res.body[1].id;
                                                 userEventIdCreated[2] =
                                                   res.body[2].id;
-                                                console.log(
-                                                  "Everything is set up"
-                                                );
                                               });
                                           });
                                       });
@@ -502,6 +499,32 @@ describe("PUT /set-command-served-by/{commandId}", () => {
   });
 });
 // - Get client names for event
+describe("GET /event-client-names/{eventId}", () => {
+  it("should return an error message if the event id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/event-client-names/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("The event id provided is not valid");
+        done();
+      });
+  });
+  it("should return a list of client names for the event", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/event-client-names/" + eventIdCreated)
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.be.a("array");
+        res.body.length.should.equal(2);
+        res.body[0].should.have.property("client_name");
+        res.body[1].should.have.property("client_name");
+        done();
+      });
+  });
+});
 // - Create seller command
 // - Set command as paid
 // - Set command as served
