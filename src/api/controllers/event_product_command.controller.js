@@ -35,7 +35,8 @@ exports.getEventProductCommandById = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting event product command with id ${req.params.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting event product command with id ${req.params.id}`);
       connection.query(
         "SELECT * FROM EventsProductsCommands WHERE id = ? AND deleted_at IS null",
         [req.params.id],
@@ -43,12 +44,14 @@ exports.getEventProductCommandById = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log(
-              "Number of event product commands found: " + result.length + ""
-            );
+            if (process.env.NODE_ENV !== "testing")
+              console.log(
+                "Number of event product commands found: " + result.length + ""
+              );
             res.send(result);
           } else {
-            console.log("No event product commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No event product commands found");
             res.status(404).send({
               error:
                 "No event product commands found for the id " + req.params.id,
@@ -58,7 +61,8 @@ exports.getEventProductCommandById = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -70,9 +74,10 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(
-        `Getting event products commands for command id ${req.params.id}`
-      );
+      if (process.env.NODE_ENV !== "testing")
+        console.log(
+          `Getting event products commands for command id ${req.params.id}`
+        );
       connection.query(
         "SELECT * FROM EventsProductsCommands WHERE command_id = ? AND deleted_at IS null",
         [req.params.id],
@@ -80,12 +85,14 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log(
-              "Number of event products commands found: " + result.length + ""
-            );
+            if (process.env.NODE_ENV !== "testing")
+              console.log(
+                "Number of event products commands found: " + result.length + ""
+              );
             res.send(result);
           } else {
-            console.log("No event products commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No event products commands found");
             res.status(404).send({
               error:
                 "No event products commands found for the command id " +
@@ -96,7 +103,8 @@ exports.getEventProductsCommandsForCommandId = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
@@ -108,9 +116,10 @@ exports.getNumber = (req, res) => {
     if (uuid.validate(req.query.eventProductId)) {
       pool.getConnection((err, connection) => {
         if (err) throw err;
-        console.log(
-          `Getting number for command id ${req.query.commandId} and event product id ${req.query.eventProductId}`
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            `Getting number for command id ${req.query.commandId} and event product id ${req.query.eventProductId}`
+          );
         connection.query(
           "SELECT number FROM EventsProductsCommands WHERE command_id = ? AND event_product_id = ? AND deleted_at IS null",
           [req.query.commandId, req.query.eventProductId],
@@ -118,12 +127,16 @@ exports.getNumber = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log(
-                "Number of event products commands found: " + result.length + ""
-              );
+              if (process.env.NODE_ENV !== "testing")
+                console.log(
+                  "Number of event products commands found: " +
+                    result.length +
+                    ""
+                );
               res.send(result);
             } else {
-              console.log("No event products commands found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No event products commands found");
               res.status(404).send({
                 error:
                   "No event products commands found for the command id " +
@@ -136,14 +149,16 @@ exports.getNumber = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid id ${req.query.eventProductId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid id ${req.query.eventProductId}`);
       res.status(400).send({
         error:
           "Invalid id, " + req.query.eventProductId + " is not a valid uuid",
       });
     }
   } else {
-    console.log(`Invalid command id ${req.query.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid command id ${req.query.commandId}`);
     res
       .status(400)
       .send({ error: `Invalid command id ${req.query.commandId}` });
@@ -177,7 +192,8 @@ exports.getAllInfosForCommand = (req, res) => {
     };
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting all infos for command id ${req.params.commandId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting all infos for command id ${req.params.commandId}`);
       connection.query(
         "SELECT id, client_id, client_name, servedby_id, event_id, isserved, ispaid, created_at FROM Commands WHERE id = ?",
         [req.params.commandId],
@@ -247,7 +263,8 @@ exports.getAllInfosForCommand = (req, res) => {
                                     result[0].emailaddress;
                                   res.send(objectToReturn);
                                 } else {
-                                  console.log("No client found");
+                                  if (process.env.NODE_ENV !== "testing")
+                                    console.log("No client found");
                                   res.status(404).send({
                                     error:
                                       "No client found for the client id " +
@@ -285,31 +302,34 @@ exports.getAllInfosForCommand = (req, res) => {
                   }
                 } else {
                   connection.release();
-                  console.log("No event products commands found");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("No event products commands found");
                   res.status(404).send({
                     error:
                       "No event products commands found for the command id " +
-                      req.body.commandId,
+                      req.params.commandId,
                   });
                 }
               }
             );
           } else {
             connection.release();
-            console.log("No commands found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No commands found");
             res.status(404).send({
               error:
-                "No commands found for the command id " + req.body.commandId,
+                "No commands found for the command id " + req.params.commandId,
             });
           }
         }
       );
     });
   } else {
-    console.log(`Invalid id ${req.body.commandId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
-        "Invalid id, " + req.body.commandId + " is not a valid command uuid",
+        "Invalid id, " + req.params.commandId + " is not a valid command uuid",
     });
   }
 };
@@ -342,13 +362,15 @@ exports.createEventProductCommand = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("Event product command created");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Event product command created");
                     res.send(result);
                   }
                 );
               } else {
                 connection.release();
-                console.log("Event product command already exists");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Event product command already exists");
                 res
                   .status(400)
                   .send({ error: "Event product command already exists" });
@@ -357,20 +379,23 @@ exports.createEventProductCommand = (req, res) => {
           );
         });
       } else {
-        console.log(`Invalid number ${req.body.number}`);
+        if (process.env.NODE_ENV !== "testing")
+          console.log(`Invalid number ${req.body.number}`);
         res.status(400).send({
           error:
             "Invalid number, " + req.body.number + " is not a valid number",
         });
       }
     } else {
-      console.log(`Invalid command id ${req.body.commandId}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid command id ${req.body.commandId}`);
       res
         .status(400)
         .send({ error: `Invalid command id ${req.body.commandId}` });
     }
   } else {
-    console.log(`Invalid id ${req.body.eventProductId}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.body.eventProductId}`);
     res.status(400).send({
       error:
         "Invalid id, " +
@@ -390,7 +415,8 @@ exports.deleteEventProductCommand = (req, res) => {
         (err, result) => {
           connection.release();
           if (err) throw err;
-          console.log("Event product command deleted");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Event product command deleted");
           res
             .status(200)
             .send({ success: "Event product command deleted successfully" });
@@ -398,7 +424,8 @@ exports.deleteEventProductCommand = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res.status(400).send({
       error:
         "Invalid id, " +
@@ -424,7 +451,8 @@ exports.editNumber = (req, res) => {
               (err, result) => {
                 connection.release();
                 if (err) throw err;
-                console.log("Event product command number updated");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Event product command number updated");
                 res.status(200).send({
                   success: "Event product command number updated successfully",
                 });
@@ -434,13 +462,15 @@ exports.editNumber = (req, res) => {
         );
       });
     } else {
-      console.log(`Invalid number ${req.body.number}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Invalid number ${req.body.number}`);
       res.status(400).send({
         error: "Invalid number, " + req.body.number + " is not a valid number",
       });
     }
   } else {
-    console.log(`Invalid id ${req.params.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.params.id}`);
     res.status(400).send({
       error:
         "Invalid id, " +

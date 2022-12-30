@@ -35,7 +35,8 @@ exports.getProductById = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting product with id ${req.query.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting product with id ${req.query.id}`);
       connection.query(
         "SELECT * FROM Products WHERE id = ? AND deleted_at IS null",
         [req.query.id],
@@ -43,10 +44,12 @@ exports.getProductById = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of products found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of products found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No products found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No products found");
             res
               .status(404)
               .send({ error: "No products found for the id " + req.query.id });
@@ -55,7 +58,8 @@ exports.getProductById = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.query.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.query.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
@@ -64,7 +68,8 @@ exports.getProductById = (req, res) => {
 
 exports.getProductByName = (req, res) => {
   pool.getConnection((err, connection) => {
-    console.log("Getting products with name " + req.query.name.trim());
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Getting products with name " + req.query.name.trim());
     connection.query(
       "SELECT * FROM Products WHERE name LIKE ? AND deleted_at IS null ORDER BY name",
       "%" + req.query.name.trim() + "%",
@@ -72,10 +77,12 @@ exports.getProductByName = (req, res) => {
         connection.release();
         if (err) throw err;
         if (result.length > 0) {
-          console.log("Number of products found: " + result.length + "");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Number of products found: " + result.length + "");
           res.send(result);
         } else {
-          console.log("No products found");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("No products found");
           res.status(404).send({
             error: "No products found for the name " + req.query.name.trim(),
           });
@@ -97,9 +104,10 @@ exports.getProductByCategory = (req, res) => {
       pool.getConnection((err, connection) => {
         if (err) throw err;
         //Return all products for the category and that are not deleted
-        console.log(
-          "Getting products with category " + req.query.category.trim()
-        );
+        if (process.env.NODE_ENV !== "testing")
+          console.log(
+            "Getting products with category " + req.query.category.trim()
+          );
         connection.query(
           "SELECT * FROM Products WHERE category = ? AND deleted_at IS null ORDER BY name",
           [req.query.category.trim()],
@@ -107,10 +115,12 @@ exports.getProductByCategory = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of products found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of products found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No products found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No products found");
               res.status(404).send({
                 error:
                   "No products found for the category " +
@@ -158,10 +168,12 @@ exports.createProduct = (req, res) => {
             if (err) throw err;
             if (result.length > 0) {
               connection.release();
-              console.log("Product already exists");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Product already exists");
               res.status(400).send({ error: "Product already exists" });
             } else {
-              console.log("Creating product with name " + newProduct.name);
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Creating product with name " + newProduct.name);
               connection.query(
                 "INSERT INTO Products (id, name, category, description, deleted_at) VALUES (?, ?, ?, ?, ?)",
                 [
@@ -174,7 +186,8 @@ exports.createProduct = (req, res) => {
                 (err, result) => {
                   connection.release();
                   if (err) throw err;
-                  console.log("Product created");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Product created");
                   res
                     .status(201)
                     .send({ success: "Product created successfully" });
@@ -205,19 +218,24 @@ exports.deleteProduct = (req, res) => {
           if (err) throw err;
           if (result.length != 1) {
             connection.release();
-            console.log("Product with id " + req.params.id + " does not exist");
+            if (process.env.NODE_ENV !== "testing")
+              console.log(
+                "Product with id " + req.params.id + " does not exist"
+              );
             res.status(404).send({
               error: "Product with id " + req.params.id + " does not exist",
             });
           } else {
-            console.log("Deleting product with id " + req.params.id);
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Deleting product with id " + req.params.id);
             connection.query(
               "UPDATE Products SET deleted_at = NOW() WHERE id = ?",
               [req.params.id],
               (err, result) => {
                 connection.release();
                 if (err) throw err;
-                console.log("Product deleted");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Product deleted");
                 res.status(200).send({
                   success: "Product deleted successfully",
                   result: result,
