@@ -24,6 +24,7 @@ let eventProductIdCreated = "";
 let usersIdCreated = new Array(3).fill("");
 let userEventIdCreated = new Array(3).fill("");
 let commandsIdCreated = new Array(2).fill("");
+let eventProductCommandIdCreated = "";
 
 chai
   .request(serverAddress)
@@ -445,6 +446,8 @@ describe("GET /infos-for-command/{commandId}", () => {
         res.body.products.should.be.a("array");
         res.body.products[0].should.be.a("object");
         res.body.products[0].should.have.property("eventProductCommandId");
+        eventProductCommandIdCreated =
+          res.body.products[0].eventProductCommandId;
         res.body.products[0].should.have.property("productId");
         res.body.products[0].should.have.property("name");
         res.body.products[0].should.have.property("category");
@@ -462,7 +465,66 @@ describe("GET /infos-for-command/{commandId}", () => {
       });
   });
 });
-//updateProductNumber
+
+describe("PUT /edit-event-product-command-number/{eventProductCommandId}", () => {
+  it("should return an error message if the event product command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/edit-event-product-command-number/" + "invalidId")
+      .send({
+        number: 10,
+        commandId: commandsIdCreated[0],
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid event product command uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the number provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(
+        baseURL +
+          "/edit-event-product-command-number/" +
+          eventProductCommandIdCreated
+      )
+      .send({
+        number: "a",
+        commandId: commandsIdCreated[0],
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Invalid number, a is not a valid number");
+        done();
+      });
+  });
+  it("should return a success message if the event product command number is updated", (done) => {
+    chai
+      .request(serverAddress)
+      .put(
+        baseURL +
+          "/edit-event-product-command-number/" +
+          eventProductCommandIdCreated
+      )
+      .send({
+        number: 10,
+        commandId: commandsIdCreated[0],
+      })
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal(
+          "Event product command number updated successfully"
+        );
+        done();
+      });
+  });
+});
 //deleteProductFromCommand
 
 after((done) => {
