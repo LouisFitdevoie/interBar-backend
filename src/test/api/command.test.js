@@ -722,7 +722,33 @@ describe("GET /command-infos/{commandId}", () => {
       });
   });
 });
-// - Cancel command
+
+describe("PUT /delete-command/{commandId}", () => {
+  it("should return an error message if the command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-command/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return a success message if the command was deleted", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/delete-command/" + commandsIdCreated[3])
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.have.property("success");
+        res.body.success.should.equal("Command cancelled successfully");
+        done();
+      });
+  });
+});
 
 after((done) => {
   const database = require("../../database.js");
