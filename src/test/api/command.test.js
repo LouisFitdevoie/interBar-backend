@@ -680,6 +680,48 @@ describe("GET /commands-with-event-id/{eventId}", () => {
   });
 });
 // - Get command infos
+describe("GET /command-infos/{commandId}", () => {
+  it("should return an error message if the command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/command-infos/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return the created at date of the command if not seller is assigned to it", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/command-infos/" + commandsIdCreated[3])
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.be.a("object");
+        res.body.should.have.property("createdAt");
+        res.body.should.have.property("seller");
+        done();
+      });
+  });
+  it("should return the created at date and the seller name of the command if a seller is assigned to it", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/command-infos/" + commandsIdCreated[1])
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.body.should.be.a("object");
+        res.body.should.have.property("createdAt");
+        res.body.should.have.property("seller");
+        res.body.seller.should.be.a("object");
+        res.body.seller.should.have.property("firstname");
+        res.body.seller.should.have.property("lastname");
+        done();
+      });
+  });
+});
 // - Cancel command
 
 after((done) => {
