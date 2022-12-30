@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.verifyAuthorizationToken = (req, res, next) => {
+  const nonSecurePath = ["/login", "/create-user", "/update-token", "/logout"];
+  if (nonSecurePath.includes(req.path)) return next();
   const authorizationHeader = req.headers["authorization"];
   const token = authorizationHeader && authorizationHeader.split(" ")[1];
   if (token == null) {

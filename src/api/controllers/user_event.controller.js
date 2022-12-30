@@ -135,7 +135,10 @@ exports.userJoinEvent = (req, res) => {
                                 (err, result) => {
                                   connection.release();
                                   if (err) throw err;
-                                  console.log({ success: "User joined event" });
+                                  if (process.env.NODE_ENV !== "testing")
+                                    console.log({
+                                      success: "User joined event",
+                                    });
                                   res.status(200).send({
                                     success: "User successfully joined event",
                                   });
@@ -168,9 +171,10 @@ exports.userJoinEvent = (req, res) => {
                                     (err, result) => {
                                       connection.release();
                                       if (err) throw err;
-                                      console.log({
-                                        success: "Seller joined event",
-                                      });
+                                      if (process.env.NODE_ENV !== "testing")
+                                        console.log({
+                                          success: "Seller joined event",
+                                        });
                                       res.status(200).send({
                                         success:
                                           "Seller successfully joined event",
@@ -207,7 +211,8 @@ exports.userJoinEvent = (req, res) => {
                                       req.body.eventId,
                                       req.body.role
                                     );
-                                    console.log("Organizer ok");
+                                    if (process.env.NODE_ENV !== "testing")
+                                      console.log("Organizer ok");
 
                                     connection.query(
                                       "INSERT INTO UsersEvents (id, user_id, event_id, role, left_event_at) VALUES (?, ?, ?, ?, ?)",
@@ -221,9 +226,10 @@ exports.userJoinEvent = (req, res) => {
                                       (err, result) => {
                                         connection.release();
                                         if (err) throw err;
-                                        console.log({
-                                          success: "Organizer joined event",
-                                        });
+                                        if (process.env.NODE_ENV !== "testing")
+                                          console.log({
+                                            success: "Organizer joined event",
+                                          });
                                         res.status(200).send({
                                           success:
                                             "Organizer successfully joined event",
@@ -299,7 +305,8 @@ exports.quitEvent = (req, res) => {
                               (err, result) => {
                                 connection.release();
                                 if (err) throw err;
-                                console.log({ success: "User quit event" });
+                                if (process.env.NODE_ENV !== "testing")
+                                  console.log({ success: "User quit event" });
                                 res.status(200).send({
                                   success: "User successfully quit event",
                                 });
@@ -313,7 +320,8 @@ exports.quitEvent = (req, res) => {
                               (err, result) => {
                                 connection.release();
                                 if (err) throw err;
-                                console.log({ success: "Seller quit event" });
+                                if (process.env.NODE_ENV !== "testing")
+                                  console.log({ success: "Seller quit event" });
                                 res.status(200).send({
                                   success: "Seller successfully quit event",
                                 });
@@ -402,7 +410,10 @@ exports.userToSeller = (req, res) => {
                                   (err, result) => {
                                     connection.release();
                                     if (err) throw err;
-                                    console.log({ success: "User to seller" });
+                                    if (process.env.NODE_ENV !== "testing")
+                                      console.log({
+                                        success: "User to seller",
+                                      });
                                     res.status(200).send({
                                       success:
                                         "Successfully changed user to seller",
@@ -491,7 +502,8 @@ exports.sellerToUser = (req, res) => {
                               (err, result) => {
                                 connection.release();
                                 if (err) throw err;
-                                console.log({ success: "Seller to user" });
+                                if (process.env.NODE_ENV !== "testing")
+                                  console.log({ success: "Seller to user" });
                                 res.status(200).send({
                                   success:
                                     "Successfully changed role from seller to user",
@@ -553,7 +565,8 @@ exports.getAllEventsForUser = (req, res) => {
               [req.params.userId],
               (err, result) => {
                 if (err) throw err;
-                console.log("Getting all events for user");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Getting all events for user");
                 result.sort((a, b) => {
                   return new Date(a.startdate) - new Date(b.startdate);
                 });

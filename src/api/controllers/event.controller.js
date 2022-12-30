@@ -3,6 +3,7 @@ const database = require("../../database.js");
 const isAfter = require("date-fns/isAfter");
 const isBefore = require("date-fns/isBefore");
 const bcrypt = require("bcrypt");
+const format = require("date-fns/format");
 
 const pool = database.pool;
 
@@ -52,14 +53,16 @@ exports.getEventById = (req, res) => {
     //Verify that the id is a valid uuid
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting event with id ${req.query.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting event with id ${req.query.id}`);
       connection.query(
         "SELECT * FROM Events WHERE id = ? AND deleted_at IS null",
         [req.query.id],
         (err, result) => {
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of events found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of events found: " + result.length + "");
             const event = result[0];
             connection.query(
               "SELECT user_id FROM UsersEvents WHERE event_id=? AND role=2",
@@ -79,7 +82,8 @@ exports.getEventById = (req, res) => {
                           result[0].firstname + " " + result[0].lastname;
                         res.send(event);
                       } else {
-                        console.log("User not found with organizerId");
+                        if (process.env.NODE_ENV !== "testing")
+                          console.log("User not found with organizerId");
                         res
                           .status(404)
                           .send({ error: "User not found with organizerId" });
@@ -87,13 +91,15 @@ exports.getEventById = (req, res) => {
                     }
                   );
                 } else {
-                  console.log("Organizer id not found");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Organizer id not found");
                   res.status(404).send({ error: "Organizer id not found" });
                 }
               }
             );
           } else {
-            console.log("No events found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No events found");
             res
               .status(404)
               .send({ error: "No events found for the id " + req.query.id });
@@ -102,7 +108,8 @@ exports.getEventById = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid id ${req.query.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid id ${req.query.id}`);
     res
       .status(400)
       .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
@@ -111,7 +118,8 @@ exports.getEventById = (req, res) => {
 
 exports.getEventByName = (req, res) => {
   pool.getConnection((err, connection) => {
-    console.log("Getting events with name " + req.query.name.trim());
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Getting events with name " + req.query.name.trim());
     connection.query(
       "SELECT * FROM Events WHERE name LIKE ? AND deleted_at IS null ORDER BY startDate",
       "%" + req.query.name.trim() + "%",
@@ -119,10 +127,12 @@ exports.getEventByName = (req, res) => {
         connection.release();
         if (err) throw err;
         if (result.length > 0) {
-          console.log("Number of events found: " + result.length + "");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Number of events found: " + result.length + "");
           res.send(result);
         } else {
-          console.log("No events found");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("No events found");
           res.status(404).send({
             error: "No events found for the name " + req.query.name.trim(),
           });
@@ -136,16 +146,18 @@ exports.getEventBetweenDates = (req, res) => {
   let startDate = req.query.startDate.trim();
   let endDate = req.query.endDate.trim();
   if (startDate > endDate) {
-    console.log("Start date is after end date");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Start date is after end date");
     res.status(400).send({ error: "Start date is after end date" });
   } else {
     if (req.body.mode === "start") {
-      console.log(
-        "Getting events where startDate between " +
-          startDate +
-          " and " +
-          endDate
-      );
+      if (process.env.NODE_ENV !== "testing")
+        console.log(
+          "Getting events where startDate between " +
+            startDate +
+            " and " +
+            endDate
+        );
       pool.getConnection((err, connection) => {
         connection.query(
           "SELECT * FROM Events WHERE startDate between ? and ? AND deleted_at IS null ORDER BY startDate",
@@ -154,10 +166,12 @@ exports.getEventBetweenDates = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of events found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of events found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No events found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No events found");
               res.status(404).send({
                 error:
                   "No events found between " + startDate + " and " + endDate,
@@ -167,9 +181,13 @@ exports.getEventBetweenDates = (req, res) => {
         );
       });
     } else if (req.body.mode === "end") {
-      console.log(
-        "Getting events where endDate between " + startDate + " and " + endDate
-      );
+      if (process.env.NODE_ENV !== "testing")
+        console.log(
+          "Getting events where endDate between " +
+            startDate +
+            " and " +
+            endDate
+        );
       pool.getConnection((err, connection) => {
         connection.query(
           "SELECT * FROM Events WHERE endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
@@ -178,10 +196,12 @@ exports.getEventBetweenDates = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of events found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of events found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No events found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No events found");
               res.status(404).send({
                 error:
                   "No events found between " + startDate + " and " + endDate,
@@ -191,12 +211,13 @@ exports.getEventBetweenDates = (req, res) => {
         );
       });
     } else if (req.body.mode === "both") {
-      console.log(
-        "Getting events where both start and end dates between " +
-          startDate +
-          " and " +
-          endDate
-      );
+      if (process.env.NODE_ENV !== "testing")
+        console.log(
+          "Getting events where both start and end dates between " +
+            startDate +
+            " and " +
+            endDate
+        );
       pool.getConnection((err, connection) => {
         connection.query(
           "SELECT * FROM Events WHERE startDate between ? and ? AND endDate between ? and ? AND deleted_at IS null ORDER BY startDate",
@@ -205,10 +226,12 @@ exports.getEventBetweenDates = (req, res) => {
             connection.release();
             if (err) throw err;
             if (result.length > 0) {
-              console.log("Number of events found: " + result.length + "");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Number of events found: " + result.length + "");
               res.send(result);
             } else {
-              console.log("No events found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No events found");
               res.status(404).send({
                 error:
                   "No events found between " + startDate + " and " + endDate,
@@ -218,7 +241,7 @@ exports.getEventBetweenDates = (req, res) => {
         );
       });
     } else {
-      console.log("No mode specified");
+      if (process.env.NODE_ENV !== "testing") console.log("No mode specified");
       res.status(400).send({ error: "No mode specified" });
     }
   }
@@ -232,10 +255,12 @@ exports.getFutureEvents = (req, res) => {
         connection.release();
         if (err) throw err;
         if (result.length > 0) {
-          console.log("Number of events found: " + result.length + "");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Number of events found: " + result.length + "");
           res.send(result);
         } else {
-          console.log("No future events found");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("No future events found");
           res.status(404).send({ error: "No future events found" });
         }
       }
@@ -251,10 +276,12 @@ exports.getCurrentEvents = (req, res) => {
         connection.release();
         if (err) throw err;
         if (result.length > 0) {
-          console.log("Number of events found: " + result.length + "");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Number of events found: " + result.length + "");
           res.send(result);
         } else {
-          console.log("No current events found");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("No current events found");
           res.status(404).send({ error: "No current events found" });
         }
       }
@@ -270,10 +297,12 @@ exports.getPastEvents = (req, res) => {
         connection.release();
         if (err) throw err;
         if (result.length > 0) {
-          console.log("Number of events found: " + result.length + "");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Number of events found: " + result.length + "");
           res.send(result);
         } else {
-          console.log("No past events found");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("No past events found");
           res.status(404).send({ error: "No past events found" });
         }
       }
@@ -282,7 +311,8 @@ exports.getPastEvents = (req, res) => {
 };
 
 exports.createEvent = (req, res) => {
-  console.log("Verifying data for event creation");
+  if (process.env.NODE_ENV !== "testing")
+    console.log("Verifying data for event creation");
   if (isAfter(new Date(req.body.startDate), new Date())) {
     if (isAfter(new Date(req.body.endDate), new Date(req.body.startDate))) {
       if (req.body.name.trim().length > 0) {
@@ -295,8 +325,8 @@ exports.createEvent = (req, res) => {
           ) {
             let eventToCreate = new Event(
               req.body.name.trim(),
-              new Date(req.body.startDate),
-              new Date(req.body.endDate),
+              format(new Date(req.body.startDate), "yyyy-MM-dd HH:mm:ss"),
+              format(new Date(req.body.endDate), "yyyy-MM-dd HH:mm:ss"),
               req.body.location.trim(),
               req.body.description ? req.body.description.trim() : null,
               req.body.seller_password.trim()
@@ -304,22 +334,23 @@ exports.createEvent = (req, res) => {
             pool.getConnection((err, connection) => {
               if (err) throw err;
               connection.query(
-                "SELECT * FROM Events WHERE (name = ? AND startDate = ? AND endDate = ? AND location = ? AND deleted_at IS null)",
+                "SELECT * FROM Events WHERE name=? AND startdate=? AND enddate=? AND location=? AND deleted_at IS null",
                 [
                   eventToCreate.name,
-                  eventToCreate.startDate,
-                  eventToCreate.endDate,
+                  format(new Date(req.body.startDate), "yyyy-MM-dd HH:mm:ss"),
+                  format(new Date(req.body.endDate), "yyyy-MM-dd HH:mm:ss"),
                   eventToCreate.location,
                 ],
                 (err, result) => {
                   if (err) throw err;
                   if (result.length > 0) {
                     connection.release();
-                    console.log("Event already exists");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Event already exists");
                     res.status(400).send({ error: "Event already exists" });
                   } else {
                     connection.query(
-                      "INSERT INTO Events (id, name, startDate, endDate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                      "INSERT INTO Events (id, name, startdate, enddate, location, description, seller_password, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                       [
                         eventToCreate.id,
                         eventToCreate.name,
@@ -334,7 +365,8 @@ exports.createEvent = (req, res) => {
                       (err, result) => {
                         connection.release();
                         if (err) throw err;
-                        console.log("Event created");
+                        if (process.env.NODE_ENV !== "testing")
+                          console.log("Event created");
                         res.status(200).send({
                           success: "Event created successfully",
                           eventId: eventToCreate.id,
@@ -346,7 +378,8 @@ exports.createEvent = (req, res) => {
               );
             });
           } else {
-            console.log("Seller password not specified");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Seller password not specified");
             res.status(400).send({ error: "Seller password not specified" });
           }
         } else {
@@ -374,19 +407,22 @@ exports.deleteEvent = (req, res) => {
           if (err) throw err;
           if (result.length != 1) {
             connection.release();
-            console.log("Event with id " + req.params.id + " does not exist");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Event with id " + req.params.id + " does not exist");
             res.status(404).send({
               error: "Event with id " + req.params.id + " does not exist",
             });
           } else {
-            console.log("Event product with id " + req.params.id);
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Event product with id " + req.params.id);
             connection.query(
               "UPDATE Events SET deleted_at = NOW() WHERE id = ?",
               [req.params.id],
               (err, result) => {
                 connection.release();
                 if (err) throw err;
-                console.log("Event deleted");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Event deleted");
                 res.status(200).send({
                   success: "Event deleted successfully",
                   result: result,
@@ -400,7 +436,7 @@ exports.deleteEvent = (req, res) => {
   } else {
     res
       .status(404)
-      .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
+      .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
   }
 };
 
@@ -448,7 +484,8 @@ exports.editSellerPassword = (req, res) => {
                           (err, result) => {
                             connection.release();
                             if (err) throw err;
-                            console.log("Seller password updated");
+                            if (process.env.NODE_ENV !== "testing")
+                              console.log("Seller password updated");
                             res.status(200).send({
                               success: "Seller password updated successfully",
                             });
@@ -456,9 +493,10 @@ exports.editSellerPassword = (req, res) => {
                         );
                       } else {
                         connection.release();
-                        console.log(
-                          "New seller password and confirmation do not match"
-                        );
+                        if (process.env.NODE_ENV !== "testing")
+                          console.log(
+                            "New seller password and confirmation do not match"
+                          );
                         res.status(400).send({
                           error:
                             "New seller password and confirmation do not match",
@@ -466,38 +504,44 @@ exports.editSellerPassword = (req, res) => {
                       }
                     } else {
                       connection.release();
-                      console.log("New seller password is not valid");
+                      if (process.env.NODE_ENV !== "testing")
+                        console.log("New seller password is not valid");
                       res
                         .status(400)
                         .send({ error: "New seller password is not valid" });
                     }
                   } else {
                     connection.release();
-                    console.log("New seller password not specified");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("New seller password not specified");
                     res
                       .status(400)
                       .send({ error: "New seller password not specified" });
                   }
                 } else {
                   connection.release();
-                  console.log("Seller password is incorrect");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Seller password is incorrect");
                   res
                     .status(400)
                     .send({ error: "Seller password is incorrect" });
                 }
               } else {
-                console.log("No seller password specified");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("No seller password specified");
                 res.status(400).send({ error: "No seller password specified" });
               }
             } else {
-              console.log("Event with id " + req.params.id + " has ended");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("Event with id " + req.params.id + " has ended");
               res.status(404).send({
                 error: "Event with id " + req.params.id + " has ended",
               });
             }
           } else {
             connection.release();
-            console.log("Event with id " + req.params.id + " does not exist");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Event with id " + req.params.id + " does not exist");
             res.status(404).send({
               error: "Event with id " + req.params.id + " does not exist",
             });
@@ -547,7 +591,7 @@ exports.editEvent = (req, res) => {
                   ? true
                   : false,
               ];
-              console.log(valuesToEdit);
+              if (process.env.NODE_ENV !== "testing") console.log(valuesToEdit);
               if (valuesToEdit.includes(true)) {
                 let sql = "UPDATE Events SET ";
                 let values = [];
@@ -597,14 +641,16 @@ exports.editEvent = (req, res) => {
                 connection.query(sql, values, (err, result) => {
                   connection.release();
                   if (err) throw err;
-                  console.log("Event edited");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Event edited");
                   res
                     .status(200)
                     .send({ success: "Event edited successfully" });
                 });
               } else {
                 connection.release();
-                console.log("No values to edit");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("No values to edit");
                 res.status(400).send({ error: "No values to edit" });
               }
             } else {
@@ -621,7 +667,8 @@ exports.editEvent = (req, res) => {
                   (err, result) => {
                     connection.release();
                     if (err) throw err;
-                    console.log("Event endDate successfully edited");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Event endDate successfully edited");
                     res
                       .status(200)
                       .send({ success: "Event endDate successfully edited" });
@@ -629,13 +676,15 @@ exports.editEvent = (req, res) => {
                 );
               } else {
                 connection.release();
-                console.log("Event has already started");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Event has already started");
                 res.status(400).send({ error: "Event has already started" });
               }
             }
           } else {
             connection.release();
-            console.log("Event with id " + req.params.id + " does not exist");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Event with id " + req.params.id + " does not exist");
             res.status(404).send({
               error: "Event with id " + req.params.id + " does not exist",
             });
@@ -646,6 +695,6 @@ exports.editEvent = (req, res) => {
   } else {
     res
       .status(404)
-      .send({ error: "Invalid id, " + req.query.id + " is not a valid uuid" });
+      .send({ error: "Invalid id, " + req.params.id + " is not a valid uuid" });
   }
 };

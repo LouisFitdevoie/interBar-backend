@@ -87,7 +87,7 @@ exports.getAllEventProductsByEventId = (req, res) => {
       );
     });
   } else {
-    res.status(400).send({ error: req.query.id + "is not a valid id" });
+    res.status(400).send({ error: req.query.id + " is not a valid id" });
   }
 };
 

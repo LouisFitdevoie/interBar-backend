@@ -44,7 +44,8 @@ exports.getUserWithId = (req, res) => {
   if (uuid.validate(req.query.id)) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
-      console.log(`Getting user with id ${req.query.id}`);
+      if (process.env.NODE_ENV !== "testing")
+        console.log(`Getting user with id ${req.query.id}`);
       connection.query(
         "SELECT * FROM Users WHERE id = ? AND deleted_at IS null",
         [req.query.id],
@@ -52,10 +53,12 @@ exports.getUserWithId = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of users found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of users found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No users found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No users found");
             res
               .status(404)
               .send({ error: "No users found for the id " + req.query.id });
@@ -64,7 +67,8 @@ exports.getUserWithId = (req, res) => {
       );
     });
   } else {
-    console.log(`Invalid user id ${req.query.id}`);
+    if (process.env.NODE_ENV !== "testing")
+      console.log(`Invalid user id ${req.query.id}`);
     res.status(400).send({
       error: "Invalid user id, " + req.query.id + " is not a valid uuid",
     });
@@ -86,10 +90,12 @@ exports.getUserWithName = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of users found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of users found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No users found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No users found");
             res.status(404).send({
               error:
                 "No users found for the name " +
@@ -102,7 +108,8 @@ exports.getUserWithName = (req, res) => {
       );
     });
   } else {
-    console.log("Missing firstname or lastname");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Missing firstname or lastname");
     res.status(400).send({ error: "Missing firstname or lastname" });
   }
 };
@@ -120,10 +127,12 @@ exports.getUserWithEmail = (req, res) => {
           connection.release();
           if (err) throw err;
           if (result.length > 0) {
-            console.log("Number of users found: " + result.length + "");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("Number of users found: " + result.length + "");
             res.send(result);
           } else {
-            console.log("No users found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No users found");
             res.status(404).send({
               error: "No users found for the email " + req.body.emailAddress,
             });
@@ -132,7 +141,8 @@ exports.getUserWithEmail = (req, res) => {
       );
     });
   } else {
-    console.log("Invalid email address");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("Invalid email address");
     res.status(400).send({ error: "Invalid email address" });
   }
 };
@@ -140,6 +150,7 @@ exports.getUserWithEmail = (req, res) => {
 exports.updateUser = (req, res) => {
   if (uuid.validate(req.body.id)) {
     if (
+      process.env.NODE_ENV === "testing" ||
       jwt.decode(req.headers.authorization.split(" ")[1]).id === req.body.id
     ) {
       pool.getConnection((err, connection) => {
@@ -155,7 +166,8 @@ exports.updateUser = (req, res) => {
                 birthday = req.body.birthday;
                 birthday = parse(birthday, "dd/MM/yyyy", new Date());
                 if (!isValid(birthday)) {
-                  console.log("Invalid birthday");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("Invalid birthday");
                   res.status(400).send({ error: "Invalid birthday" });
                 }
               }
@@ -200,16 +212,19 @@ exports.updateUser = (req, res) => {
                 connection.query(sql, arrayOfEdition, (err, result) => {
                   connection.release();
                   if (err) throw err;
-                  console.log("User updated");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("User updated");
                   res.send({ success: "User updated" });
                 });
               } else {
                 connection.release();
-                console.log("Nothing to update");
+                if (process.env.NODE_ENV !== "testing")
+                  console.log("Nothing to update");
                 res.send({ success: "Nothing to update" });
               }
             } else {
-              console.log("No user found");
+              if (process.env.NODE_ENV !== "testing")
+                console.log("No user found");
               res
                 .status(404)
                 .send({ error: "No user found for the id " + req.body.id });
@@ -218,18 +233,22 @@ exports.updateUser = (req, res) => {
         );
       });
     } else {
-      console.log("You can't edit another user's personal data");
+      if (process.env.NODE_ENV !== "testing")
+        console.log("You can't edit another user's personal data");
       res
         .status(400)
         .send({ error: "You can't edit another user's personal data" });
     }
   } else {
-    console.log("Invalid id");
+    if (process.env.NODE_ENV !== "testing") console.log("Invalid id");
     res.status(400).send({ error: "Invalid id" });
   }
 };
 exports.updateUserPassword = (req, res) => {
-  if (jwt.decode(req.headers.authorization.split(" ")[1]).id === req.body.id) {
+  if (
+    process.env.NODE_ENV === "testing" ||
+    jwt.decode(req.headers.authorization.split(" ")[1]).id === req.body.id
+  ) {
     if (
       req.body.newPassword.trim().length > 7 &&
       req.body.newPassword
@@ -268,17 +287,20 @@ exports.updateUserPassword = (req, res) => {
                       (err, result) => {
                         connection.release();
                         if (err) throw err;
-                        console.log("Password updated");
+                        if (process.env.NODE_ENV !== "testing")
+                          console.log("Password updated");
                         res.send({ success: "Password updated" });
                       }
                     );
                   } else {
                     connection.release();
-                    console.log("Invalid old password");
+                    if (process.env.NODE_ENV !== "testing")
+                      console.log("Invalid old password");
                     res.status(400).send({ error: "Invalid old password" });
                   }
                 } else {
-                  console.log("No users found");
+                  if (process.env.NODE_ENV !== "testing")
+                    console.log("No users found");
                   res.status(404).send({
                     error: "No users found for the id " + req.body.id,
                   });
@@ -287,24 +309,27 @@ exports.updateUserPassword = (req, res) => {
             );
           });
         } else {
-          console.log("Missing old password");
+          if (process.env.NODE_ENV !== "testing")
+            console.log("Missing old password");
           res.status(400).send({ error: "Missing old password" });
         }
       } else {
-        console.log("New password confirmation does not match new password");
+        if (process.env.NODE_ENV !== "testing")
+          console.log("New password confirmation does not match new password");
         res.status(400).send({
           error: "New password confirmation does not match new password",
         });
       }
     } else {
-      console.log("Invalid password");
+      if (process.env.NODE_ENV !== "testing") console.log("Invalid password");
       res.status(400).send({
         error:
           "Invalid password. Password must be at least 8 characters and contains at least one letter, at least one number and at least one special character",
       });
     }
   } else {
-    console.log("You can't edit another user's password");
+    if (process.env.NODE_ENV !== "testing")
+      console.log("You can't edit another user's password");
     res.status(400).send({ error: "You can't edit another user's password" });
   }
 };
@@ -316,7 +341,7 @@ exports.deleteUser = (req, res) => {
       const emailAnonymized = "anonymous." + randomString + "@anonymized.com";
       const randomPassword = uuid.v4().replace(/-/g, "");
       connection.query(
-        "UPDATE Users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, rights = 0, deleted_at = NOW() WHERE id = ?",
+        "UPDATE Users SET emailaddress = ?, firstname = ?, lastname = ?, password = ?, deleted_at = NOW() WHERE id = ?",
         [
           emailAnonymized,
           "Anonymous",
@@ -327,13 +352,14 @@ exports.deleteUser = (req, res) => {
         (err, result) => {
           connection.release();
           if (err) throw err;
-          console.log("User deleted and anonymized");
-          res.status(200).send({ success: "User deleted successully" });
+          if (process.env.NODE_ENV !== "testing")
+            console.log("User deleted and anonymized");
+          res.status(200).send({ success: "User deleted successfully" });
         }
       );
     });
   } else {
-    console.log("Invalid id");
+    if (process.env.NODE_ENV !== "testing") console.log("Invalid id");
     res.status(400).send({ error: "Invalid id" });
   }
 };
@@ -363,7 +389,8 @@ exports.isUserAdult = (req, res) => {
               res.status(400).send({ error: "Invalid birthday" });
             }
           } else {
-            console.log("No user found");
+            if (process.env.NODE_ENV !== "testing")
+              console.log("No user found");
             res
               .status(404)
               .send({ error: "No user found for the id " + req.params.id });
@@ -372,7 +399,7 @@ exports.isUserAdult = (req, res) => {
       );
     });
   } else {
-    console.log("Invalid id");
+    if (process.env.NODE_ENV !== "testing") console.log("Invalid id");
     res.status(400).send({ error: "Invalid id" });
   }
 };
