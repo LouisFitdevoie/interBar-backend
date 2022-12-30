@@ -307,7 +307,7 @@ exports.getAllInfosForCommand = (req, res) => {
                   res.status(404).send({
                     error:
                       "No event products commands found for the command id " +
-                      req.body.commandId,
+                      req.params.commandId,
                   });
                 }
               }
@@ -318,7 +318,7 @@ exports.getAllInfosForCommand = (req, res) => {
               console.log("No commands found");
             res.status(404).send({
               error:
-                "No commands found for the command id " + req.body.commandId,
+                "No commands found for the command id " + req.params.commandId,
             });
           }
         }
@@ -326,10 +326,10 @@ exports.getAllInfosForCommand = (req, res) => {
     });
   } else {
     if (process.env.NODE_ENV !== "testing")
-      console.log(`Invalid id ${req.body.commandId}`);
+      console.log(`Invalid id ${req.params.commandId}`);
     res.status(400).send({
       error:
-        "Invalid id, " + req.body.commandId + " is not a valid command uuid",
+        "Invalid id, " + req.params.commandId + " is not a valid command uuid",
     });
   }
 };

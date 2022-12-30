@@ -23,7 +23,7 @@ let productIdCreated = "";
 let eventProductIdCreated = "";
 let usersIdCreated = new Array(3).fill("");
 let userEventIdCreated = new Array(3).fill("");
-let commandIdCreated = "";
+let commandsIdCreated = new Array(2).fill("");
 
 chai
   .request(serverAddress)
@@ -253,8 +253,40 @@ chai
                                                     res.body.commandId.should.be.a(
                                                       "string"
                                                     );
-                                                    commandIdCreated =
+                                                    commandsIdCreated[0] =
                                                       res.body.commandId;
+                                                    chai
+                                                      .request(serverAddress)
+                                                      .post(
+                                                        baseURL +
+                                                          "/create-command"
+                                                      )
+                                                      .send({
+                                                        eventId: eventIdCreated,
+                                                        sellerId: null,
+                                                        clientId: null,
+                                                        clientName:
+                                                          "Client Name",
+                                                      })
+                                                      .end((err, res) => {
+                                                        res.status.should.equal(
+                                                          200
+                                                        );
+                                                        res.body.should.have.property(
+                                                          "success"
+                                                        );
+                                                        res.body.success.should.equal(
+                                                          "Command created successfully"
+                                                        );
+                                                        res.body.should.have.property(
+                                                          "commandId"
+                                                        );
+                                                        res.body.commandId.should.be.a(
+                                                          "string"
+                                                        );
+                                                        commandsIdCreated[1] =
+                                                          res.body.commandId;
+                                                      });
                                                   });
                                               });
                                           });
@@ -310,7 +342,7 @@ describe("POST /create-event-product-command", () => {
       .post(baseURL + "/create-event-product-command")
       .send({
         eventProductId: eventProductIdCreated,
-        commandId: commandIdCreated,
+        commandId: commandsIdCreated[0],
         number: "a",
       })
       .end((err, res) => {
@@ -326,7 +358,7 @@ describe("POST /create-event-product-command", () => {
       .post(baseURL + "/create-event-product-command")
       .send({
         eventProductId: eventProductIdCreated,
-        commandId: commandIdCreated,
+        commandId: commandsIdCreated[0],
         number: 1,
       })
       .end((err, res) => {
@@ -340,7 +372,7 @@ describe("POST /create-event-product-command", () => {
       .post(baseURL + "/create-event-product-command")
       .send({
         eventProductId: eventProductIdCreated,
-        commandId: commandIdCreated,
+        commandId: commandsIdCreated[0],
         number: 1,
       })
       .end((err, res) => {
@@ -351,7 +383,85 @@ describe("POST /create-event-product-command", () => {
       });
   });
 });
-//getAllInfosForCommand
+
+describe("GET /infos-for-command/{commandId}", () => {
+  it("should return an error message if the command id provided is not valid", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/infos-for-command/" + "invalidId")
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the command id provided does not exist", (done) => {
+    chai
+      .request(serverAddress)
+      .get(
+        baseURL + "/infos-for-command/" + "00000000-0000-0000-0000-000000000000"
+      )
+      .end((err, res) => {
+        res.status.should.equal(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No commands found for the command id 00000000-0000-0000-0000-000000000000"
+        );
+        done();
+      });
+  });
+  it("should return an error message if no event product commands are found for the command id provided", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/infos-for-command/" + commandsIdCreated[1])
+      .end((err, res) => {
+        res.status.should.equal(404);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "No event products commands found for the command id " +
+            commandsIdCreated[1]
+        );
+        done();
+      });
+  });
+  it("should return the command infos including seller's infos if the command id provided is valid and a seller id is found", (done) => {
+    chai
+      .request(serverAddress)
+      .get(baseURL + "/infos-for-command/" + commandsIdCreated[0])
+      .end((err, res) => {
+        res.status.should.equal(200);
+        res.status.should.equal(200);
+        res.body.should.be.a("object");
+        res.body.should.have.property("command");
+        res.body.command.should.be.a("object");
+        res.body.command.should.have.property("event_id");
+        res.body.command.should.have.property("isServed");
+        res.body.command.should.have.property("isPaid");
+        res.body.command.should.have.property("created_at");
+        res.body.should.have.property("products");
+        res.body.products.should.be.a("array");
+        res.body.products[0].should.be.a("object");
+        res.body.products[0].should.have.property("eventProductCommandId");
+        res.body.products[0].should.have.property("productId");
+        res.body.products[0].should.have.property("name");
+        res.body.products[0].should.have.property("category");
+        res.body.products[0].should.have.property("description");
+        res.body.products[0].should.have.property("sellingPrice");
+        res.body.products[0].should.have.property("number");
+        res.body.should.have.property("client");
+        res.body.client.should.be.a("object");
+        res.body.client.should.have.property("id");
+        res.body.client.should.have.property("firstName");
+        res.body.client.should.have.property("lastName");
+        res.body.client.should.have.property("birthday");
+        res.body.client.should.have.property("emailAddress");
+        done();
+      });
+  });
+});
 //updateProductNumber
 //deleteProductFromCommand
 
