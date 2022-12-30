@@ -238,8 +238,7 @@ chai
           });
       });
   });
-//Functions to test :
-// - Create client command
+
 describe("POST /create-command", () => {
   it("should return an error message if no event id is provided", (done) => {
     chai
@@ -285,7 +284,6 @@ describe("POST /create-command", () => {
         done();
       });
   });
-  //With sellerId and clientId
   it("should return an error message if the sellerId provided is not valid", (done) => {
     chai
       .request(serverAddress)
@@ -339,7 +337,6 @@ describe("POST /create-command", () => {
         done();
       });
   });
-  //Without sellerId and with clientId
   it("should return an error message if no client is found for the provided id", (done) => {
     chai
       .request(serverAddress)
@@ -375,7 +372,6 @@ describe("POST /create-command", () => {
         done();
       });
   });
-  //With clientName and sellerId
   it("should return an error message if the sellerId provided is not valid", (done) => {
     chai
       .request(serverAddress)
@@ -432,7 +428,6 @@ describe("POST /create-command", () => {
         done();
       });
   });
-  //With clientName and without sellerId
   it("should return a success message if the command is created with a client name and no seller id", (done) => {
     chai
       .request(serverAddress)
@@ -453,7 +448,7 @@ describe("POST /create-command", () => {
       });
   });
 });
-// - Set served by id --> Use commandIdCreated[1]
+
 describe("PUT /set-command-served-by/{commandId}", () => {
   it("should return an error message if the command id provided is not valid", (done) => {
     chai
@@ -498,7 +493,7 @@ describe("PUT /set-command-served-by/{commandId}", () => {
       });
   });
 });
-// - Get client names for event
+
 describe("GET /event-client-names/{eventId}", () => {
   it("should return an error message if the event id provided is not valid", (done) => {
     chai
@@ -525,8 +520,51 @@ describe("GET /event-client-names/{eventId}", () => {
       });
   });
 });
-// - Create seller command
-// - Set command as paid
+
+describe("PUT /set-command-paid-state/{commandId}", () => {
+  it("should return an error message if the command id provided is not a valid id", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-paid-state/" + "invalidId")
+      .send({
+        paid: 1,
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal(
+          "Invalid id, invalidId is not a valid command uuid"
+        );
+        done();
+      });
+  });
+  it("should return an error message if the paid value provided is not 0 or 1", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-paid-state/" + commandsIdCreated[1])
+      .send({
+        paid: 2,
+      })
+      .end((err, res) => {
+        res.status.should.equal(400);
+        res.body.should.have.property("error");
+        res.body.error.should.equal("Paid value must be 0 or 1");
+        done();
+      });
+  });
+  it("should return a success message if the command is set as paid", (done) => {
+    chai
+      .request(serverAddress)
+      .put(baseURL + "/set-command-paid-state/" + commandsIdCreated[1])
+      .send({
+        paid: 1,
+      })
+      .end((err, res) => {
+        res.status.should.equal(200);
+        done();
+      });
+  });
+});
 // - Set command as served
 // - Get commands by event id
 // - Cancel command
