@@ -52,3 +52,7 @@ The server is running on the port that you specified. You can access to the API 
 If you want to access to the API from another device, you can use the IP address of your computer instead of `localhost`.
 
 If you set the API_PORT to another value than 8000, you have to replace 8000 by the value that you set.
+
+## Documentation
+
+The documentation of the API is available by clicking on [this link](https://documenter.getpostman.com/view/17887505/2s8Z73xAqM).
