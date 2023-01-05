@@ -52,3 +52,7 @@ Le serveur s'exécute sur le port que vous avez spécifié. Vous pouvez accéder
 Si vous souhaitez accéder à l'API depuis un autre appareil, vous pouvez utiliser l'adresse IP de votre ordinateur à la place de `localhost`.
 
 Si vous avez défini le port de l'API à une autre valeur que 8000, vous devez remplacer 8000 par la valeur que vous avez définie.
+
+## Documentation
+
+La documentation de l'API est accessible en cliquant sur [ce lien](https://documenter.getpostman.com/view/17887505/2s8Z73xAqM).

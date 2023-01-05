@@ -12,7 +12,7 @@ const serverAddress = `http://${process.env.API_HOST}:${process.env.API_PORT}`;
 const baseURL = "/api/" + process.env.API_VERSION;
 
 describe("POST /create-product", () => {
-  it("should return an error message if name, category and description are not provided", (done) => {
+  it("should return an error message if name and category are not provided", (done) => {
     chai
       .request(serverAddress)
       .post(baseURL + "/create-product")
@@ -22,10 +22,10 @@ describe("POST /create-product", () => {
         description: "",
       })
       .end((err, res) => {
-        res.should.have.status(404);
+        res.should.have.status(400);
         res.body.should.have.property("error");
         res.body.error.should.equal(
-          "Name, category and description must be specified in the request"
+          "Name and category must be specified in the request"
         );
         done();
       });
@@ -40,7 +40,7 @@ describe("POST /create-product", () => {
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       })
       .end((err, res) => {
-        res.should.have.status(404);
+        res.should.have.status(400);
         res.body.should.have.property("error");
         res.body.error.should.equal("Category must be 0, 1 or 2");
         done();
