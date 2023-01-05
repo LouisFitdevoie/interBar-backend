@@ -198,11 +198,11 @@ exports.createProduct = (req, res) => {
         );
       });
     } else {
-      res.status(404).send({ error: "Category must be 0, 1 or 2" });
+      res.status(400).send({ error: "Category must be 0, 1 or 2" });
     }
   } else {
-    res.status(404).send({
-      error: "Name, category and description must be specified in the request",
+    res.status(400).send({
+      error: "Name and category must be specified in the request",
     });
   }
 };
