@@ -97,6 +97,8 @@ ALTER TABLE `EventsProductsCommands` ADD FOREIGN KEY (`event_product_id`) REFERE
 
 ALTER TABLE `RefreshTokens` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
 
+DROP DATABASE IF EXISTS `interbar-testing`;
+
 CREATE DATABASE `interbar-testing`;
 
 USE `interbar-testing`;
@@ -193,6 +195,8 @@ ALTER TABLE `EventsProductsCommands` ADD FOREIGN KEY (`command_id`) REFERENCES `
 ALTER TABLE `EventsProductsCommands` ADD FOREIGN KEY (`event_product_id`) REFERENCES `EventsProducts` (`id`);
 
 ALTER TABLE `RefreshTokens` ADD FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`);
+
+DROP DATABASE IF EXISTS `interbar-dev`;
 
 CREATE DATABASE `interbar-dev`;
 
