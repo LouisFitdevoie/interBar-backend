@@ -29,7 +29,7 @@ class User {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "2h" });
 }
 
 exports.login = (req, res) => {
@@ -59,7 +59,8 @@ exports.login = (req, res) => {
                 const accessToken = generateAccessToken(userToLogin);
                 const refreshToken = jwt.sign(
                   userToLogin,
-                  process.env.REFRESH_TOKEN_SECRET
+                  process.env.REFRESH_TOKEN_SECRET,
+                  { expiresIn: "7 days" }
                 );
                 connection.query(
                   "INSERT INTO RefreshTokens (token, user_id) VALUES (?, ?)",
